@@ -1,0 +1,51 @@
+:root {
+  /* COLORS */
+
+  --background: #f9f9f9;
+  --surface: #f0f0f0;
+  --card: #ffffff;
+
+  --primary: #ff6b00;
+  --primary-hover: #e55c00;
+
+  --white: #ffffff;
+
+  --text-primary: #0a0a0a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #737373;
+
+  --border: rgba(0, 0, 0, 0.08);
+
+  /* TYPOGRAPHY */
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Clash Display", sans-serif;
+  --font-mono: "SF Mono", "SFMono-Regular", ui-monospace, "Courier New", monospace;
+
+  /* CONTAINER */
+
+  --container-width: 1440px;
+
+  /* RADIUS */
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
+  --radius-xl: 48px;
+
+  /* SPACING */
+
+  --section-space-sm: 80px;
+  --section-space-md: 120px;
+  --section-space-lg: 160px;
+
+  /* SHADOWS */
+
+  --shadow-orange:
+    0 0 30px rgba(255, 107, 0, 0.15);
+
+  /* TRANSITIONS */
+
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}

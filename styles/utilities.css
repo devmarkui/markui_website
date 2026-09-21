@@ -1,0 +1,73 @@
+.glass {
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.text-gradient {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #c7c7c7 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.orange-glow {
+  box-shadow:
+    0 0 30px rgba(255, 107, 0, 0.25),
+    0 0 60px rgba(255, 107, 0, 0.15);
+}
+
+.border-gradient {
+  position: relative;
+}
+
+.border-gradient::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+
+  padding: 1px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,.2),
+    rgba(255,255,255,.02)
+  );
+
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+
+  -webkit-mask-composite: xor;
+
+  pointer-events: none;
+}
+
+.noise-bg {
+  position: relative;
+}
+
+.noise-bg::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  opacity: .03;
+
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(
+      rgba(255,255,255,.5) 1px,
+      transparent 1px
+    );
+
+  background-size: 4px 4px;
+}
