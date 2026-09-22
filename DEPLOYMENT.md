@@ -98,10 +98,22 @@ write access *off*, then re-run with
 ## 2. The DNS cutover — this is the live step
 
 `markui.lk` and `www.markui.lk` currently resolve to **`185.146.167.197`**
-(ServerByt shared hosting), not to the VPS. Whatever is on the domain today is
-still what the world sees. The nameservers are ServerByt's
+(ServerByt shared hosting), not to the VPS. The nameservers are ServerByt's
 (`ns1..ns4.serverbyt.net`), so the records are changed in **ServerByt's control
 panel** — not in OVH's.
+
+Nothing is live on the apex: `https://markui.lk/` answers **`404` with an empty
+body** from Apache/StackCDN. So this cutover replaces nothing and there is no
+downtime to protect — it fills an empty slot.
+
+**Email is on this domain and must not be touched.** `MX` points at
+`mx.stackmail.com` and the SPF `TXT` is
+`v=spf1 include:spf.stackmail.com a mx -all`. Change only the address records.
+The SPF `a` mechanism follows the `A` record, so after the cutover it authorises
+the VPS instead of the ServerByt IP; StackMail's own sending is covered by the
+`include`, so nothing breaks. Avoid any "point domain to…" or "change hosting"
+wizard in the panel — those rewrite the whole zone, `MX` included. Edit the
+individual records.
 
 The other `markui.lk` subdomains (`tableflow`, `yova`, `travel-*`) already point
 at `139.99.90.67`, so this is a change you have made before in that panel.
@@ -128,12 +140,22 @@ dig +short markui.lk
 dig +short www.markui.lk
 ```
 
-**Do not add `AAAA` records.** The apex has an IPv6 address today
-(`2a07:7800::213`, ServerByt). Leave it or delete it — but do not point it at
-the VPS's `2402:1f00:8000:800::111b` without first confirming
-`curl -6 https://ifconfig.co` works from the VPS. An `AAAA` record pointing at a
-half-configured stack makes the site dead for IPv6-preferring visitors, and
-those are the hardest failures to diagnose.
+**The `AAAA` records must move too.** The apex and `www` both have one today
+(`2a07:7800::213`, ServerByt). Changing only the `A` records leaves every
+IPv6-preferring visitor landing on ServerByt's 404 — and that is the hardest
+class of failure to diagnose, because it works perfectly from any IPv4 network
+you test from.
+
+| Type | Name | Change to | TTL |
+| --- | --- | --- | --- |
+| `AAAA` | `@` | `2402:1f00:8000:800::111b` | 300 |
+| `AAAA` | `www` | `2402:1f00:8000:800::111b` | 300 |
+
+Verified before recommending it: the VPS reaches the v6 internet outbound, nginx
+listens on `[::]:80` and `[::]:443`, `ufw` allows it, an external IPv6 client
+gets a `200` from the markui vhost, and `yova.markui.lk` already runs on that
+same address. Deleting the `AAAA` records instead also works — but it drops
+IPv6 support the site otherwise has.
 
 There is a short window between the DNS change and step 3 when the site answers
 on plain HTTP only. That is deliberate: a redirect to a port with no certificate
