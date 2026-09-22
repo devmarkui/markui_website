@@ -27,13 +27,25 @@ die()  { printf '\033[1;31m[x]\033[0m %s\n' "$*" >&2; exit 1; }
 
 # ─── 1. DNS must already point here ──────────────────────────────────────────
 
-myip="$(curl -fsS --max-time 10 https://ifconfig.me || echo unknown)"
+# -4 and -6 explicitly. A bare `curl ifconfig.me` on this box answers with the
+# IPv6 address, which then never matches an A record.
+my_v4="$(curl -4 -fsS --max-time 10 https://ifconfig.me || echo unknown)"
+my_v6="$(curl -6 -fsS --max-time 10 https://ifconfig.me || echo none)"
+
 for name in "$SITE_DOMAIN" "$SITE_ALIAS"; do
-  got="$(dig +short "$name" A | tail -1)"
-  [[ -n "$got" ]] || die "$name does not resolve yet."
-  [[ "$got" == "$myip" ]] || die \
-    "$name resolves to $got, not this box ($myip). Change the A record at ServerByt and wait for the TTL."
-  log "$name -> $got"
+  got4="$(dig +short "$name" A | tail -1)"
+  [[ -n "$got4" ]] || die "$name has no A record yet."
+  [[ "$got4" == "$my_v4" ]] || die \
+    "$name A -> $got4, not this box ($my_v4). Change it at ServerByt and wait for the TTL."
+
+  # An AAAA left pointing elsewhere is the failure that looks fine from every
+  # IPv4 network you would test from, so it is checked, not assumed.
+  got6="$(dig +short "$name" AAAA | tail -1)"
+  if [[ -n "$got6" && "$my_v6" != "none" && "$got6" != "$my_v6" ]]; then
+    die "$name AAAA -> $got6, not this box ($my_v6). IPv6 visitors would miss the site."
+  fi
+
+  log "$name -> $got4${got6:+ / $got6}"
 done
 
 # ─── 2. The challenge path has to work before certbot tries it ───────────────
