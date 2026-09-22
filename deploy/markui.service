@@ -1,0 +1,69 @@
+; Mark UI website — systemd unit.
+;
+; Install to /etc/systemd/system/markui.service, then:
+;   systemctl daemon-reload && systemctl enable --now markui
+;
+; The app reads its secrets from /srv/markui/app/.env.local, which Next loads
+; itself (`.env.local` is read in production too), so no EnvironmentFile here.
+
+[Unit]
+Description=Mark UI website (Next.js)
+Documentation=https://github.com/devmarkui/markui_website
+; MySQL 8 runs in a Docker container on this box — MariaDB holds :3306 and
+; cannot load database/schema.sql.
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+
+[Service]
+Type=exec
+User=markui
+Group=markui
+WorkingDirectory=/srv/markui/app
+
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+; next/image optimisation runs through sharp, and glibc hands each thread its
+; own malloc arena — on a 4GB box shared with five other services that shows up
+; as resident memory climbing and never coming back.
+Environment=MALLOC_ARENA_MAX=2
+
+; :3005 because this box is full — 3000 (yohobed), 3001, 3002 (tableflow web)
+; and 3010 (tableflow container) are all taken. Bound to loopback: nginx is the
+; only thing that talks to it.
+;
+; --keepAliveTimeout must exceed nginx's upstream keepalive idle window so
+; nginx never reuses a connection Next has just closed, which surfaces as
+; sporadic 502s.
+ExecStart=/srv/markui/app/node_modules/.bin/next start --hostname 127.0.0.1 --port 3005 --keepAliveTimeout 80000
+
+Restart=always
+RestartSec=3
+
+; Next finishes in-flight requests and pending `after()` callbacks on SIGTERM;
+; give it room to drain before the kill.
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+; A ceiling, not a reservation. It exists so a runaway render on a shared box
+; gets killed here instead of the kernel picking MariaDB or yohobed as the
+; victim.
+MemoryMax=1G
+MemoryAccounting=yes
+
+; Hardening. /srv/markui stays writable: Next writes its ISR cache into
+; .next/cache and the admin writes uploads into .data/uploads.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+ReadWritePaths=/srv/markui
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=markui
+
+[Install]
+WantedBy=multi-user.target
