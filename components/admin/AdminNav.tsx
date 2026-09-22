@@ -11,12 +11,20 @@ const GROUPS: { label: string; links: { href: string; label: string }[] }[] = [
   {
     label: "Content",
     links: [
+      { href: "/admin/home", label: "Home Page" },
+      { href: "/admin/studio", label: "Latest From Studio" },
       { href: "/admin/services", label: "Services" },
       { href: "/admin/top-work", label: "Service Top Work" },
       { href: "/admin/products", label: "Products" },
       { href: "/admin/projects", label: "Projects" },
+      { href: "/admin/about", label: "About Page" },
+      { href: "/admin/footer", label: "Footer & Social" },
       { href: "/admin/settings", label: "Portfolio Settings" },
     ],
+  },
+  {
+    label: "Admin",
+    links: [{ href: "/admin/account", label: "Account" }],
   },
 ];
 

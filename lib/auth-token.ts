@@ -17,6 +17,7 @@ import path from "node:path";
  * variables and the cookie only carries a signed username + expiry.
  */
 
+export const LOGIN_PATH = "/admin/login";
 export const SESSION_COOKIE = "markui_admin_session";
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
@@ -108,13 +109,32 @@ export function verifyPassword(password: string, stored: string): boolean {
   }
 }
 
+/** The admin username from `.env.local`. */
+export function envUsername(): string {
+  return process.env.ADMIN_USERNAME || "admin";
+}
+
+/** Checks a login against a stored username and scrypt hash. */
+export function verifyAgainst(
+  username: string,
+  password: string,
+  expectedUser: string,
+  hash: string,
+): boolean {
+  // Both comparisons always run, so a wrong username is not faster.
+  const userOk = safeEqual(username, expectedUser);
+  const passOk = verifyPassword(password, hash);
+  return userOk && passOk;
+}
+
 /**
- * Checks a submitted username/password against the configured admin account.
- * `ADMIN_PASSWORD_HASH` is preferred; `ADMIN_PASSWORD` is a plain-text
- * convenience for local development only.
+ * Checks a submitted username/password against the `.env.local` admin
+ * account. `ADMIN_PASSWORD_HASH` is preferred; `ADMIN_PASSWORD` is a
+ * plain-text convenience for local development only. Credentials changed from
+ * the admin panel take precedence — see `lib/admin-account.ts`.
  */
 export function verifyCredentials(username: string, password: string): boolean {
-  const expectedUser = process.env.ADMIN_USERNAME || "admin";
+  const expectedUser = envUsername();
   const hash = process.env.ADMIN_PASSWORD_HASH;
   const plain = process.env.ADMIN_PASSWORD;
 

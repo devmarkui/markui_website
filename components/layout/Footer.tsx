@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import type { SocialLink } from "@/lib/types";
+
 const NAV_LINKS = [
   { label: "Home",     href: "/"         },
   { label: "Projects", href: "/projects" },
@@ -11,14 +13,8 @@ const NAV_LINKS = [
   { label: "About",    href: "/about"    },
   { label: "Contact",  href: "/contact"  },
 ];
-const SOCIAL    = [
-  { label: "Instagram", href: "https://instagram.com" },
-  { label: "Dribbble",  href: "https://dribbble.com"  },
-  { label: "LinkedIn",  href: "https://linkedin.com"  },
-  { label: "Behance",   href: "https://behance.net"   },
-];
 
-export default function Footer() {
+export default function Footer({ socialLinks }: { socialLinks: SocialLink[] }) {
   const ref    = useRef<HTMLElement>(null);
   const [rev, setRev] = useState(0);
 
@@ -73,6 +69,12 @@ export default function Footer() {
 
         .ft-col { display: flex; flex-direction: column; gap: 14px; }
 
+        /* Phones: contact spans the row; navigation and Back to Top share the next. */
+        @media (max-width: 899px) {
+          .ft-grid > .ft-col:first-child { grid-column: 1 / -1; }
+          .ft-col-top { align-items: flex-end; }
+        }
+
         .ft-col-label {
           display: flex; align-items: center; gap: 8px;
           font-size: 9px; font-weight: 700;
@@ -98,6 +100,10 @@ export default function Footer() {
           transition: color 0.18s ease;
         }
         .ft-email:hover { color: rgba(255,255,255,0.65); }
+
+        /* social — a single quiet row under the contact details */
+        .ft-social { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 2px; }
+        .ft-social .ft-link { font-size: 12px; letter-spacing: 0.1em; }
 
         /* map link */
         .ft-map {
@@ -226,7 +232,7 @@ export default function Footer() {
         /* ── DESKTOP ────────────────────────────── */
         @media (min-width: 900px) {
           .ft-grid {
-            grid-template-columns: 1.4fr 1fr 1fr auto;
+            grid-template-columns: 1.6fr 1fr auto;
             gap: 0;
             padding: 60px 64px 52px;
           }
@@ -278,6 +284,17 @@ export default function Footer() {
             <a href="mailto:info@markui.lk" className="ft-email">
               info@markui.lk
             </a>
+            {socialLinks.length ? (
+              <nav className="ft-social" aria-label="Social media links">
+                {socialLinks.map(s => (
+                  <a key={`${s.label}-${s.url}`} href={s.url}
+                    className="ft-link" target="_blank" rel="noopener noreferrer">
+                    {s.label}
+                    <span className="ft-link-arrow" aria-hidden="true">↗</span>
+                  </a>
+                ))}
+              </nav>
+            ) : null}
             <a 
               href="https://maps.app.goo.gl/foPg5arqickUWhzL7"
               target="_blank"
@@ -309,23 +326,6 @@ export default function Footer() {
                 <Link key={href} href={href} className="ft-link">
                   {label}
                 </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Social */}
-          <div className="ft-col">
-            <div className="ft-col-label">
-              <span className="ft-label-star" aria-hidden="true">✦</span>
-              Social
-            </div>
-            <nav className="ft-nav" aria-label="Social media links">
-              {SOCIAL.map(s => (
-                <a key={s.label} href={s.href}
-                  className="ft-link" target="_blank" rel="noopener noreferrer">
-                  {s.label}
-                  <span className="ft-link-arrow" aria-hidden="true">↗</span>
-                </a>
               ))}
             </nav>
           </div>

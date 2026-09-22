@@ -27,21 +27,23 @@ const MAX_PREVIEW = 6;
 export default function ProductsList({ products }: { products: Product[] }) {
   return (
     <section className="sl" aria-labelledby="pl-heading">
-      <div className="sl-wrap">
-        <Reveal className="sl-header">
-          <div>
-            <span className="sl-eyebrow">What we build</span>
-            <h1 className="sl-heading" id="pl-heading">
-              Our<br />
-              <em>Products</em>
-            </h1>
-          </div>
-          <p className="sl-subtext">
-            Digital products and software solutions designed to solve real
-            business problems — built, maintained and supported by the Mark UI
-            team.
-          </p>
-        </Reveal>
+      <div className="sl-band">
+        <div className="sl-wrap">
+          <Reveal className="sl-header">
+            <div>
+              <span className="sl-eyebrow">What we build</span>
+              <h1 className="sl-heading" id="pl-heading">
+                Our<br />
+                <em>Products</em>
+              </h1>
+            </div>
+            <p className="sl-subtext">
+              Digital products and software solutions designed to solve real
+              business problems — built, maintained and supported by the Mark UI
+              team.
+            </p>
+          </Reveal>
+        </div>
       </div>
 
       {products.length === 0 ? (

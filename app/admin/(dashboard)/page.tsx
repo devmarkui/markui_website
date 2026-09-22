@@ -111,7 +111,13 @@ export default async function AdminOverviewPage() {
       <div className="ad-panel">
         <div className="ad-panel-title">Manage content</div>
         <div className="ad-quick-links">
-          <Link className="ad-btn ad-btn--primary" href="/admin/services">
+          <Link className="ad-btn ad-btn--primary" href="/admin/home">
+            Home page
+          </Link>
+          <Link className="ad-btn" href="/admin/studio">
+            Latest from studio
+          </Link>
+          <Link className="ad-btn" href="/admin/services">
             Services
           </Link>
           <Link className="ad-btn" href="/admin/top-work">

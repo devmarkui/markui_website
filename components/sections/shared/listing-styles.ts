@@ -94,6 +94,24 @@ export const LISTING_CSS = `
           margin: 0 0 6px;
         }
 
+        /* ── Orange page header ──
+           The opening band on Projects, Products and Services. It runs the
+           full page width and starts under the fixed navbar, so the section
+           drops its own top padding when it has one. */
+        .sl:has(> .sl-band) { padding-top: 0; }
+        .sl-band {
+          background: var(--sl-accent);
+          color: #ffffff;
+          padding: 136px 0 56px;
+        }
+        .sl-band .sl-header { margin-bottom: 0; }
+        .sl-band .sl-eyebrow { color: rgba(255,255,255,0.85); }
+        .sl-band .sl-eyebrow::before { background: #ffffff; }
+        .sl-band .sl-heading em { color: #0a0a0a; }
+        .sl-band .sl-subtext { color: rgba(255,255,255,0.9); }
+        .sl-band + .sl-wrap { padding-top: 48px; }
+        .sl-band + .sl-list { border-top: 0; }
+
         /* ── Service bands ──
            Rules span the full page width; the content inside them sits on
            the site grid, so there is no box floating inside another box. */
@@ -431,6 +449,8 @@ export const LISTING_CSS = `
         @media (max-width: 640px) {
           .sl { --sl-gutter: 16px; padding: 112px 0 64px; }
           .sl-header { margin-bottom: 40px; }
+          .sl-band { padding: 112px 0 40px; }
+          .sl-band + .sl-wrap { padding-top: 36px; }
           .sl-heading { font-size: clamp(40px, 12vw, 58px); }
           .sl-subtext { max-width: 100%; }
           .sl-info { padding: 36px 0 32px; }

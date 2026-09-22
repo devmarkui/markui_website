@@ -10,10 +10,10 @@ import { projectCover, projectYear } from "@/lib/projects";
 import {
   PROJECT_CATEGORIES,
   type Project,
-  type ProjectFilter,
+  type ProjectCategory,
 } from "@/lib/types";
 
-const FILTERS: ProjectFilter[] = ["All", ...PROJECT_CATEGORIES];
+const FILTERS: ProjectCategory[] = [...PROJECT_CATEGORIES];
 
 /** A project that has something to show, with its stable position number. */
 interface Entry {
@@ -24,8 +24,9 @@ interface Entry {
 /**
  * The public /projects page: a visual portfolio rather than the horizontal
  * bands used by Services and Products. Every project uses the same card on the
- * same aligned two-column grid — one image ratio, one set of gaps — with
- * featured work first. The category filter works in place (mirrored in
+ * same aligned three-column grid — one image ratio, one set of gaps — with
+ * featured work first. There is no "All" view: the page always shows one
+ * category. The category filter works in place (mirrored in
  * `?category=` so links can be shared).
  */
 export default function ProjectsPortfolio({
@@ -33,57 +34,56 @@ export default function ProjectsPortfolio({
   initialFilter,
 }: {
   projects: Project[];
-  initialFilter: ProjectFilter;
+  initialFilter: ProjectCategory;
 }) {
-  const [filter, setFilter] = useState<ProjectFilter>(initialFilter);
+  const [filter, setFilter] = useState<ProjectCategory>(initialFilter);
 
   // Numbers follow the admin's order and stay put while filtering.
   const entries: Entry[] = projects
     .filter((project) => projectCover(project))
     .map((project, index) => ({ project, number: index + 1 }));
 
-  const inFilter =
-    filter === "All"
-      ? entries
-      : entries.filter((e) => e.project.category === filter);
-  const featured = inFilter.filter((e) => e.project.featured);
-  const rest = featured.length
-    ? inFilter.filter((e) => !e.project.featured)
-    : inFilter;
+  // One list of just this category's work, featured pieces first.
+  const inFilter = [
+    ...entries.filter((e) => e.project.category === filter && e.project.featured),
+    ...entries.filter((e) => e.project.category === filter && !e.project.featured),
+  ];
 
-  const choose = (next: ProjectFilter) => {
+  const choose = (next: ProjectCategory) => {
     setFilter(next);
     const url = new URL(window.location.href);
-    if (next === "All") url.searchParams.delete("category");
-    else url.searchParams.set("category", next.toLowerCase());
+    url.searchParams.set("category", next.toLowerCase());
     window.history.replaceState(null, "", url);
   };
 
   return (
     <section className="sl pj" aria-labelledby="pj-heading">
-      <div className="sl-wrap">
-        <Reveal className="sl-header pj-header">
-          <div>
-            <span className="sl-eyebrow">Selected work</span>
-            <h1 className="sl-heading" id="pj-heading">
-              Our<br />
-              <em>Projects</em>
-            </h1>
-          </div>
-          <p className="sl-subtext">
-            A selection of projects we&apos;ve designed, built and delivered
-            for our clients — from brand identities and campaigns to websites
-            and film.
-          </p>
-        </Reveal>
+      <div className="sl-band">
+        <div className="sl-wrap">
+          <Reveal className="sl-header pj-header">
+            <div>
+              <span className="sl-eyebrow">Selected work</span>
+              <h1 className="sl-heading" id="pj-heading">
+                Our<br />
+                <em>Projects</em>
+              </h1>
+            </div>
+            <p className="sl-subtext">
+              A selection of projects we&apos;ve designed, built and delivered
+              for our clients — from brand identities and campaigns to websites
+              and film.
+            </p>
+          </Reveal>
+        </div>
+      </div>
 
+      <div className="sl-wrap">
         <nav className="pj-filter" aria-label="Filter projects by category">
           <ul>
             {FILTERS.map((option) => {
-              const count =
-                option === "All"
-                  ? entries.length
-                  : entries.filter((e) => e.project.category === option).length;
+              const count = entries.filter(
+                (e) => e.project.category === option,
+              ).length;
               return (
                 <li key={option}>
                   <button
@@ -109,49 +109,23 @@ export default function ProjectsPortfolio({
                 : "No projects in this category yet."}
             </p>
           ) : (
-            <>
-              {featured.length ? (
-                <div className="pj-block">
-                  <div className="pj-block-head">
-                    <p className="sl-label">Featured work</p>
-                    <span className="sl-work-count">
-                      {String(featured.length).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <div className="pj-grid">
-                    {featured.map((entry, i) => (
-                      <ProjectCard
-                        key={entry.project.id}
-                        entry={entry}
-                        priority={i < 2}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {rest.length ? (
-                <div className="pj-block">
-                  <div className="pj-block-head">
-                    <p className="sl-label">
-                      {featured.length ? "More projects" : "All projects"}
-                    </p>
-                    <span className="sl-work-count">
-                      {String(rest.length).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <div className="pj-grid">
-                    {rest.map((entry, i) => (
-                      <ProjectCard
-                        key={entry.project.id}
-                        entry={entry}
-                        priority={!featured.length && i < 2}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </>
+            <div className="pj-block">
+              <div className="pj-block-head">
+                <p className="sl-label">{filter} projects</p>
+                <span className="sl-work-count">
+                  {String(inFilter.length).padStart(2, "0")}
+                </span>
+              </div>
+              <div className="pj-grid">
+                {inFilter.map((entry, i) => (
+                  <ProjectCard
+                    key={entry.project.id}
+                    entry={entry}
+                    priority={i < 3}
+                  />
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
@@ -195,7 +169,7 @@ function ProjectCard({ entry, priority }: { entry: Entry; priority: boolean }) {
 
   if (!cover) return null;
 
-  const sizes = "(max-width: 700px) 100vw, 50vw";
+  const sizes = "(max-width: 700px) 100vw, (max-width: 1024px) 50vw, 33vw";
   const year = projectYear(project);
 
   return (
@@ -371,11 +345,6 @@ const PORTFOLIO_CSS = `
     to   { opacity: 1; transform: none; }
   }
 
-  .pj-block + .pj-block {
-    margin-top: 72px;
-    padding-top: 40px;
-    border-top: 1px solid var(--sl-border);
-  }
   .pj-block-head {
     display: flex;
     align-items: baseline;
@@ -398,10 +367,11 @@ const PORTFOLIO_CSS = `
   }
 
   /* ── Grid: one ratio, one set of gaps, every row aligned ── */
+  /* Three standing cards per row, like the Home page showcase. */
   .pj-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 64px 32px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 56px 24px;
     align-items: start;
   }
 
@@ -415,7 +385,7 @@ const PORTFOLIO_CSS = `
     color: inherit;
   }
 
-  .pj-media { aspect-ratio: 4 / 3; }
+  .pj-media { aspect-ratio: 3 / 4; border-radius: 4px; }
   .pj-media img,
   .pj-media video {
     transition: transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94) !important;
@@ -515,14 +485,14 @@ const PORTFOLIO_CSS = `
   }
 
   /* ── Responsive ── */
-  @media (max-width: 960px) {
-    .pj-grid { gap: 48px 20px; }
+  @media (max-width: 1024px) {
+    .pj-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 20px; }
   }
 
   @media (max-width: 700px) {
     .pj-filter { margin-bottom: 36px; }
     .pj-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; }
-    .pj-block + .pj-block { margin-top: 56px; padding-top: 32px; }
+    .pj-media { aspect-ratio: 4 / 5; }
   }
 
   @media (prefers-reduced-motion: reduce) {

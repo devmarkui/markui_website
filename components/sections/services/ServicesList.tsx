@@ -33,22 +33,24 @@ export default function ServicesList({
 }) {
   return (
     <section className="sl" aria-labelledby="sl-heading">
-      <div className="sl-wrap">
-        <Reveal className="sl-header">
-          <div>
-            <span className="sl-eyebrow">What we do</span>
-            <h1 className="sl-heading" id="sl-heading">
-              Our<br />
-              <em>Services</em>
-            </h1>
-          </div>
-          <p className="sl-subtext">
-            From strategy and design to production and development, our team
-            handles every part of your brand&apos;s digital presence. Each
-            service below lists what it includes, alongside a selection of
-            recent work.
-          </p>
-        </Reveal>
+      <div className="sl-band">
+        <div className="sl-wrap">
+          <Reveal className="sl-header">
+            <div>
+              <span className="sl-eyebrow">What we do</span>
+              <h1 className="sl-heading" id="sl-heading">
+                Our<br />
+                <em>Services</em>
+              </h1>
+            </div>
+            <p className="sl-subtext">
+              From strategy and design to production and development, our team
+              handles every part of your brand&apos;s digital presence. Each
+              service below lists what it includes, alongside a selection of
+              recent work.
+            </p>
+          </Reveal>
+        </div>
       </div>
 
       {services.length === 0 ? (

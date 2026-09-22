@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
+import { useHoverVideo } from "@/hooks/useHoverVideo";
+import { projectCover, projectYear } from "@/lib/projects";
 import {
   PROJECT_CATEGORIES,
   type Project,
-  type ProjectFilter,
+  type ProjectCategory,
 } from "@/lib/types";
 
 /**
@@ -17,13 +19,17 @@ import {
  * editing or deleting one there changes what renders here — no code edits.
  * Filtering happens entirely on the client, so switching category never
  * reloads the page.
+ *
+ * With `autoCycle`, the categories advance on a timer while the section is on
+ * screen. Only time drives it — scrolling never changes the category — and a
+ * click on any category hands control to the visitor for the rest of the visit.
  */
 
-const FILTERS: ProjectFilter[] = ["All", ...PROJECT_CATEGORIES];
+const FILTERS: ProjectCategory[] = [...PROJECT_CATEGORIES];
 
-// Column spans that tile cleanly into the 12-column grid:
-// row 1 → 7 + 5, row 2 → 4 + 4 + 4.
-const GRID_SPANS = [7, 5, 4, 4, 4];
+/** How long each category stays up while auto-cycling. */
+const AUTO_CYCLE_MS = 4000;
+
 
 export default function ProjectsShowcase({
   projects,
@@ -33,9 +39,10 @@ export default function ProjectsShowcase({
   description = "Discover how our creative vision transforms ideas into powerful, conversion-driven brand experiences that truly stand out.",
   showAllLink = true,
   standalone = false,
+  autoCycle = false,
 }: {
   projects: Project[];
-  /** Cap the number of cards shown, e.g. 5 on the home page. */
+  /** Cap the number of cards shown, e.g. 6 (two rows of three) on the home page. */
   limit?: number;
   heading?: string;
   headingAccent?: string;
@@ -43,10 +50,24 @@ export default function ProjectsShowcase({
   showAllLink?: boolean;
   /** Set on a dedicated page so the heading clears the fixed navbar. */
   standalone?: boolean;
+  /** Step through the categories on a timer while the section is visible. */
+  autoCycle?: boolean;
 }) {
-  const [activeFilter, setActiveFilter] = useState<ProjectFilter>("All");
+  // No "All" view: open on the first category that has work to show.
+  const [activeFilter, setActiveFilter] = useState<ProjectCategory>(
+    () =>
+      FILTERS.find((c) => projects.some((p) => p.category === c)) ?? FILTERS[0],
+  );
   const sectionRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
+  /** Whether the section is on screen right now (drives the timer only). */
+  const [onScreen, setOnScreen] = useState(false);
+  /** Set once the visitor clicks a category; auto-cycling never resumes. */
+  const [manual, setManual] = useState(false);
+  /** Keyboard focus inside the section — hold the category under the cursor. */
+  const [held, setHeld] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -62,23 +83,84 @@ export default function ProjectsShowcase({
     return () => obs.disconnect();
   }, []);
 
-  /** Categories that actually have projects, so no filter leads to a dead end. */
-  const available = useMemo(() => {
+  // Visibility only starts and stops the timer — it never picks a category.
+  useEffect(() => {
+    if (!autoCycle || manual) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setOnScreen(entry.isIntersecting),
+      { threshold: 0.25 },
+    );
+    if (sectionRef.current) obs.observe(sectionRef.current);
+    return () => obs.disconnect();
+  }, [autoCycle, manual]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  /** The auto cycle skips categories with nothing to show; a click still can. */
+  const cycle = useMemo(() => {
     const present = new Set(projects.map((p) => p.category));
-    return FILTERS.filter((f) => f === "All" || present.has(f));
+    return FILTERS.filter((f) => present.has(f));
   }, [projects]);
 
-  // If the admin deletes the last project in the active category, fall back to
-  // All. Derived during render rather than corrected in an effect, so there is
-  // never a frame showing an empty category.
-  const filter = available.includes(activeFilter) ? activeFilter : "All";
+  const running =
+    autoCycle && !manual && onScreen && !held && !reducedMotion && cycle.length > 1;
 
-  const filtered =
-    filter === "All"
-      ? projects
-      : projects.filter((p) => p.category === filter);
+  // One interval at a time: it is torn down whenever `running` flips off, the
+  // section leaves the screen, or the component unmounts.
+  useEffect(() => {
+    if (!running) return;
+    const id = window.setInterval(() => {
+      if (document.hidden) return;
+      setActiveFilter((current) => {
+        const index = cycle.indexOf(current);
+        return cycle[(index + 1) % cycle.length];
+      });
+    }, AUTO_CYCLE_MS);
+    return () => window.clearInterval(id);
+  }, [running, cycle]);
+
+  const selectFilter = (cat: ProjectCategory) => {
+    setManual(true);
+    setActiveFilter(cat);
+  };
+
+  // Every category is always offered; one with no projects yet shows the
+  // empty state, and a project added to it in the dashboard appears here.
+  const filter = activeFilter;
+
+  const filtered = useMemo(
+    () => projects.filter((p) => p.category === filter),
+    [filter, projects],
+  );
 
   const visible = limit ? filtered.slice(0, limit) : filtered;
+
+  // Keep the grid at least as tall as the tallest category shown so far, so a
+  // shorter category never shrinks the section and shifts the page below it.
+  const minGridHeight = useRef(0);
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    grid.style.minHeight = "";
+    minGridHeight.current = Math.max(minGridHeight.current, grid.offsetHeight);
+    grid.style.minHeight = `${minGridHeight.current}px`;
+  }, [filter, visible.length]);
+
+  useEffect(() => {
+    // A new width means new card heights; measure again from scratch.
+    const reset = () => {
+      minGridHeight.current = 0;
+      if (gridRef.current) gridRef.current.style.minHeight = "";
+    };
+    window.addEventListener("resize", reset);
+    return () => window.removeEventListener("resize", reset);
+  }, []);
 
   return (
     <section
@@ -88,7 +170,15 @@ export default function ProjectsShowcase({
       data-in={inView}
       data-standalone={standalone}
     >
-      <div className="fp-container">
+      <div
+        className="fp-container"
+        onFocus={() => setHeld(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+            setHeld(false);
+          }
+        }}
+      >
         {/* ── Section Header ───────────────────────────────────────────── */}
         <div className="fp__header">
           <div className="fp__header-left">
@@ -106,7 +196,7 @@ export default function ProjectsShowcase({
           role="tablist"
           aria-label="Filter projects by category"
         >
-          {available.map((cat) => (
+          {FILTERS.map((cat) => (
             <button
               key={cat}
               type="button"
@@ -115,7 +205,7 @@ export default function ProjectsShowcase({
               className={`fp-filter-btn${
                 filter === cat ? " fp-filter-btn--active" : ""
               }`}
-              onClick={() => setActiveFilter(cat)}
+              onClick={() => selectFilter(cat)}
             >
               {cat}
             </button>
@@ -123,10 +213,10 @@ export default function ProjectsShowcase({
         </div>
 
         {/* ── Grid ─────────────────────────────────────────────────────── */}
+        <div className="fp__grid-wrap" ref={gridRef}>
         {visible.length > 0 ? (
           <div className="fp__grid" role="list">
             {visible.map((project, i) => {
-              const span = GRID_SPANS[i % GRID_SPANS.length];
               return (
                 <div
                   // Re-keying on the filter replays the entrance animation
@@ -134,10 +224,12 @@ export default function ProjectsShowcase({
                   key={`${filter}-${project.id}`}
                   role="listitem"
                   className="fp__grid-item"
-                  data-span={span}
-                  style={{ "--col-span": span } as React.CSSProperties}
                 >
-                  <ProjectCard project={project} priority={i < 2} />
+                  <ProjectCard
+                    project={project}
+                    number={projects.indexOf(project) + 1}
+                    priority={i < 3}
+                  />
                 </div>
               );
             })}
@@ -147,12 +239,16 @@ export default function ProjectsShowcase({
             <p>No projects in this category yet.</p>
           </div>
         )}
+        </div>
 
         {/* ── Footer ───────────────────────────────────────────────────── */}
         <div className="fp__footer">
           <p className="fp__desc">{description}</p>
           {showAllLink ? (
-            <Link href="/projects" className="fp__btn-primary">
+            <Link
+              href={`/projects?category=${filter.toLowerCase()}`}
+              className="fp__btn-primary"
+            >
               See all projects
               <span className="fp__btn-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -177,7 +273,7 @@ export default function ProjectsShowcase({
             <span className="fp__footer-count">
               {filtered.length}{" "}
               {filtered.length === 1 ? "project" : "projects"}
-              {filter !== "All" ? ` in ${filter}` : ""}
+              {` in ${filter}`}
             </span>
           )}
         </div>
@@ -309,6 +405,7 @@ export default function ProjectsShowcase({
           font-size: 11px;
           font-weight: 500;
           letter-spacing: 0.1em;
+          text-transform: uppercase;
           padding: 8px 20px;
           cursor: pointer;
           transition:
@@ -336,73 +433,83 @@ export default function ProjectsShowcase({
         }
 
         @keyframes fpFadeIn {
-          from { opacity: 0; transform: translateY(16px); }
+          from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
 
         /* ═══ GRID ══════════════════════════════════════════════════════════ */
+        /* Three standing cards per row, echoing the hero's service panels. */
         .fp__grid {
           display: grid;
-          grid-template-columns: repeat(12, 1fr);
-          gap: 1px;
-          background: var(--border);
-          border-radius: var(--r-md);
-          overflow: hidden;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 56px 24px;
         }
 
         .fp__grid-item {
-          background: var(--bg);
-          grid-column: span var(--col-span);
+          min-width: 0;
           animation: fpFadeIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) backwards;
         }
 
         .fp__grid-item:nth-child(1) { animation-delay: 0.00s; }
-        .fp__grid-item:nth-child(2) { animation-delay: 0.08s; }
-        .fp__grid-item:nth-child(3) { animation-delay: 0.16s; }
-        .fp__grid-item:nth-child(4) { animation-delay: 0.24s; }
-        .fp__grid-item:nth-child(5) { animation-delay: 0.32s; }
-        .fp__grid-item:nth-child(n+6) { animation-delay: 0.40s; }
+        .fp__grid-item:nth-child(2) { animation-delay: 0.06s; }
+        .fp__grid-item:nth-child(3) { animation-delay: 0.12s; }
+        .fp__grid-item:nth-child(4) { animation-delay: 0.18s; }
+        .fp__grid-item:nth-child(5) { animation-delay: 0.24s; }
+        .fp__grid-item:nth-child(n+6) { animation-delay: 0.30s; }
 
         /* ═══ CARD ══════════════════════════════════════════════════════════ */
         .fp-card {
-          position: relative;
-          overflow: hidden;
-          cursor: pointer;
-          background: var(--card);
           display: flex;
           flex-direction: column;
-          height: 100%;
-          min-height: 320px;
-          outline: 2px solid transparent;
-          outline-offset: -2px;
-          transition: outline var(--ease-fast);
-          text-decoration: none;
+          gap: 20px;
+          min-width: 0;
           color: inherit;
+          text-decoration: none;
         }
-
-        .fp-card--hovered {
+        .fp-card:focus-visible { outline: none; }
+        .fp-card:focus-visible .fp-card__media {
           outline: 2px solid var(--primary, #ff6b00);
+          outline-offset: 3px;
         }
 
-        /* Wider cards get more height */
-        .fp__grid-item[data-span="7"] .fp-card { min-height: 400px; }
-
-        /* Thumbnail */
-        .fp-card__thumb {
-          flex: 1;
+        /* Standing frame for the cover */
+        .fp-card__media {
           position: relative;
+          aspect-ratio: 3 / 4;
           overflow: hidden;
+          border-radius: 4px;
           background: var(--surface);
         }
-
-        .fp-card__thumb img {
-          transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        .fp-card__media img,
+        .fp-card__media video {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94) !important;
         }
+        .fp-card:hover .fp-card__media img,
+        .fp-card:hover .fp-card__media video { transform: scale(1.03); }
 
-        .fp-card:hover .fp-card__thumb img,
-        .fp-card:focus-visible .fp-card__thumb img {
-          transform: scale(1.04) !important;
+        /* Poster sits over the video and fades once it plays */
+        .fp-card__media .fp-card__poster { transition: opacity 0.35s ease, transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94) !important; }
+        .fp-card__media[data-playing="true"] .fp-card__poster { opacity: 0; }
+        .fp-card__kind {
+          position: absolute;
+          left: 12px; top: 12px;
+          padding: 5px 8px;
+          border-radius: 2px;
+          background: rgba(0,0,0,0.55);
+          color: #fff;
+          font-size: 9.5px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          pointer-events: none;
+          transition: opacity 0.25s ease;
         }
+        .fp-card__media[data-playing="true"] .fp-card__kind { opacity: 0; }
 
         /* Placeholder shown until an image is uploaded in the dashboard */
         .fp-card__placeholder {
@@ -411,160 +518,101 @@ export default function ProjectsShowcase({
           display: flex;
           align-items: center;
           justify-content: center;
-          background:
-            radial-gradient(120% 90% at 30% 10%, #f4f4f4 0%, #e9e9e9 60%, #e2e2e2 100%);
+          background: radial-gradient(120% 90% at 30% 10%, #f4f4f4 0%, #e9e9e9 60%, #e2e2e2 100%);
         }
-
         .fp-card__placeholder span {
           font-family: var(--font-display);
-          font-size: clamp(36px, 6vw, 64px);
+          font-size: clamp(36px, 5vw, 64px);
           font-weight: 800;
           letter-spacing: 0.04em;
           color: rgba(0, 0, 0, 0.13);
           text-transform: uppercase;
         }
 
-        .fp-card__overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            to bottom,
-            transparent 35%,
-            rgba(0,0,0,0.15) 100%
-          );
-          pointer-events: none;
-        }
-
-        .fp-card__overlay::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: rgba(0, 0, 0, 0.62);
-          opacity: 0;
-          transition: opacity var(--ease);
-        }
-        .fp-card--hovered .fp-card__overlay::after {
-          opacity: 1;
-        }
-
-        /* Meta strip */
-        .fp-card__meta {
-          display: flex;
-          flex-direction: column;
-          padding: 13px 18px;
-          border-top: 1px solid var(--border);
-          background: var(--card);
-          position: relative;
-          z-index: 2;
-          flex-shrink: 0;
-        }
-
-        .fp-card__meta-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          width: 100%;
-        }
-
-        .fp-card__meta-left {
-          display: flex;
-          align-items: center;
-          gap: 9px;
-          min-width: 0;
-        }
-
-        .fp-card__dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 1px;
-          background: var(--primary, #ff6b00);
-          flex-shrink: 0;
-          transform: rotate(45deg);
-        }
-
-        .fp-card__name {
-          font-family: var(--font-display);
-          font-size: 16px;
-          font-weight: 800;
-          letter-spacing: 0.02em;
-          color: var(--txt);
-          text-transform: uppercase;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
+        /* White label that eases in over the image on hover */
         .fp-card__tag {
-          font-size: 10px;
-          color: var(--txt-3);
-          letter-spacing: 0.05em;
-          white-space: nowrap;
-          flex-shrink: 0;
-          margin-left: 8px;
-        }
-
-        .fp-card__meta-desc {
-          display: none;
-        }
-
-        /* Hover reveal — sits over the darkened thumbnail, so it stays white */
-        .fp-card__reveal {
           position: absolute;
-          inset: 0;
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
+          right: 16px; bottom: 16px;
+          display: inline-flex;
           align-items: center;
-          text-align: center;
-          gap: 5px;
-          transform: translateY(12px);
+          gap: 8px;
+          padding: 9px 14px;
+          border-radius: 2px;
+          background: #fff;
+          color: var(--txt);
+          font-size: 10.5px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
           opacity: 0;
-          transition:
-            opacity var(--ease),
-            transform var(--ease);
+          transform: translateY(6px);
+          transition: opacity 0.3s ease, transform 0.3s ease;
           pointer-events: none;
         }
+        .fp-card__tag span { color: var(--primary, #ff6b00); }
+        .fp-card:hover .fp-card__tag,
+        .fp-card:focus-visible .fp-card__tag { opacity: 1; transform: none; }
 
-        .fp-card--hovered .fp-card__reveal {
-          opacity: 1;
-          transform: translateY(0);
-          pointer-events: auto;
-        }
-
-        .fp-card__reveal-title {
-          font-size: 20px;
+        /* Text under the image */
+        .fp-card__info { min-width: 0; }
+        .fp-card__title {
+          display: flex;
+          align-items: baseline;
+          gap: 14px;
+          margin: 0 0 6px;
+          font-family: var(--font-display);
+          font-size: clamp(22px, 2vw, 28px);
           font-weight: 800;
-          color: #ffffff;
-          letter-spacing: 0.02em;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
           text-transform: uppercase;
+          overflow-wrap: anywhere;
+          transition: color 0.25s ease;
         }
-
-        .fp-card__industry {
-          font-size: 9px;
-          letter-spacing: 0.18em;
+        .fp-card:hover .fp-card__title { color: var(--primary, #ff6b00); }
+        .fp-card__num {
+          flex-shrink: 0;
+          font-family: var(--font-mono);
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
           color: var(--primary, #ff6b00);
+          transform: translateY(-0.2em);
+        }
+        .fp-card__cat {
+          margin: 0 0 12px 32px;
+          font-size: 10.5px;
           font-weight: 700;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
+          color: var(--txt-3);
+        }
+        .fp-card__desc {
+          margin: 0 0 0 32px;
+          font-size: 14.5px;
+          line-height: 1.65;
+          color: var(--txt-2);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
 
-        .fp-card__desc-text {
-          font-size: 13px;
-          color: rgba(255, 255, 255, 0.9);
-          line-height: 1.6;
-          margin: 0;
-          max-width: 280px;
-        }
-
-        .fp-card__cta {
-          margin-top: 10px;
-          font-size: 10px;
+        /* Touch screens get the link as text — there is no hover to reveal it */
+        .fp-card__view {
+          display: none;
+          margin: 14px 0 0 32px;
+          align-items: center;
+          gap: 8px;
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: 0.16em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: #ffffff;
-          border-bottom: 1px solid rgba(255,255,255,0.45);
-          padding-bottom: 3px;
+          color: var(--primary, #ff6b00);
+        }
+        @media (hover: none) {
+          .fp-card__tag { display: none; }
+          .fp-card__view { display: inline-flex; }
         }
 
         /* ═══ FOOTER ════════════════════════════════════════════════════════ */
@@ -613,14 +661,8 @@ export default function ProjectsShowcase({
           .fp__desc { max-width: 100%; }
 
           .fp__grid {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
           }
-
-          .fp__grid-item {
-            grid-column: span 1 !important;
-          }
-
-          .fp-card { min-height: 280px !important; }
         }
 
         /* Mobile: single column */
@@ -657,45 +699,11 @@ export default function ProjectsShowcase({
           }
 
           .fp__grid {
-            grid-template-columns: 1fr;
-            /* gap is replaced by margin-bottom on items */
-            background: transparent;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 44px;
           }
 
-          .fp__grid-item {
-            grid-column: span 1 !important;
-          }
-          .fp__grid-item:not(:last-child) {
-            margin-bottom: 32px;
-          }
-
-          .fp-card {
-            min-height: 240px !important;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            box-shadow: 0 12px 34px rgba(0, 0, 0, 0.08);
-          }
-
-          .fp-card__meta {
-            border-top: 1px solid var(--border);
-          }
-
-          /* On mobile hide reveal and show inline description */
-          .fp-card__reveal {
-            display: none !important;
-          }
-
-          .fp-card__meta-desc {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin: 8px 0 0 0;
-            font-size: 12px;
-            color: var(--txt-2);
-            line-height: 1.5;
-          }
+          .fp-card__media { aspect-ratio: 4 / 5; }
         }
 
         /* Reduced motion */
@@ -711,13 +719,15 @@ export default function ProjectsShowcase({
             transition: none !important;
             animation: none !important;
           }
-          .fp-card__thumb img,
-          .fp-card__reveal,
+          .fp-card__media img,
+          .fp-card__media video,
+          .fp-card__tag,
           .fp__btn-primary,
-          .fp-filter-btn,
-          .fp-card__overlay::after {
+          .fp-filter-btn {
             transition: none !important;
           }
+          .fp-card:hover .fp-card__media img,
+          .fp-card:hover .fp-card__media video { transform: none; }
         }
       `}</style>
     </section>
@@ -725,95 +735,89 @@ export default function ProjectsShowcase({
 }
 
 // ─── Card ────────────────────────────────────────────────────────────────────
+// Same anatomy as the cards on the Projects page — image, then number, title,
+// category · year and a short description — in a standing 3:4 frame.
 
 function ProjectCard({
   project,
+  number,
   priority,
 }: {
   project: Project;
+  /** Position in the full list, so it stays the same under every filter. */
+  number: number;
   priority: boolean;
 }) {
-  const [hovered, setHovered] = useState(false);
+  const cover = projectCover(project);
+  const video = cover?.type === "video" ? cover.video : undefined;
+  const { videoRef, playing, handlers } = useHoverVideo(Boolean(video), {
+    touch: "tap-preview",
+  });
 
-  const interaction = {
-    onMouseEnter: () => setHovered(true),
-    onMouseLeave: () => setHovered(false),
-    onFocus: () => setHovered(true),
-    onBlur: () => setHovered(false),
-  };
+  const sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
+  const year = projectYear(project);
 
-  const inner = (
-    <>
-      {/* Thumbnail */}
-      <div className="fp-card__thumb">
-        {project.image ? (
-          <Image
-            src={project.image}
-            alt={`${project.title} project thumbnail`}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 58vw"
-            style={{ objectFit: "cover" }}
-            priority={priority}
-          />
+  return (
+    <Link
+      href={`/projects/${project.slug}`}
+      className="fp-card"
+      aria-label={`${project.title} — ${project.category}. View project`}
+      {...(video ? handlers : {})}
+    >
+      <div className="fp-card__media" data-playing={playing}>
+        {video ? (
+          <>
+            <video
+              ref={videoRef}
+              // Without a poster, nudge past 0s so Safari paints a first frame.
+              src={cover?.image || video.includes("#") ? video : `${video}#t=0.1`}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            {cover?.image ? (
+              <Image
+                className="fp-card__poster"
+                src={cover.image}
+                alt=""
+                fill
+                sizes={sizes}
+                priority={priority}
+              />
+            ) : null}
+            <span className="fp-card__kind">Video</span>
+          </>
+        ) : cover ? (
+          <Image src={cover.image} alt="" fill sizes={sizes} priority={priority} />
         ) : (
           <div className="fp-card__placeholder" aria-hidden="true">
             <span>{project.title.slice(0, 2)}</span>
           </div>
         )}
-        <div className="fp-card__overlay" />
-      </div>
-
-      {/* Meta strip */}
-      <div className="fp-card__meta">
-        <div className="fp-card__meta-header">
-          <div className="fp-card__meta-left">
-            <span className="fp-card__dot" aria-hidden="true" />
-            <span className="fp-card__name">{project.title}</span>
-          </div>
-          {project.tag ? (
-            <span className="fp-card__tag">{project.tag}</span>
-          ) : null}
-        </div>
-        <p className="fp-card__meta-desc">{project.description}</p>
-      </div>
-
-      {/* Hover reveal */}
-      <div className="fp-card__reveal" aria-hidden={!hovered}>
-        <span className="fp-card__reveal-title font-display">
-          {project.title}
+        <span className="fp-card__tag" aria-hidden="true">
+          View project <span>→</span>
         </span>
-        <p className="fp-card__industry">
-          {project.industry || project.category}
-        </p>
-        <p className="fp-card__desc-text">{project.description}</p>
-        {project.link ? (
-          <span className="fp-card__cta">View project ↗</span>
-        ) : null}
       </div>
-    </>
-  );
 
-  const className = `fp-card${hovered ? " fp-card--hovered" : ""}`;
-  const label = `${project.title} — ${project.industry || project.category}`;
-
-  if (project.link) {
-    return (
-      <a
-        className={className}
-        href={project.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={label}
-        {...interaction}
-      >
-        {inner}
-      </a>
-    );
-  }
-
-  return (
-    <article className={className} tabIndex={0} aria-label={label} {...interaction}>
-      {inner}
-    </article>
+      <div className="fp-card__info">
+        <h3 className="fp-card__title">
+          <span className="fp-card__num">{String(number).padStart(2, "0")}</span>
+          {project.title}
+        </h3>
+        <p className="fp-card__cat">
+          {project.category}
+          {year ? <span> · {year}</span> : null}
+        </p>
+        {project.description ? (
+          <p className="fp-card__desc">{project.description}</p>
+        ) : null}
+        <span className="fp-card__view" aria-hidden="true">
+          View project <span>→</span>
+        </span>
+      </div>
+    </Link>
   );
 }

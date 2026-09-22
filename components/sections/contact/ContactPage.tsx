@@ -721,10 +721,20 @@ export default function ContactPage() {
         /* ─────────────────────────────────────────────
            HERO
         ───────────────────────────────────────────── */
+        /* Orange opening band, like the other main pages. Text inside it is
+           white; the accents that were orange switch to black to stay visible. */
         .hero {
-          padding: 88px 5% 80px;
-          background: var(--bg);
+          padding: 136px 5% 72px;
+          background: var(--accent);
         }
+        .hero .heroRow,
+        .hero .heroItalic { color: #ffffff; }
+        .hero .heroPill { border-color: #ffffff; color: #ffffff; }
+        .hero .heroPill:hover { background: #ffffff; color: var(--accent); }
+        .hero .heroEmailLink { color: #0a0a0a; }
+        .hero .heroWonderfulText { color: rgba(255,255,255,0.8); }
+        .hero .heroWonderfulLine { background: #ffffff; }
+        .hero .heroStar { color: #0a0a0a; }
 
         .heroInner {
           max-width: 1160px;
@@ -840,7 +850,7 @@ export default function ContactPage() {
         }
 
         @media (max-width: 640px) {
-          .hero { padding: 64px 5% 56px; }
+          .hero { padding: 112px 5% 48px; }
           .heroRow { gap: 0.18em; }
           .heroPill { min-width: 116px; height: 50px; font-size: 13px; }
           .heroWonderfulLine { width: 48px; }

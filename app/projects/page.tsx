@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import ProjectsPortfolio from "@/components/sections/projects/ProjectsPortfolio";
 import { getProjects } from "@/lib/db";
-import { PROJECT_CATEGORIES, type ProjectFilter } from "@/lib/types";
+import { PROJECT_CATEGORIES, type ProjectCategory } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Projects · Mark UI",
@@ -10,10 +10,10 @@ export const metadata: Metadata = {
     "Selected web, marketing, branding and multimedia work Mark UI has designed, built and delivered for clients.",
 };
 
-/** `?category=web` → "Web"; anything else shows every project. */
-function toFilter(value: string | string[] | undefined): ProjectFilter {
+/** `?category=web` → "Web"; anything else opens on the first category. */
+function toFilter(value: string | string[] | undefined): ProjectCategory {
   const wanted = typeof value === "string" ? value.toLowerCase() : "";
-  return PROJECT_CATEGORIES.find((c) => c.toLowerCase() === wanted) ?? "All";
+  return PROJECT_CATEGORIES.find((c) => c.toLowerCase() === wanted) ?? PROJECT_CATEGORIES[0];
 }
 
 export default async function ProjectsPage({

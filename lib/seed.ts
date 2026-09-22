@@ -1,4 +1,4 @@
-import type { ProjectCategory } from "./types";
+import type { HeroService, ProjectCategory } from "./types";
 
 /**
  * Initial content for a fresh install.
@@ -421,3 +421,47 @@ export const SEED_SERVICES: SeedService[] = [
 
 /** How many projects to link in as starting Top Work for each service. */
 export const SEED_TOP_WORK_PER_SERVICE = 3;
+
+// ─── Hero service cards ──────────────────────────────────────────────────────
+
+/**
+ * The services the two Home hero cards rotate through. Ids and dates are fixed
+ * so the list is stable before the admin first saves it. Each links to the
+ * closest existing service page; the admin can point it anywhere.
+ */
+const HERO_SEED_DATE = new Date(0).toISOString();
+
+function heroSeed(
+  panel: HeroService["panel"],
+  rows: [id: string, title: string, description: string, illustration: HeroService["illustration"], link: string][],
+): HeroService[] {
+  return rows.map(([id, title, description, illustration, link], order) => ({
+    id: `hero-${panel}-${id}`,
+    panel,
+    title,
+    description,
+    illustration,
+    link,
+    order,
+    active: true,
+    createdAt: HERO_SEED_DATE,
+    updatedAt: HERO_SEED_DATE,
+  }));
+}
+
+export const SEED_HERO_SERVICES: HeroService[] = [
+  ...heroSeed("it", [
+    ["website", "Website Development", "Fast, responsive websites that present your business clearly and win enquiries.", "website", "/services/web-design-development"],
+    ["web-apps", "Web Applications", "Browser-based portals and tools that simplify how your team and customers work.", "webapp", "/services/software-it-solutions"],
+    ["software", "Custom Software", "Software shaped around your processes, from internal systems to automation.", "software", "/services/software-it-solutions"],
+    ["uiux", "UI/UX Design", "Interfaces planned around real users, so products feel simple and clear.", "uiux", "/services/web-design-development"],
+    ["cloud", "Cloud & IT Support", "Hosting, maintenance and support that keep your systems running smoothly.", "cloud", "/services/software-it-solutions"],
+  ]),
+  ...heroSeed("marketing", [
+    ["social", "Social Media Marketing", "Planned content and campaigns that grow an engaged audience on social.", "social", "/services/digital-marketing"],
+    ["seo", "SEO Optimization", "Search optimization that helps the right people find you on Google.", "seo", "/services/digital-marketing"],
+    ["ads", "Google Ads", "Targeted search and display campaigns focused on measurable results.", "ads", "/services/digital-marketing"],
+    ["content", "Content Marketing", "Articles, visuals and video that build trust in your brand.", "content", "/services/digital-marketing"],
+    ["email", "Email Marketing", "Newsletters and automated journeys that keep customers coming back.", "email", "/services/digital-marketing"],
+  ]),
+];

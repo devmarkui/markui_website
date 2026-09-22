@@ -6,11 +6,13 @@
  * on separate pages, managed on separate admin screens, and share no fields.
  */
 
+import { richFromLines, type RichDoc } from "./rich-text";
+
 export const PROJECT_CATEGORIES = [
   "Web",
   "Marketing",
-  "Branding",
   "Multimedia",
+  "Branding",
 ] as const;
 
 export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number];
@@ -253,11 +255,231 @@ export interface Settings {
    * "Check our portfolio" buttons stay hidden rather than linking nowhere.
    */
   portfolioUrl: string;
+  /** Editable copy used by the public About page. */
+  about: AboutContent;
+  /** Editable copy used by the Home page hero. */
+  home: HomeContent;
+  /** Social profiles listed in the site footer, in display order. */
+  socialLinks: SocialLink[];
   updatedAt: string;
 }
 
+export interface SocialLink {
+  /** Shown as the link text, e.g. "Instagram". */
+  label: string;
+  /** Full http(s) address of the profile. */
+  url: string;
+}
+
+/** Suggested labels in the admin; any other name is allowed too. */
+export const SOCIAL_PLATFORMS = [
+  "Instagram",
+  "Facebook",
+  "LinkedIn",
+  "TikTok",
+  "YouTube",
+  "X",
+  "WhatsApp",
+  "Behance",
+  "Dribbble",
+  "Pinterest",
+] as const;
+
+/** Keeps the footer column tidy. */
+export const MAX_SOCIAL_LINKS = 8;
+
+// ─── Home page ───────────────────────────────────────────────────────────────
+
+export interface HomeContent {
+  /**
+   * The whole hero heading — every line, with per-word styling — as one rich
+   * text document. Replaces the old separate main/secondary heading strings;
+   * `lib/db.ts` combines those when it meets an older record.
+   */
+  heading: RichDoc;
+  /** Hero description, also rich text. */
+  description: RichDoc;
+  ctaText: string;
+  /** Site path (`/proposal`) or full http(s) URL. */
+  ctaLink: string;
+  /** Optional button text styling; missing means the design default. */
+  ctaSize?: number;
+  ctaWeight?: number;
+  ctaColor?: string;
+  itTitle: string;
+  itDescription: string;
+  /** Where the IT Solutions panel leads. Site path or full URL. */
+  itLink: string;
+  marketingTitle: string;
+  marketingDescription: string;
+  /** Where the Digital Marketing panel leads. Site path or full URL. */
+  marketingLink: string;
+}
+
+/** Button text size limits (px). */
+export const CTA_SIZE_RANGE = { min: 9, max: 18 } as const;
+
+export const DEFAULT_HOME: HomeContent = {
+  heading: richFromLines([
+    { text: "Less Noise" },
+    { text: "More Impact", marks: { weight: 800 } },
+  ]),
+  description: richFromLines([
+    {
+      text: "We help ambitious companies launch memorable brands, build high-impact websites, and design digital products people love to use.",
+    },
+  ]),
+  ctaText: "Book a Call",
+  ctaLink: "/proposal",
+  itTitle: "IT Solutions",
+  itDescription:
+    "Websites, web applications and custom software built around the way your business works.",
+  itLink: "/services/software-it-solutions",
+  marketingTitle: "Digital Marketing",
+  marketingDescription:
+    "Social media, content and campaigns that help the right people find and choose you.",
+  marketingLink: "/services/digital-marketing",
+};
+
+// ─── Hero service cards ──────────────────────────────────────────────────────
+// The services each Home hero panel rotates through, managed in the dashboard.
+
+export const HERO_PANELS = ["it", "marketing"] as const;
+
+export type HeroPanel = (typeof HERO_PANELS)[number];
+
+export const HERO_PANEL_LABELS: Record<HeroPanel, string> = {
+  it: "IT Solutions",
+  marketing: "Digital Marketing",
+};
+
+export function isHeroPanel(value: unknown): value is HeroPanel {
+  return (
+    typeof value === "string" && (HERO_PANELS as readonly string[]).includes(value)
+  );
+}
+
+/** Built-in line illustrations a hero service can use (key → admin label). */
+export const HERO_ILLUSTRATIONS = {
+  website: "Website",
+  webapp: "Web app dashboard",
+  software: "Custom software",
+  uiux: "UI/UX wireframe",
+  cloud: "Cloud & servers",
+  code: "Code window",
+  social: "Social media",
+  seo: "Search",
+  ads: "Ads target",
+  content: "Content",
+  email: "Email",
+  growth: "Growth chart",
+} as const;
+
+export type HeroIllustration = keyof typeof HERO_ILLUSTRATIONS;
+
+export function isHeroIllustration(value: unknown): value is HeroIllustration {
+  return typeof value === "string" && value in HERO_ILLUSTRATIONS;
+}
+
+export interface HeroService {
+  id: string;
+  /** Which hero card it rotates through. */
+  panel: HeroPanel;
+  title: string;
+  description: string;
+  /** Built-in illustration; an uploaded `image` is shown instead when set. */
+  illustration: HeroIllustration;
+  image?: string;
+  /** Where a click goes. Blank falls back to the panel's own link. */
+  link?: string;
+  order: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── Latest From Our Studio ──────────────────────────────────────────────────
+// Photo and video posts shown on the Home page, managed from the dashboard.
+
+export interface StudioItem {
+  id: string;
+  title: string;
+  description: string;
+  mediaType: "image" | "video";
+  /** The photo — or, for a video, its poster frame. */
+  image: string;
+  /** Uploaded video (`/api/uploads/…`) or a direct link to an MP4/WebM file. */
+  video?: string;
+  /** Where a click goes: a site path (`/projects/x`) or a full http(s) URL. */
+  link?: string;
+  order: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AboutItem {
+  title: string;
+  description: string;
+}
+
+export interface AboutLink {
+  title: string;
+  href: string;
+}
+
+export interface AboutContent {
+  heroHeading: string;
+  introduction: string;
+  whoWeAre: string;
+  approach: AboutItem[];
+  reasons: AboutItem[];
+  expertise: AboutLink[];
+  values: AboutItem[];
+  ctaHeading: string;
+  ctaText: string;
+}
+
+export const DEFAULT_ABOUT: AboutContent = {
+  heroHeading: "We create\ndigital experiences\nthat matter.",
+  introduction:
+    "Mark UI is a creative technology company focused on building meaningful digital experiences, brands, products and solutions for modern businesses.",
+  whoWeAre:
+    "Mark UI brings together design, technology, marketing and multimedia to help businesses build stronger digital experiences.\n\nWe work across strategy, branding, digital marketing, software, web development, photography and multimedia production.\n\nOur approach is simple: understand the problem, create the right solution and deliver work that creates real value.",
+  approach: [
+    { title: "Discover", description: "Understand the business, audience and problem." },
+    { title: "Plan", description: "Define the strategy, direction and solution." },
+    { title: "Create", description: "Design, develop and produce the required work." },
+    { title: "Deliver", description: "Launch, measure and improve the final result." },
+  ],
+  reasons: [
+    { title: "One team", description: "Design, technology, marketing and creative production under one team." },
+    { title: "Business first", description: "We focus on solving real business problems, not just creating attractive visuals." },
+    { title: "Built for people", description: "We create digital experiences that are simple, useful and easy to understand." },
+    { title: "Continuous improvement", description: "We refine our work based on feedback, performance and changing business needs." },
+  ],
+  expertise: [
+    { title: "Digital marketing", href: "/services/digital-marketing" },
+    { title: "Web & software", href: "/services/web-design-development" },
+    { title: "Branding & design", href: "/services/graphic-designing" },
+    { title: "Photography & video", href: "/services/photography-videography" },
+    { title: "Multimedia", href: "/services/multimedia-production" },
+  ],
+  values: [
+    { title: "Clarity", description: "We keep ideas and experiences simple and understandable." },
+    { title: "Quality", description: "We care about the details that make the final work better." },
+    { title: "Creativity", description: "We look for thoughtful and effective ways to solve problems." },
+    { title: "Partnership", description: "We work closely with clients throughout the process." },
+  ],
+  ctaHeading: "Let's work together",
+  ctaText: "Have a project, product or idea in mind? Let's talk about how we can help.",
+};
+
 export const DEFAULT_SETTINGS: Settings = {
   portfolioUrl: "",
+  about: DEFAULT_ABOUT,
+  home: DEFAULT_HOME,
+  socialLinks: [],
   updatedAt: new Date(0).toISOString(),
 };
 
@@ -270,6 +492,10 @@ export interface Database {
   services: Service[];
   topWork: TopWork[];
   products: Product[];
+  /** Missing on older files; `lib/db.ts` defaults it to an empty list. */
+  studio: StudioItem[];
+  /** Missing on older files; `lib/db.ts` fills in the seeded services. */
+  heroServices: HeroService[];
   settings: Settings;
 }
 

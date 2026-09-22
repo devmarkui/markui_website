@@ -6,7 +6,7 @@ import Services from "@/components/sections/home/Services";
 import Testimonials from "@/components/sections/home/Testimonials";
 import WhyMarkUI from "@/components/sections/home/WhyMarkUI";
 import Contact from "@/components/sections/home/Contact";
-import Articles from "./insights/page";
+import Studio from "@/components/sections/home/Studio";
 
 export default function Home() {
   return (
@@ -16,11 +16,8 @@ export default function Home() {
       <Services />
       <FeaturedProjects />
       <Testimonials />
-      <WhyMarkUI /> 
-  
-     <Articles/>
-      
-      
+      <WhyMarkUI />
+      <Studio />
       <Contact />
     </main>
   );

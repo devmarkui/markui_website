@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 
+import type { SocialLink } from "@/lib/types";
+
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 
@@ -20,8 +22,8 @@ export function SiteHeader() {
   return <Navbar />;
 }
 
-export function SiteFooter() {
+export function SiteFooter({ socialLinks }: { socialLinks: SocialLink[] }) {
   const pathname = usePathname();
   if (isAdminRoute(pathname)) return null;
-  return <Footer />;
+  return <Footer socialLinks={socialLinks} />;
 }

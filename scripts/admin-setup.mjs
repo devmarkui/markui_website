@@ -66,6 +66,24 @@ env = env.replace(/^ADMIN_PASSWORD=.*$\n?/m, "");
 
 fs.writeFileSync(ENV_FILE, env, "utf8");
 
+// A login changed from Admin → Account is stored in the database and would
+// override .env.local; clear it so these credentials take effect.
+const databaseUrl = env.match(/^DATABASE_URL=(.+)$/m)?.[1]?.trim();
+if (databaseUrl) {
+  try {
+    const { createConnection } = await import("mysql2/promise");
+    const connection = await createConnection(databaseUrl);
+    await connection.query("DELETE FROM admin_account");
+    await connection.end();
+  } catch (error) {
+    console.warn(
+      `\n  Could not clear the saved admin login in the database (${error.message}).` +
+        "\n  If one was set from Admin → Account, it still applies — delete the" +
+        "\n  row in the admin_account table to use these credentials.",
+    );
+  }
+}
+
 console.log("\n  Admin credentials written to .env.local\n");
 console.log(`    Username:  ${username}`);
 console.log(`    Password:  ${password}`);

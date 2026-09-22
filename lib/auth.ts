@@ -1,8 +1,10 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { isCurrentSession } from "./admin-account";
 import {
   createToken,
+  LOGIN_PATH,
   SESSION_COOKIE,
   SESSION_MAX_AGE_SECONDS,
   verifyToken,
@@ -15,7 +17,7 @@ import {
  * every admin page and Server Action must call `requireAdmin()`.
  */
 
-export const LOGIN_PATH = "/admin/login";
+export { LOGIN_PATH } from "./auth-token";
 
 export async function createSession(username: string) {
   const cookieStore = await cookies();
@@ -33,10 +35,14 @@ export async function destroySession() {
   cookieStore.delete(SESSION_COOKIE);
 }
 
-/** The current admin session, or `null` when signed out. */
+/**
+ * The current admin session, or `null` when signed out — or when the session
+ * predates a username/password change made in Admin → Account.
+ */
 export async function getSession(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
-  return verifyToken(cookieStore.get(SESSION_COOKIE)?.value);
+  const session = verifyToken(cookieStore.get(SESSION_COOKIE)?.value);
+  return session && (await isCurrentSession(session)) ? session : null;
 }
 
 /**

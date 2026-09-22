@@ -2,36 +2,62 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import {
+  type DbClient,
+  isInitialized,
+  loadDatabase,
+  markInitialized,
+  saveDatabase,
+  withClient,
+} from "./mysql-store";
+import {
+  BODY_LIMITS,
+  HEADING_LIMITS,
+  richFromLines,
+  sanitizeColor,
+  sanitizeRichDoc,
+  sanitizeWeight,
+} from "./rich-text";
 import { slugify } from "./slug";
 import {
+  SEED_HERO_SERVICES,
   SEED_PROJECTS,
   SEED_SERVICES,
   SEED_TOP_WORK_PER_SERVICE,
 } from "./seed";
 import {
+  CTA_SIZE_RANGE,
   DB_VERSION,
+  DEFAULT_ABOUT,
+  DEFAULT_HOME,
   DEFAULT_SETTINGS,
   type Database,
+  type HeroPanel,
+  type HomeContent,
+  type HeroService,
   type Product,
   type Project,
   type ResolvedTopWork,
   type Service,
   type Settings,
+  type StudioItem,
   type TopWork,
 } from "./types";
 
 /**
- * A tiny JSON-file backed store.
+ * The site's data store, backed by MySQL (`database/schema.sql`,
+ * connected through `DATABASE_URL`).
  *
- * The site had no database, so this keeps everything the admin dashboard writes
- * in `.data/db.json` next to the uploaded media in `.data/uploads`. Both live
- * outside `app/` and `public/` so the dev server does not recompile on every
- * save, and both survive restarts and rebuilds.
+ * Content lives in the database; uploaded media stays on disk in
+ * `.data/uploads`, outside `app/` and `public/` so the dev server does not
+ * recompile on every upload. The first run fills the tables from the old
+ * `.data/db.json` when it exists, otherwise from the seed.
  */
 
 export const DATA_DIR = path.join(process.cwd(), ".data");
 export const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
-const DB_FILE = path.join(DATA_DIR, "db.json");
+/** The pre-MySQL store; only read once, to import it. */
+const LEGACY_DB_FILE = path.join(DATA_DIR, "db.json");
 
 /**
  * Serialises reads and writes within this process so two concurrent admin
@@ -49,37 +75,48 @@ function withLock<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
-async function ensureDirs() {
-  await fs.mkdir(UPLOADS_DIR, { recursive: true });
+/** Saves in one transaction, so a failure can never leave a half-written db. */
+async function writeDb(db: Database) {
+  await withClient((client) => saveDatabase(client, db));
 }
 
-/** Writes via a temp file + rename so a crash can never leave a half-written db. */
-async function writeDb(db: Database) {
-  await ensureDirs();
-  const tmp = `${DB_FILE}.${process.pid}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(db, null, 2), "utf8");
-  await fs.rename(tmp, DB_FILE);
-}
+/** Set once this process has confirmed the tables are filled. */
+let initialized = false;
 
 async function readDb(): Promise<Database> {
-  let raw: string;
+  return withClient(async (client) => {
+    if (!initialized) {
+      if (!(await isInitialized(client))) await importInitialData(client);
+      initialized = true;
+    }
+    // `migrate` fills defaults and re-sanitises rich text on every read.
+    return migrate({ ...(await loadDatabase(client)), version: DB_VERSION });
+  });
+}
+
+/**
+ * First run against an empty database: import `.data/db.json` (brought up to
+ * the current shape by `migrate`), or seed when there is no such file.
+ */
+async function importInitialData(client: DbClient) {
+  let db: Database;
+  let source: string;
   try {
-    raw = await fs.readFile(DB_FILE, "utf8");
+    const raw = await fs.readFile(LEGACY_DB_FILE, "utf8");
+    db = migrate(
+      JSON.parse(raw) as Partial<Database> & {
+        // v1 kept services in `products`; see `migrate`.
+        products?: unknown[];
+      },
+    );
+    source = "imported .data/db.json";
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    const seeded = await buildSeedDatabase();
-    await writeDb(seeded);
-    return seeded;
+    db = await buildSeedDatabase();
+    source = "seeded";
   }
-
-  const parsed = JSON.parse(raw) as Partial<Database> & {
-    // v1 kept services in `products`; see `migrate`.
-    products?: unknown[];
-  };
-
-  const migrated = migrate(parsed);
-  if ((parsed.version ?? 1) < DB_VERSION) await writeDb(migrated);
-  return migrated;
+  await saveDatabase(client, db);
+  await markInitialized(client, source);
 }
 
 // ─── Migration ───────────────────────────────────────────────────────────────
@@ -123,7 +160,11 @@ function migrate(parsed: Partial<Database> & { products?: unknown[] }): Database
       products: Array.isArray(parsed.products)
         ? (parsed.products as Product[])
         : [],
-      settings: { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) },
+      studio: Array.isArray(parsed.studio) ? parsed.studio : [],
+      heroServices: Array.isArray(parsed.heroServices)
+        ? parsed.heroServices
+        : seedHeroServices(),
+      settings: normalizeSettings(parsed.settings),
     };
   }
 
@@ -160,11 +201,94 @@ function migrate(parsed: Partial<Database> & { products?: unknown[] }): Database
     services,
     topWork: buildSeedTopWork(services, projects),
     products: [],
+    studio: [],
+    heroServices: seedHeroServices(),
     settings: { ...DEFAULT_SETTINGS, updatedAt: now },
   };
 }
 
+/** Older databases have no About or Home content; merge each nested field safely. */
+function normalizeSettings(settings: Partial<Settings> | undefined): Settings {
+  const about = settings?.about;
+  return {
+    ...DEFAULT_SETTINGS,
+    ...settings,
+    home: normalizeHome(settings?.home),
+    socialLinks: Array.isArray(settings?.socialLinks) ? settings.socialLinks : [],
+    about: {
+      ...DEFAULT_ABOUT,
+      ...(about ?? {}),
+      approach: Array.isArray(about?.approach) ? about.approach : DEFAULT_ABOUT.approach,
+      reasons: Array.isArray(about?.reasons) ? about.reasons : DEFAULT_ABOUT.reasons,
+      expertise: Array.isArray(about?.expertise) ? about.expertise : DEFAULT_ABOUT.expertise,
+      values: Array.isArray(about?.values) ? about.values : DEFAULT_ABOUT.values,
+    },
+  };
+}
+
+/** The plain-text hero fields stored before the heading became rich text. */
+interface LegacyHome {
+  heroHeading?: string;
+  heroSubheading?: string;
+  heroDescription?: string;
+}
+
+/**
+ * Brings stored Home content up to date and re-validates it.
+ *
+ * Older records kept the hero heading as two strings (main + secondary). They
+ * become one rich-text heading — main heading lines first, then the secondary
+ * lines in bold, which is how the site showed them — so nothing is lost.
+ * Rich text is sanitised on every read, not just on save.
+ */
+function normalizeHome(raw: unknown): HomeContent {
+  const stored = (raw && typeof raw === "object" ? raw : {}) as Partial<HomeContent> &
+    LegacyHome;
+  const { heroHeading, heroSubheading, heroDescription, ...rest } = stored;
+
+  const lines = (value: string | undefined) =>
+    (value ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+
+  const legacyHeading =
+    heroHeading !== undefined || heroSubheading !== undefined
+      ? richFromLines([
+          ...lines(heroHeading).map((text) => ({ text })),
+          ...lines(heroSubheading).map((text) => ({ text, marks: { weight: 800 } })),
+        ])
+      : null;
+  const legacyDescription =
+    heroDescription !== undefined
+      ? richFromLines(lines(heroDescription).map((text) => ({ text })))
+      : null;
+
+  const ctaSize =
+    typeof rest.ctaSize === "number" && Number.isFinite(rest.ctaSize)
+      ? Math.min(CTA_SIZE_RANGE.max, Math.max(CTA_SIZE_RANGE.min, rest.ctaSize))
+      : undefined;
+
+  return {
+    ...DEFAULT_HOME,
+    ...rest,
+    heading:
+      sanitizeRichDoc(rest.heading, HEADING_LIMITS) ??
+      (legacyHeading && sanitizeRichDoc(legacyHeading, HEADING_LIMITS)) ??
+      DEFAULT_HOME.heading,
+    description:
+      sanitizeRichDoc(rest.description, BODY_LIMITS) ??
+      (legacyDescription && sanitizeRichDoc(legacyDescription, BODY_LIMITS)) ??
+      DEFAULT_HOME.description,
+    ctaSize,
+    ctaWeight: sanitizeWeight(rest.ctaWeight),
+    ctaColor: sanitizeColor(rest.ctaColor),
+  };
+}
+
 // ─── Seeding ─────────────────────────────────────────────────────────────────
+
+/** A fresh copy, so edits never touch the module-level seed. */
+function seedHeroServices() {
+  return SEED_HERO_SERVICES.map((item) => ({ ...item }));
+}
 
 /** True when a `/public`-relative path actually exists on disk. */
 async function publicFileExists(publicPath: string) {
@@ -266,6 +390,8 @@ async function buildSeedDatabase(): Promise<Database> {
     services,
     topWork: buildSeedTopWork(services, projects),
     products: [],
+    studio: [],
+    heroServices: seedHeroServices(),
     settings: { ...DEFAULT_SETTINGS, updatedAt: now },
   };
 }
@@ -772,9 +898,198 @@ export async function updateSettings(
     db.settings = {
       ...db.settings,
       ...input,
+      about: input.about
+        ? { ...db.settings.about, ...input.about }
+        : db.settings.about,
+      home: input.home
+        ? { ...db.settings.home, ...input.home }
+        : db.settings.home,
       updatedAt: new Date().toISOString(),
     };
     await writeDb(db);
     return db.settings;
+  });
+}
+
+// ─── Latest From Our Studio ──────────────────────────────────────────────────
+
+/** Active items in display order; the admin passes `includeInactive`. */
+export async function getStudioItems({
+  includeInactive = false,
+}: { includeInactive?: boolean } = {}): Promise<StudioItem[]> {
+  const db = await withLock(readDb);
+  return db.studio
+    .filter((item) => includeInactive || item.active)
+    .sort(byOrder);
+}
+
+export async function getStudioItem(id: string): Promise<StudioItem | null> {
+  const db = await withLock(readDb);
+  return db.studio.find((item) => item.id === id) ?? null;
+}
+
+export type StudioInput = Omit<
+  StudioItem,
+  "id" | "order" | "createdAt" | "updatedAt"
+>;
+
+export async function createStudioItem(input: StudioInput): Promise<StudioItem> {
+  return withLock(async () => {
+    const db = await readDb();
+    const now = new Date().toISOString();
+    const item: StudioItem = {
+      ...input,
+      id: randomUUID(),
+      order: db.studio.reduce((max, s) => Math.max(max, s.order), -1) + 1,
+      createdAt: now,
+      updatedAt: now,
+    };
+    db.studio.push(item);
+    await writeDb(db);
+    return item;
+  });
+}
+
+export async function updateStudioItem(
+  id: string,
+  input: Partial<StudioInput>,
+): Promise<StudioItem | null> {
+  return withLock(async () => {
+    const db = await readDb();
+    const index = db.studio.findIndex((item) => item.id === id);
+    if (index === -1) return null;
+    db.studio[index] = {
+      ...db.studio[index],
+      ...input,
+      updatedAt: new Date().toISOString(),
+    };
+    await writeDb(db);
+    return db.studio[index];
+  });
+}
+
+export async function reorderStudioItems(orderedIds: string[]): Promise<void> {
+  return withLock(async () => {
+    const db = await readDb();
+    const now = new Date().toISOString();
+    orderedIds.forEach((id, index) => {
+      const item = db.studio.find((s) => s.id === id);
+      if (item && item.order !== index) {
+        item.order = index;
+        item.updatedAt = now;
+      }
+    });
+    await writeDb(db);
+  });
+}
+
+export async function deleteStudioItem(id: string): Promise<StudioItem | null> {
+  return withLock(async () => {
+    const db = await readDb();
+    const index = db.studio.findIndex((item) => item.id === id);
+    if (index === -1) return null;
+    const [removed] = db.studio.splice(index, 1);
+    await writeDb(db);
+    return removed;
+  });
+}
+
+// ─── Hero service cards ──────────────────────────────────────────────────────
+
+/** One panel's services (or both), in display order. */
+export async function getHeroServices({
+  panel,
+  includeInactive = false,
+}: { panel?: HeroPanel; includeInactive?: boolean } = {}): Promise<HeroService[]> {
+  const db = await withLock(readDb);
+  return db.heroServices
+    .filter((s) => !panel || s.panel === panel)
+    .filter((s) => includeInactive || s.active)
+    .sort(byOrder);
+}
+
+export async function getHeroService(id: string): Promise<HeroService | null> {
+  const db = await withLock(readDb);
+  return db.heroServices.find((s) => s.id === id) ?? null;
+}
+
+export type HeroServiceInput = Omit<
+  HeroService,
+  "id" | "order" | "createdAt" | "updatedAt"
+>;
+
+export async function createHeroService(
+  input: HeroServiceInput,
+): Promise<HeroService> {
+  return withLock(async () => {
+    const db = await readDb();
+    const now = new Date().toISOString();
+    const siblings = db.heroServices.filter((s) => s.panel === input.panel);
+    const item: HeroService = {
+      ...input,
+      id: randomUUID(),
+      order: siblings.reduce((max, s) => Math.max(max, s.order), -1) + 1,
+      createdAt: now,
+      updatedAt: now,
+    };
+    db.heroServices.push(item);
+    await writeDb(db);
+    return item;
+  });
+}
+
+export async function updateHeroService(
+  id: string,
+  input: Partial<HeroServiceInput>,
+): Promise<HeroService | null> {
+  return withLock(async () => {
+    const db = await readDb();
+    const index = db.heroServices.findIndex((s) => s.id === id);
+    if (index === -1) return null;
+    const current = db.heroServices[index];
+    const next: HeroService = {
+      ...current,
+      ...input,
+      updatedAt: new Date().toISOString(),
+    };
+    // Moving to the other card puts it at the end of that card's rotation.
+    if (input.panel && input.panel !== current.panel) {
+      next.order =
+        db.heroServices
+          .filter((s) => s.panel === input.panel)
+          .reduce((max, s) => Math.max(max, s.order), -1) + 1;
+    }
+    db.heroServices[index] = next;
+    await writeDb(db);
+    return next;
+  });
+}
+
+export async function reorderHeroServices(
+  panel: HeroPanel,
+  orderedIds: string[],
+): Promise<void> {
+  return withLock(async () => {
+    const db = await readDb();
+    const now = new Date().toISOString();
+    orderedIds.forEach((id, index) => {
+      const item = db.heroServices.find((s) => s.id === id && s.panel === panel);
+      if (item && item.order !== index) {
+        item.order = index;
+        item.updatedAt = now;
+      }
+    });
+    await writeDb(db);
+  });
+}
+
+export async function deleteHeroService(id: string): Promise<HeroService | null> {
+  return withLock(async () => {
+    const db = await readDb();
+    const index = db.heroServices.findIndex((s) => s.id === id);
+    if (index === -1) return null;
+    const [removed] = db.heroServices.splice(index, 1);
+    await writeDb(db);
+    return removed;
   });
 }

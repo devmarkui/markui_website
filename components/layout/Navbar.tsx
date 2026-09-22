@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
@@ -31,7 +32,6 @@ const SOCIAL_LINKS = [
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen]     = useState(false);
-  const [theme, setTheme]   = useState<"light" | "dark">("dark");
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
 
@@ -48,7 +48,7 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Scroll: hide on down, show on up + detect section theme
+  // Scroll: hide on down, show on up
   useEffect(() => {
     let ticking = false;
     const handle = () => {
@@ -59,20 +59,6 @@ export default function Navbar() {
         if (y > lastScrollY.current && y > 80 && !open) setHidden(true);
         else setHidden(false);
         lastScrollY.current = y;
-
-        let t: "light" | "dark" = "dark";
-        document.querySelectorAll("section").forEach((sec) => {
-          const r = sec.getBoundingClientRect();
-          if (r.top <= 36 && r.bottom >= 36) {
-            const bg  = window.getComputedStyle(sec).backgroundColor;
-            const rgb = bg.match(/\d+/g);
-            if (rgb && rgb.length >= 3) {
-              const luma = (0.299 * +rgb[0] + 0.587 * +rgb[1] + 0.114 * +rgb[2]) / 255;
-              if (luma > 0.6) t = "light";
-            }
-          }
-        });
-        setTheme(t);
         ticking = false;
       });
     };
@@ -99,35 +85,38 @@ export default function Navbar() {
           align-items: center;
           justify-content: space-between;
           padding: 0 48px;
+          /* A solid orange bar, so links stay readable over any content. */
+          background: #ff6b00;
           /* hide/show */
           transform: translateY(0);
           transition: transform 0.4s cubic-bezier(0.76,0,0.24,1), color 0.4s ease;
         }
+        /* The open drawer has its own background; let the bar blend into it. */
+        .nav-header[data-open="true"] { background: transparent; }
         .nav-header[data-hidden="true"]:not([data-open="true"]) {
           transform: translateY(-100%);
         }
 
         /* ── LOGO ── */
         .nav-logo {
-          font-size: 14px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          text-decoration: none;
-          line-height: 1;
-          white-space: nowrap;
-          transition: color 0.35s ease;
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
+          line-height: 0;
           position: relative;
           z-index: 310;
         }
-        .nav-logo sup {
-          font-size: 8px;
-          vertical-align: super;
-          opacity: 0.65;
+        /* White wordmark (1600 × 319); height sets the size. */
+        .nav-logo img {
+          display: block;
+          height: 26px;
+          width: auto;
         }
-        .nav-header[data-theme="dark"]  .nav-logo { color: #fff; }
-        .nav-header[data-theme="light"] .nav-logo { color: #000; }
-        .nav-header[data-open="true"]   .nav-logo { color: #fff !important; }
+        .nav-logo:focus-visible {
+          outline: 2px solid #fff;
+          outline-offset: 6px;
+          border-radius: 2px;
+        }
 
         /* ── DESKTOP NAV LINKS ── */
         .nav-desktop {
@@ -173,8 +162,7 @@ export default function Navbar() {
         .nav-desktop a:hover span,
         .nav-desktop a:hover::after { transform: translateY(-100%); }
 
-        .nav-header[data-theme="dark"]  .nav-desktop a { color: #fff; opacity: 0.85; }
-        .nav-header[data-theme="light"] .nav-desktop a { color: #000; opacity: 0.85; }
+        .nav-desktop a { color: #fff; opacity: 0.85; }
         .nav-desktop a:hover { opacity: 1 !important; }
 
         .nav-desktop a[data-active="true"] span,
@@ -182,10 +170,6 @@ export default function Navbar() {
           text-decoration: line-through;
           text-decoration-thickness: 0.1em;
           text-decoration-color: rgba(255,255,255,0.5);
-        }
-        .nav-header[data-theme="light"] .nav-desktop a[data-active="true"] span,
-        .nav-header[data-theme="light"] .nav-desktop a[data-active="true"]::after {
-          text-decoration-color: rgba(0,0,0,0.4);
         }
 
         /* ── BURGER ── */
@@ -202,9 +186,7 @@ export default function Navbar() {
           transition: transform 0.35s ease, opacity 0.3s ease, background 0.35s ease;
           transform-origin: center;
         }
-        .nav-header[data-theme="dark"]  .nav-burger span { background: #fff; }
-        .nav-header[data-theme="light"] .nav-burger span { background: #000; }
-        .nav-header[data-open="true"]   .nav-burger span { background: #fff !important; }
+        .nav-burger span { background: #fff; }
 
         /* X animation */
         .nav-burger[aria-expanded="true"] span:nth-child(1) {
@@ -414,6 +396,7 @@ export default function Navbar() {
           .nav-header { padding: 0 20px; }
           .nav-header { padding: 0 24px; }
           .nav-desktop { display: none; }
+          .nav-logo img { height: 22px; }
 
           .nav-drawer-bottom { left: 24px; right: 24px; bottom: 32px; }
           .nav-drawer-social { gap: 20px; }
@@ -448,12 +431,18 @@ export default function Navbar() {
       <header
         className="nav-header"
         data-open={String(open)}
-        data-theme={theme}
         data-hidden={String(hidden)}
         role="banner"
       >
-        <Link href="/" className="nav-logo">
-          Mark UI<sup>®</sup>
+        <Link href="/" className="nav-logo" aria-label="Mark UI — home">
+          <Image
+            src="/brand/markui-logo-white.png"
+            alt="Mark UI"
+            width={1600}
+            height={319}
+            sizes="130px"
+            priority
+          />
         </Link>
 
         {/* Desktop links */}
