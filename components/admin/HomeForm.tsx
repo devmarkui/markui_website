@@ -35,8 +35,7 @@ export default function HomeForm({ home }: { home: HomeContent }) {
           <h1 className="ad-title">Home Page</h1>
           <p className="ad-subtitle">
             Edit the hero at the top of the Home page — the headline, the call
-            to action and the two service cards. The services each card rotates
-            through are managed further down this page.
+            to action and the three things listed under “What we do”.
           </p>
         </div>
       </div>
@@ -162,7 +161,15 @@ export default function HomeForm({ home }: { home: HomeContent }) {
             </p>
           </div>
 
-          <div className="ad-fieldset">IT Solutions card</div>
+          <div className="ad-fieldset">What we do — 1. Digital Marketing</div>
+          <PanelFields
+            prefix="marketing"
+            title={home.marketingTitle}
+            description={home.marketingDescription}
+            link={home.marketingLink}
+          />
+
+          <div className="ad-fieldset">What we do — 2. IT Solutions</div>
           <PanelFields
             prefix="it"
             title={home.itTitle}
@@ -170,12 +177,12 @@ export default function HomeForm({ home }: { home: HomeContent }) {
             link={home.itLink}
           />
 
-          <div className="ad-fieldset">Digital Marketing card</div>
+          <div className="ad-fieldset">What we do — 3. Media Production</div>
           <PanelFields
-            prefix="marketing"
-            title={home.marketingTitle}
-            description={home.marketingDescription}
-            link={home.marketingLink}
+            prefix="media"
+            title={home.mediaTitle}
+            description={home.mediaDescription}
+            link={home.mediaLink}
           />
         </div>
 
@@ -195,7 +202,7 @@ function PanelFields({
   description,
   link,
 }: {
-  prefix: "it" | "marketing";
+  prefix: "it" | "marketing" | "media";
   title: string;
   description: string;
   link: string;
@@ -203,19 +210,18 @@ function PanelFields({
   return (
     <>
       <div className="ad-field">
-        <label className="ad-label" htmlFor={`home-${prefix}-title`}>Card label</label>
+        <label className="ad-label" htmlFor={`home-${prefix}-title`}>Name</label>
         <input id={`home-${prefix}-title`} name={`${prefix}Title`} type="text" defaultValue={title} required />
-        <p className="ad-hint">Shown in orange above each rotating service.</p>
+        <p className="ad-hint">Shown next to its number in the hero list.</p>
       </div>
       <div className="ad-field">
-        <label className="ad-label" htmlFor={`home-${prefix}-link`}>
-          Card link <span>(used by services that have no link of their own)</span>
-        </label>
+        <label className="ad-label" htmlFor={`home-${prefix}-link`}>Link</label>
         <input id={`home-${prefix}-link`} name={`${prefix}Link`} type="text" defaultValue={link} placeholder="/services/…" />
+        <p className="ad-hint">Where the list item goes when clicked.</p>
       </div>
       <div className="ad-field ad-field--full">
         <label className="ad-label" htmlFor={`home-${prefix}-description`}>
-          Fallback description <span>(shown only if this card has no services in rotation)</span>
+          Description <span>(shown when a visitor hovers this item)</span>
         </label>
         <textarea id={`home-${prefix}-description`} name={`${prefix}Description`} rows={2} defaultValue={description} />
       </div>

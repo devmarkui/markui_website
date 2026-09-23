@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 
+import { submitEnquiry } from '@/app/actions/enquiry'
+import { emailError, phoneError } from '@/lib/contact-validation'
+import type { SocialLink } from '@/lib/types'
+
 // ─────────────────────────────────────────────
 // DATA
 // ─────────────────────────────────────────────
@@ -66,6 +70,7 @@ const INFO_ITEMS = [
   {
     label: 'Email',
     value: 'info@markui.lk',
+    href: 'mailto:info@markui.lk',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -75,7 +80,8 @@ const INFO_ITEMS = [
   },
   {
     label: 'Phone',
-    value: '+94 XX XXX XXXX',
+    value: '+94 76 088 7702',
+    href: 'tel:+94760887702',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.57 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-1.17a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.78 16z" />
@@ -84,7 +90,8 @@ const INFO_ITEMS = [
   },
   {
     label: 'WhatsApp',
-    value: '+94 XX XXX XXXX',
+    value: '+94 76 088 7702',
+    href: 'https://wa.me/94760887702',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
@@ -93,7 +100,7 @@ const INFO_ITEMS = [
   },
   {
     label: 'Location',
-    value: 'Negombo, Sri Lanka',
+    value: 'Avissawella, Wellampitiya, Colombo, Sri Lanka',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -103,7 +110,7 @@ const INFO_ITEMS = [
   },
   {
     label: 'Working Hours',
-    value: 'Mon – Fri · 9:00 AM – 6:00 PM',
+    value: 'Mon – Fri · 9:00 AM – 5:00 PM',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <circle cx="12" cy="12" r="10" />
@@ -113,58 +120,77 @@ const INFO_ITEMS = [
   },
 ]
 
-const SOCIALS = [
-  {
-    label: 'Instagram',
-    href: '#',
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Facebook',
-    href: '#',
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'LinkedIn',
-    href: '#',
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-        <rect x="2" y="9" width="4" height="12" />
-        <circle cx="4" cy="4" r="2" />
-      </svg>
-    ),
-  },
-  {
-    label: 'TikTok',
-    href: '#',
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
-      </svg>
-    ),
-  },
-  {
-    label: 'YouTube',
-    href: '#',
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
-        <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" />
-      </svg>
-    ),
-  },
-]
+/**
+ * Icons for the social row, looked up by the label the admin gave the link
+ * (Footer & Social in the dashboard). Anything unrecognised falls back to
+ * GENERIC_SOCIAL_ICON, so a new platform still gets a usable button.
+ */
+const SOCIAL_ICONS: Record<string, React.ReactNode> = {
+  instagram: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  ),
+  facebook: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  ),
+  linkedin: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect x="2" y="9" width="4" height="12" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  ),
+  tiktok: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+  ),
+  youtube: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
+      <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" />
+    </svg>
+  ),
+  x: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 3l16 18M20 3L4 21" />
+    </svg>
+  ),
+  whatsapp: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+  ),
+  behance: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M2 6h5.5a2.75 2.75 0 0 1 0 5.5H2zM2 11.5h6a3 3 0 0 1 0 6H2zM14 13.5h8a4 4 0 0 0-8 0 4 4 0 0 0 7.2 2.4M15 7h6" />
+    </svg>
+  ),
+  dribbble: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8.6 2.6C13 8 15 13.5 15.8 21.4M2.3 10.5c6.9.6 12.3-1 16.3-5.1M21.8 13.7c-5-1.6-9.7-1-13.6 2.6" />
+    </svg>
+  ),
+  pinterest: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.5 21c-.6-2.3.3-5.4.9-8 .4-1.7 1.5-3.2 3.2-3.2 1.6 0 2.6 1.2 2.6 2.8 0 1.9-1.2 4.2-3 4.2-1 0-1.7-.8-1.5-1.8" />
+    </svg>
+  ),
+}
+
+const GENERIC_SOCIAL_ICON = (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z" />
+  </svg>
+)
 
 const FAQS = [
   {
@@ -288,6 +314,19 @@ function Form() {
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
+  const [sendError, setSendError] = useState('')
+  /** Hidden from people, tempting to bots — see submitEnquiry. */
+  const [honeypot, setHoneypot] = useState('')
+  /**
+   * A field complains only once the visitor has finished with it, so a
+   * half-typed address is not called wrong while they are still typing it.
+   * After that it re-checks on every keystroke, so the message clears the
+   * moment they fix it.
+   */
+  const [touched, setTouched] = useState<{ phone?: boolean; email?: boolean }>({})
+
+  const phoneMsg = touched.phone ? phoneError(phone) : null
+  const emailMsg = touched.email ? emailError(email) : null
 
   async function handleSubmit() {
     const newErrors: string[] = []
@@ -295,11 +334,31 @@ function Form() {
     if (!selectedService) newErrors.push('service')
     if (!phone.trim() && !email.trim()) newErrors.push('contact')
     setErrors(newErrors)
+    setSendError('')
+
+    // Show any format problems even on fields never focused, e.g. a paste.
+    setTouched({ phone: true, email: true })
+    if (phoneError(phone) || emailError(email)) return
     if (newErrors.length > 0) return
 
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1400))
+    const result = await submitEnquiry({
+      source: 'contact',
+      name,
+      email,
+      phone,
+      company,
+      service: selectedService,
+      message,
+      website: honeypot,
+    })
     setLoading(false)
+
+    if (!result.ok) {
+      setSendError(result.error ?? 'Something went wrong. Please try again.')
+      return
+    }
+
     setSubmitted(true)
     setName(''); setCompany(''); setPhone('')
     setSelectedService(''); setEmail(''); setMessage('')
@@ -380,16 +439,26 @@ function Form() {
       {/* ── Line: Phone ── */}
       <div className="formLine">
         <span className="formText">reach me on</span>
-        <div className={`formField${errors.includes('contact') ? ' formFieldError' : ''}`}>
+        <div className={`formField${errors.includes('contact') || phoneMsg ? ' formFieldError' : ''}`}>
           <input
             type="tel"
+            inputMode="tel"
+            autoComplete="tel"
             value={phone}
             onChange={(e) => { setPhone(e.target.value); setErrors(errors.filter(e => e !== 'contact')) }}
+            onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
             placeholder="+94 77 123 4567"
             className="formInput"
+            aria-invalid={phoneMsg ? true : undefined}
+            aria-describedby={phoneMsg ? 'contact-phone-error' : undefined}
           />
           <span className="formUnderline" />
         </div>
+        {phoneMsg ? (
+          <span className="formFieldMsg" id="contact-phone-error" role="alert">
+            {phoneMsg}
+          </span>
+        ) : null}
       </div>
 
       {/* ── Block: Service ── */}
@@ -417,17 +486,27 @@ function Form() {
       {/* ── Line: Email ── */}
       <div className="formLine formLineWrap">
         <span className="formText">Feel free to reach me at</span>
-        <div className={`formField formFieldWide${errors.includes('contact') ? ' formFieldError' : ''}`}>
+        <div className={`formField formFieldWide${errors.includes('contact') || emailMsg ? ' formFieldError' : ''}`}>
           <input
             type="email"
+            inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => { setEmail(e.target.value); setErrors(errors.filter(e => e !== 'contact')) }}
+            onBlur={() => setTouched((t) => ({ ...t, email: true }))}
             placeholder="your email address"
             className="formInput"
+            aria-invalid={emailMsg ? true : undefined}
+            aria-describedby={emailMsg ? 'contact-email-error' : undefined}
           />
           <span className="formUnderline" />
         </div>
         <span className="formText">and let&apos;s talk.</span>
+        {emailMsg ? (
+          <span className="formFieldMsg" id="contact-email-error" role="alert">
+            {emailMsg}
+          </span>
+        ) : null}
       </div>
 
       {/* ── Block: Message ── */}
@@ -445,7 +524,25 @@ function Form() {
         </div>
       </div>
 
+      {/* Hidden from people; a filled value marks the sender as a bot. */}
+      <div className="formHoneypot" aria-hidden="true">
+        <label htmlFor="contact-website">Website</label>
+        <input
+          id="contact-website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+        />
+      </div>
+
       {/* ── Submit ── */}
+      {sendError ? (
+        <p className="formSendError" role="alert">{sendError}</p>
+      ) : null}
+
       <div className="formFooter">
         <button
           type="button"
@@ -525,7 +622,7 @@ function ServiceCards() {
 // INFO PANEL
 // ─────────────────────────────────────────────
 
-function Info() {
+function Info({ socialLinks }: { socialLinks: SocialLink[] }) {
   return (
     <aside className="infoPanel">
       <motion.div
@@ -556,7 +653,19 @@ function Info() {
             <div className="infoIconBox" aria-hidden="true">{item.icon}</div>
             <div>
               <p className="infoLabel">{item.label}</p>
-              <p className="infoValue">{item.value}</p>
+              {item.href ? (
+                <a
+                  className="infoValue infoValueLink"
+                  href={item.href}
+                  {...(item.href.startsWith('http')
+                    ? { target: '_blank', rel: 'noopener noreferrer' }
+                    : {})}
+                >
+                  {item.value}
+                </a>
+              ) : (
+                <p className="infoValue">{item.value}</p>
+              )}
             </div>
           </motion.li>
         ))}
@@ -564,13 +673,23 @@ function Info() {
 
       <ServiceCards />
 
-      <div className="socialRow">
-        {SOCIALS.map((s) => (
-          <a key={s.label} href={s.href} aria-label={s.label} className="socialBtn">
-            {s.icon}
-          </a>
-        ))}
-      </div>
+      {socialLinks.length ? (
+        <nav className="socialRow" aria-label="Social media links">
+          {socialLinks.map((s) => (
+            <a
+              key={`${s.label}-${s.url}`}
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={s.label}
+              title={s.label}
+              className="socialBtn"
+            >
+              {SOCIAL_ICONS[s.label.trim().toLowerCase()] ?? GENERIC_SOCIAL_ICON}
+            </a>
+          ))}
+        </nav>
+      ) : null}
     </aside>
   )
 }
@@ -669,14 +788,19 @@ function CTA() {
 // PAGE
 // ─────────────────────────────────────────────
 
-export default function ContactPage() {
+export default function ContactPage({
+  socialLinks = [],
+}: {
+  /** Managed in the dashboard (Footer & Social) — the same list the footer shows. */
+  socialLinks?: SocialLink[]
+}) {
   return (
     <main className="page">
       <Hero />
 
       <section className="mainGrid">
         <Form />
-        <Info />
+        <Info socialLinks={socialLinks} />
       </section>
 
       <FAQ />
@@ -1048,6 +1172,16 @@ export default function ContactPage() {
           background: #d32f2f !important;
         }
 
+        /* Why a field is being rejected, under the line it belongs to. */
+        .formFieldMsg {
+          flex-basis: 100%;
+          margin-top: 6px;
+          font-size: 13px;
+          font-weight: 500;
+          line-height: 1.4;
+          color: #d32f2f;
+        }
+
         /* Block sections */
         .formBlock {
           padding-top: 32px;
@@ -1123,6 +1257,26 @@ export default function ContactPage() {
         }
 
         /* Submit row */
+        /* Off-screen rather than display:none, which some bots skip. */
+        .formHoneypot {
+          position: absolute;
+          left: -9999px;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+        }
+
+        .formSendError {
+          margin-top: 32px;
+          padding: 14px 18px;
+          border: 1px solid rgba(200,40,40,0.28);
+          border-radius: 10px;
+          background: rgba(200,40,40,0.06);
+          color: #a11;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
         .formFooter {
           display: flex;
           justify-content: flex-end;
@@ -1307,6 +1461,19 @@ export default function ContactPage() {
           color: var(--text);
         }
 
+        /* Email, phone and WhatsApp open in the visitor's own app. */
+        .infoValueLink {
+          display: inline-block;
+          transition: color 0.16s;
+        }
+
+        .infoValueLink:hover,
+        .infoValueLink:focus-visible {
+          color: var(--accent);
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
         /* ── Service card ── */
         .svcCard {
           background: var(--surface);
@@ -1377,12 +1544,14 @@ export default function ContactPage() {
         /* ── Socials ── */
         .socialRow {
           display: flex;
+          flex-wrap: wrap;
           gap: 10px;
           border-top: 1px solid var(--border);
           padding-top: 28px;
         }
 
         .socialBtn {
+          flex: 0 0 auto;
           width: 42px;
           height: 42px;
           border-radius: 50%;

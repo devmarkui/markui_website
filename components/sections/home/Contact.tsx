@@ -2,11 +2,18 @@
 
 import { useState, useEffect, useRef } from "react";
 
+import { submitEnquiry } from "@/app/actions/enquiry";
+import { emailError } from "@/lib/contact-validation";
+
 export default function Contact() {
   const [form, setForm]       = useState({ name: "", email: "", message: "" });
   const [focused, setFocused] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors]   = useState<{ name?: string; email?: string }>({});
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
+  /** Hidden from people, tempting to bots — see submitEnquiry. */
+  const [honeypot, setHoneypot] = useState("");
 
   const sectionRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
@@ -26,14 +33,44 @@ export default function Contact() {
     const e: { name?: string; email?: string } = {};
     if (!form.name.trim()) e.name = "Name is required";
     if (!form.email.trim()) e.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      e.email = "Enter a valid email";
+    else {
+      const bad = emailError(form.email);
+      if (bad) e.email = bad;
+    }
     return e;
   };
 
-  const handleSubmit = () => {
+  /**
+   * Once a field has been left, re-check it on every keystroke so the message
+   * disappears as soon as it is fixed — but stay quiet while it is first
+   * being typed, when every address is briefly incomplete.
+   */
+  const handleEmailChange = (value: string) => {
+    setForm({ ...form, email: value });
+    setErrors((prev) =>
+      prev.email ? { ...prev, email: emailError(value) ?? undefined } : prev,
+    );
+  };
+
+  const handleSubmit = async () => {
     const e = validate();
+    setSendError("");
     if (Object.keys(e).length) { setErrors(e); return; }
+
+    setSending(true);
+    const result = await submitEnquiry({
+      source: "home",
+      name: form.name,
+      email: form.email,
+      message: form.message,
+      website: honeypot,
+    });
+    setSending(false);
+
+    if (!result.ok) {
+      setSendError(result.error ?? "Something went wrong. Please try again.");
+      return;
+    }
     setSubmitted(true);
   };
 
@@ -41,6 +78,7 @@ export default function Contact() {
     setSubmitted(false);
     setForm({ name: "", email: "", message: "" });
     setErrors({});
+    setSendError("");
   };
 
   return (
@@ -179,6 +217,21 @@ export default function Contact() {
           margin-top: 6px; display: inline-block;
         }
 
+        /* Off-screen rather than display:none, which some bots skip. */
+        .c-honeypot {
+          position: absolute; left: -9999px;
+          width: 1px; height: 1px; overflow: hidden;
+        }
+
+        .c-send-error {
+          margin-top: 20px; padding: 12px 16px;
+          border: 1px solid rgba(255,255,255,0.35);
+          border-radius: 8px;
+          background: rgba(0,0,0,0.18);
+          color: #fff;
+          font-size: 13px; line-height: 1.5;
+        }
+
         /* ── Submit button ────────────────────────── */
         .c-actions { margin-top: 40px; }
 
@@ -201,6 +254,8 @@ export default function Contact() {
           box-shadow: 0 10px 28px rgba(0,0,0,0.18);
         }
         .c-btn:active { transform: translateY(0); box-shadow: none; }
+
+        .c-btn:disabled { opacity: 0.7; cursor: default; transform: none; box-shadow: none; }
 
         .c-btn-icon {
           width: 30px; height: 30px; border-radius: 50%;
@@ -354,9 +409,18 @@ export default function Contact() {
                   <label className="c-label" htmlFor="c-email">Email</label>
                   <input id="c-email" className="c-input" type="email"
                     placeholder="jane@company.com" autoComplete="email" inputMode="email" value={form.email}
-                    onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setErrors(er => ({ ...er, email: undefined })); }}
-                    onFocus={() => setFocused("email")} onBlur={() => setFocused(null)} />
-                  {errors.email && <span className="c-error" role="alert">{errors.email}</span>}
+                    onChange={e => handleEmailChange(e.target.value)}
+                    onFocus={() => setFocused("email")}
+                    onBlur={() => {
+                      setFocused(null);
+                      // Only complain about a value they actually typed.
+                      if (form.email.trim()) {
+                        setErrors(er => ({ ...er, email: emailError(form.email) ?? undefined }));
+                      }
+                    }}
+                    aria-invalid={errors.email ? true : undefined}
+                    aria-describedby={errors.email ? "c-email-error" : undefined} />
+                  {errors.email && <span className="c-error" id="c-email-error" role="alert">{errors.email}</span>}
                 </div>
 
                 {/* Message */}
@@ -368,9 +432,19 @@ export default function Contact() {
                     onFocus={() => setFocused("message")} onBlur={() => setFocused(null)} />
                 </div>
 
+                {/* Hidden from people; a filled value marks the sender as a bot. */}
+                <div className="c-honeypot" aria-hidden="true">
+                  <label htmlFor="c-website">Website</label>
+                  <input id="c-website" name="website" type="text" tabIndex={-1}
+                    autoComplete="off" value={honeypot}
+                    onChange={e => setHoneypot(e.target.value)} />
+                </div>
+
+                {sendError && <p className="c-send-error" role="alert">{sendError}</p>}
+
                 <div className="c-actions">
-                  <button className="c-btn" onClick={handleSubmit}>
-                    Let's Talk
+                  <button className="c-btn" onClick={handleSubmit} disabled={sending}>
+                    {sending ? "Sending…" : "Let's Talk"}
                     <span className="c-btn-icon" aria-hidden="true">
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path d="M2.5 7H11.5M8 3L12 7L8 11" stroke="white"

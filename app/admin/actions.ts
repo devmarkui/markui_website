@@ -64,6 +64,7 @@ import {
   type StudioInput,
   type TopWorkInput,
 } from "@/lib/db";
+import { deleteEnquiry } from "@/lib/enquiries";
 import {
   BODY_LIMITS,
   HEADING_LIMITS,
@@ -83,6 +84,8 @@ import {
 import {
   CTA_SIZE_RANGE,
   MAX_SOCIAL_LINKS,
+  MAX_TRUST_LOGOS,
+  MAX_TRUST_STATS,
   HERO_PANEL_LABELS,
   isHeroIllustration,
   isHeroPanel,
@@ -121,6 +124,8 @@ const ADMIN_PATHS = [
   "/admin/studio",
   "/admin/footer",
   "/admin/account",
+  "/admin/enquiries",
+  "/admin/trust",
 ];
 
 function revalidatePublicSite() {
@@ -494,6 +499,15 @@ export async function saveService(
   if (!name) return { error: "Service name is required." };
   if (!shortDescription) return { error: "A short description is required." };
 
+  // Blank keeps the button pointing at this service's own detail page.
+  const ctaLink = text(formData, "ctaLink");
+  if (ctaLink && !ctaLink.startsWith("/") && !isHttpUrl(ctaLink)) {
+    return {
+      error:
+        "The button link must start with / for a page on this site, or https:// for another site.",
+    };
+  }
+
   const existing = id ? await getService(id) : null;
   if (id && !existing) return { error: "That service no longer exists." };
 
@@ -521,6 +535,7 @@ export async function saveService(
       features: list(formData, "features"),
       benefits: list(formData, "benefits"),
       tags: list(formData, "tags"),
+      ctaLink: ctaLink || undefined,
       active: checkbox(formData, "active"),
     };
 
@@ -1197,6 +1212,9 @@ export async function saveHomeSettings(
     marketingTitle: text(formData, "marketingTitle"),
     marketingDescription: text(formData, "marketingDescription"),
     marketingLink: text(formData, "marketingLink"),
+    mediaTitle: text(formData, "mediaTitle"),
+    mediaDescription: text(formData, "mediaDescription"),
+    mediaLink: text(formData, "mediaLink"),
     ctaSize,
     ctaWeight: rawWeight ? sanitizeWeight(Number(rawWeight)) : undefined,
     ctaColor,
@@ -1205,13 +1223,14 @@ export async function saveHomeSettings(
   if (!home.ctaText || !home.ctaLink) {
     return { error: "Both the button text and the button link are required." };
   }
-  if (!home.itTitle || !home.marketingTitle) {
-    return { error: "Both service panels need a title." };
+  if (!home.itTitle || !home.marketingTitle || !home.mediaTitle) {
+    return { error: "All three services need a title." };
   }
   for (const [label, link] of [
     ["button link", home.ctaLink],
     ["IT Solutions link", home.itLink],
     ["Digital Marketing link", home.marketingLink],
+    ["Media Production link", home.mediaLink],
   ]) {
     if (link && !isLinkTarget(link)) {
       return {
@@ -1601,4 +1620,81 @@ export async function saveSocialLinks(
       ? "Social links saved — the footer on every page has been updated."
       : "All social links removed from the footer.",
   };
+}
+
+// ─── Enquiries ───────────────────────────────────────────────────────────────
+
+export async function removeEnquiry(
+  _prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const id = text(formData, "id");
+  if (!id) return { error: "Missing enquiry id." };
+
+  await deleteEnquiry(id);
+  revalidatePath("/admin/enquiries");
+
+  return { ok: true, message: "Enquiry deleted." };
+}
+
+// ─── Home trust strip ────────────────────────────────────────────────────────
+
+export async function saveTrustSettings(
+  _prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const headingDark = text(formData, "trustHeadingDark");
+  const headingMuted = text(formData, "trustHeadingMuted");
+  if (!headingDark) {
+    return { error: "The headline needs at least one line." };
+  }
+
+  // One set of inputs per row, in the order the admin arranged them.
+  const statLabels = formData.getAll("statLabel").map((v) => String(v).trim());
+  const statValues = formData.getAll("statValue").map((v) => String(v).trim());
+  const statSuffixes = formData.getAll("statSuffix").map((v) => String(v).trim());
+  const statDescriptions = formData
+    .getAll("statDescription")
+    .map((v) => String(v).trim());
+
+  const stats = statLabels
+    .map((label, i) => ({
+      label,
+      value: statValues[i] ?? "",
+      suffix: statSuffixes[i] ?? "",
+      description: statDescriptions[i] ?? "",
+    }))
+    .filter((row) => row.label || row.value || row.description);
+
+  if (stats.length > MAX_TRUST_STATS) {
+    return { error: `Add at most ${MAX_TRUST_STATS} stat cards.` };
+  }
+  for (const [i, row] of stats.entries()) {
+    if (!row.label) return { error: `Stat card ${i + 1} needs a label.` };
+    if (!row.value) return { error: `Stat card ${i + 1} needs a figure, e.g. 100%.` };
+  }
+
+  const logoNames = formData.getAll("logoName").map((v) => String(v).trim());
+  const logoIcons = formData.getAll("logoIcon").map((v) => String(v).trim());
+
+  const logos = logoNames
+    .map((name, i) => ({ name, icon: (logoIcons[i] ?? "").slice(0, 4) }))
+    .filter((row) => row.name || row.icon);
+
+  if (logos.length > MAX_TRUST_LOGOS) {
+    return { error: `Add at most ${MAX_TRUST_LOGOS} client names.` };
+  }
+  for (const [i, row] of logos.entries()) {
+    if (!row.name) return { error: `Client ${i + 1} needs a name.` };
+  }
+
+  await updateSettings({ trust: { headingDark, headingMuted, stats, logos } });
+  revalidatePath("/");
+  revalidatePath("/admin/trust");
+
+  return { ok: true, message: "Trust strip saved — the Home page has been updated." };
 }

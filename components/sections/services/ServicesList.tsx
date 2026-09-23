@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { LISTING_CSS } from "@/components/sections/shared/listing-styles";
 import { useHoverVideo } from "@/hooks/useHoverVideo";
+import { isExternalUrl } from "@/lib/products";
 import type { ResolvedTopWork, Service } from "@/lib/types";
 
 /** Thumbnails shown per service; the rest stay on the service's own page. */
@@ -158,10 +159,14 @@ function ServiceRow({
             </>
           ) : null}
 
+          {/* A link set in the dashboard wins; otherwise the detail page. */}
           <Link
-            href={`/services/${service.slug}`}
+            href={service.ctaLink || `/services/${service.slug}`}
             className="sl-btn"
             aria-label={`Explore ${service.name}`}
+            {...(service.ctaLink && isExternalUrl(service.ctaLink)
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
           >
             Explore service
             <span aria-hidden="true">→</span>

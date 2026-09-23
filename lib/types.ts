@@ -107,6 +107,11 @@ export interface Service {
   benefits: string[];
   /** Small category labels shown on the card. */
   tags: string[];
+  /**
+   * Where the "Explore service" button on the Services page goes. Blank keeps
+   * the default, this service's own detail page at /services/<slug>.
+   */
+  ctaLink?: string;
   order: number;
   /** Inactive services stay in the database but disappear from the public site. */
   active: boolean;
@@ -259,6 +264,8 @@ export interface Settings {
   about: AboutContent;
   /** Editable copy used by the Home page hero. */
   home: HomeContent;
+  /** The Home page trust strip: headline, client names and stat cards. */
+  trust: TrustContent;
   /** Social profiles listed in the site footer, in display order. */
   socialLinks: SocialLink[];
   updatedAt: string;
@@ -314,6 +321,10 @@ export interface HomeContent {
   marketingDescription: string;
   /** Where the Digital Marketing panel leads. Site path or full URL. */
   marketingLink: string;
+  mediaTitle: string;
+  mediaDescription: string;
+  /** Where the Media Production panel leads. Site path or full URL. */
+  mediaLink: string;
 }
 
 /** Button text size limits (px). */
@@ -339,6 +350,10 @@ export const DEFAULT_HOME: HomeContent = {
   marketingDescription:
     "Social media, content and campaigns that help the right people find and choose you.",
   marketingLink: "/services/digital-marketing",
+  mediaTitle: "Media Production",
+  mediaDescription:
+    "Photography, video and multimedia production that gives your brand something worth showing.",
+  mediaLink: "/services/multimedia-production",
 };
 
 // ─── Hero service cards ──────────────────────────────────────────────────────
@@ -475,13 +490,133 @@ export const DEFAULT_ABOUT: AboutContent = {
   ctaText: "Have a project, product or idea in mind? Let's talk about how we can help.",
 };
 
+// ─── Trust strip (Home page) ─────────────────────────────────────────────────
+// The band under the hero: the headline, the scrolling client names and the
+// stat cards. All of it is edited in the dashboard (Trust & Stats).
+
+/** One stat card, e.g. "Client Satisfaction · 100% · Trusted by growing…". */
+export interface TrustStat {
+  label: string;
+  value: string;
+  /** Second line under the value, like "Years". Blank for none. */
+  suffix: string;
+  description: string;
+}
+
+/** One name in the scrolling strip. */
+export interface TrustLogo {
+  name: string;
+  /** A single symbol shown before the name, e.g. ◎. Blank for none. */
+  icon: string;
+}
+
+export interface TrustContent {
+  /** Headline lines in full black, one per line. */
+  headingDark: string;
+  /** Headline lines in grey, shown under the dark ones. */
+  headingMuted: string;
+  stats: TrustStat[];
+  logos: TrustLogo[];
+}
+
+/** Keeps the grid and the strip from overflowing. */
+export const MAX_TRUST_STATS = 8;
+export const MAX_TRUST_LOGOS = 16;
+
+export const DEFAULT_TRUST: TrustContent = {
+  headingDark: "DESIGN\nTHAT WORKS",
+  headingMuted: "RESULTS\nTHAT LAST",
+  stats: [
+    {
+      label: "Client Satisfaction",
+      value: "100%",
+      suffix: "",
+      description: "Trusted by growing digital teams",
+    },
+    {
+      label: "Experience",
+      value: "8+",
+      suffix: "Years",
+      description: "Designing scalable digital products",
+    },
+    {
+      label: "Delivered Projects",
+      value: "60+",
+      suffix: "",
+      description: "Across SaaS, AI & digital platforms",
+    },
+    {
+      label: "Growth Impact",
+      value: "+40%",
+      suffix: "",
+      description: "Average ROI growth after new design",
+    },
+  ],
+  logos: [
+    { name: "Prisma", icon: "◭" },
+    { name: "Vertex", icon: "⬡" },
+    { name: "Lumina", icon: "◈" },
+    { name: "Nexus", icon: "⊠" },
+    { name: "Courto", icon: "⊡" },
+    { name: "Orbital", icon: "◎" },
+    { name: "Vanta", icon: "●" },
+  ],
+};
+
 export const DEFAULT_SETTINGS: Settings = {
   portfolioUrl: "",
   about: DEFAULT_ABOUT,
   home: DEFAULT_HOME,
+  trust: DEFAULT_TRUST,
   socialLinks: [],
   updatedAt: new Date(0).toISOString(),
 };
+
+// ─── Enquiries ───────────────────────────────────────────────────────────────
+// What visitors send through the Contact page form and the Home page form.
+// Stored first, then emailed, so a mail outage never loses one.
+
+export const ENQUIRY_SOURCES = ["contact", "home"] as const;
+
+export type EnquirySource = (typeof ENQUIRY_SOURCES)[number];
+
+export const ENQUIRY_SOURCE_LABELS: Record<EnquirySource, string> = {
+  contact: "Contact page",
+  home: "Home page",
+};
+
+export function isEnquirySource(value: unknown): value is EnquirySource {
+  return (
+    typeof value === "string" && (ENQUIRY_SOURCES as readonly string[]).includes(value)
+  );
+}
+
+export interface Enquiry {
+  id: string;
+  /** Which form it came from. */
+  source: EnquirySource;
+  name: string;
+  /** Both optional on their own — the forms require at least one of them. */
+  email: string;
+  phone: string;
+  company: string;
+  /** The service picked on the Contact form; blank from the Home form. */
+  service: string;
+  message: string;
+  /** false until the notification email leaves the server. */
+  emailed: boolean;
+  createdAt: string;
+}
+
+/** Longest each field may be, to keep one submission from filling the table. */
+export const ENQUIRY_LIMITS = {
+  name: 120,
+  email: 200,
+  phone: 40,
+  company: 160,
+  service: 120,
+  message: 5000,
+} as const;
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 

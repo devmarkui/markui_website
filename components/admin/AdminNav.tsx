@@ -12,6 +12,7 @@ const GROUPS: { label: string; links: { href: string; label: string }[] }[] = [
     label: "Content",
     links: [
       { href: "/admin/home", label: "Home Page" },
+      { href: "/admin/trust", label: "Trust & Stats" },
       { href: "/admin/studio", label: "Latest From Studio" },
       { href: "/admin/services", label: "Services" },
       { href: "/admin/top-work", label: "Service Top Work" },
@@ -21,6 +22,10 @@ const GROUPS: { label: string; links: { href: string; label: string }[] }[] = [
       { href: "/admin/footer", label: "Footer & Social" },
       { href: "/admin/settings", label: "Portfolio Settings" },
     ],
+  },
+  {
+    label: "Enquiries",
+    links: [{ href: "/admin/enquiries", label: "Form Submissions" }],
   },
   {
     label: "Admin",

@@ -369,7 +369,7 @@
 
 .ad-item {
   display: grid;
-  grid-template-columns: 84px 1fr auto;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
   padding: 12px;
@@ -377,6 +377,17 @@
   border: 1px solid var(--ad-border);
   border-radius: var(--ad-radius);
   transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+/*
+ * A row of form fields rather than a piece of content: no thumbnail, so the
+ * fields take the space the thumbnail column would have used. Without this the
+ * body lands in the 84px column and every input collapses to a sliver.
+ */
+.ad-item--plain {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  padding: 16px;
 }
 
 .ad-item:hover {
@@ -628,6 +639,16 @@
 
 .ad-field--full {
   grid-column: 1 / -1;
+}
+
+/* Three fields across, for rows of short values like the stat cards. */
+.ad-grid--triple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* A narrow field — a symbol or a code — beside one that takes the rest. */
+.ad-grid--icon {
+  grid-template-columns: 132px minmax(0, 1fr);
 }
 
 .ad-label {
@@ -950,6 +971,12 @@
   .ad-item {
     grid-template-columns: 64px 1fr;
     gap: 12px;
+  }
+
+  /* No thumbnail column to shrink — the fields take the whole row. */
+  .ad-item--plain {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px;
   }
 
   .ad-thumb {

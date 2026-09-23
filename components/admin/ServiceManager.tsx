@@ -426,6 +426,27 @@ function ServiceEditor({
                 />
               </div>
 
+              <div className="ad-field ad-field--full">
+                <label className="ad-label" htmlFor="sv-cta-link">
+                  &ldquo;Explore service&rdquo; button link <span>(optional)</span>
+                </label>
+                <input
+                  id="sv-cta-link"
+                  name="ctaLink"
+                  type="text"
+                  defaultValue={service?.ctaLink ?? ""}
+                  placeholder={service?.slug ? `/services/${service.slug}` : "/contact"}
+                  spellCheck={false}
+                />
+                <p className="ad-hint">
+                  Where the button on the Services page goes. Leave blank to keep
+                  sending people to this service&rsquo;s own page. Use a path like{" "}
+                  <code>/contact</code> for a page on this site, or a full{" "}
+                  <code>https://…</code> address for another site, which opens in a
+                  new tab.
+                </p>
+              </div>
+
               <div className="ad-fieldset">Appearance &amp; visibility</div>
 
               <div className="ad-field">

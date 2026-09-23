@@ -186,6 +186,7 @@ export async function loadDatabase(client: DbClient): Promise<Partial<Database>>
       features: r.features as string[],
       benefits: r.benefits as string[],
       tags: r.tags as string[],
+      ctaLink: opt(r.cta_link as string | null),
       order: r.sort_order as number,
       active: r.active as boolean,
       createdAt: iso(r.created_at),
@@ -308,6 +309,15 @@ export async function loadDatabase(client: DbClient): Promise<Partial<Database>>
         marketingTitle: s.marketing_title as string,
         marketingDescription: s.marketing_description as string,
         marketingLink: s.marketing_link as string,
+        mediaTitle: s.media_title as string,
+        mediaDescription: s.media_description as string,
+        mediaLink: s.media_link as string,
+      },
+      trust: {
+        headingDark: s.trust_heading_dark as string,
+        headingMuted: s.trust_heading_muted as string,
+        stats: s.trust_stats as Settings["trust"]["stats"],
+        logos: s.trust_logos as Settings["trust"]["logos"],
       },
       about: {
         heroHeading: s.about_hero_heading as string,
@@ -351,10 +361,12 @@ export async function saveDatabase(client: DbClient, db: Database): Promise<void
       client,
       "services",
       ["id", "slug", "name", "short_description", "full_description", "image", "icon",
-        "features", "benefits", "tags", "sort_order", "active", "created_at", "updated_at"],
+        "features", "benefits", "tags", "cta_link", "sort_order", "active",
+        "created_at", "updated_at"],
       db.services.map((s) => [
         s.id, s.slug, s.name, s.shortDescription, s.fullDescription, s.image, s.icon,
-        s.features, s.benefits, s.tags, s.order, s.active, ts(s.createdAt), ts(s.updatedAt),
+        s.features, s.benefits, s.tags, s.ctaLink ?? "", s.order, s.active,
+        ts(s.createdAt), ts(s.updatedAt),
       ]),
     );
 
@@ -478,13 +490,16 @@ export async function saveDatabase(client: DbClient, db: Database): Promise<void
       db.settings.socialLinks.map((l, i) => [l.label, l.url, i]),
     );
 
-    const { home, about } = db.settings;
+    const { home, about, trust } = db.settings;
     await insertRows(
       client,
       "site_settings",
       ["id", "portfolio_url", "hero_heading", "hero_description", "cta_text", "cta_link",
         "cta_size", "cta_weight", "cta_color", "it_title", "it_description", "it_link",
-        "marketing_title", "marketing_description", "marketing_link", "about_hero_heading",
+        "marketing_title", "marketing_description", "marketing_link",
+        "media_title", "media_description", "media_link",
+        "trust_heading_dark", "trust_heading_muted", "trust_stats", "trust_logos",
+        "about_hero_heading",
         "about_introduction", "about_who_we_are", "about_approach", "about_reasons",
         "about_expertise", "about_values", "about_cta_heading", "about_cta_text", "updated_at"],
       [[
@@ -492,6 +507,9 @@ export async function saveDatabase(client: DbClient, db: Database): Promise<void
         home.ctaText, home.ctaLink, home.ctaSize ?? null, home.ctaWeight ?? null,
         home.ctaColor ?? null, home.itTitle, home.itDescription, home.itLink,
         home.marketingTitle, home.marketingDescription, home.marketingLink,
+        home.mediaTitle, home.mediaDescription, home.mediaLink,
+        trust.headingDark, trust.headingMuted,
+        JSON.stringify(trust.stats), JSON.stringify(trust.logos),
         about.heroHeading, about.introduction, about.whoWeAre,
         JSON.stringify(about.approach), JSON.stringify(about.reasons),
         JSON.stringify(about.expertise), JSON.stringify(about.values),

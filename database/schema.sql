@@ -34,6 +34,7 @@ CREATE TABLE services (
   features          JSON         NOT NULL DEFAULT (JSON_ARRAY()),  -- "What we offer"
   benefits          JSON         NOT NULL DEFAULT (JSON_ARRAY()),  -- "Why choose this service"
   tags              JSON         NOT NULL DEFAULT (JSON_ARRAY()),
+  cta_link          TEXT         NOT NULL DEFAULT (''),    -- '' = /services/<slug>
   sort_order        INT          NOT NULL DEFAULT 0,
   active            BOOLEAN      NOT NULL DEFAULT TRUE,
   created_at        DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -265,6 +266,30 @@ CREATE TABLE social_links (
   CHECK (REGEXP_LIKE(url, '^https?://', 'i'))
 ) ENGINE = InnoDB;
 
+-- ─── Enquiries ───────────────────────────────────────────────────────────────
+-- Submissions from the Contact page form and the Home page form. The row is
+-- written before the notification email is sent, so nothing is lost if the mail
+-- server is unreachable; `emailed` records whether that email went out.
+
+CREATE TABLE enquiries (
+  id          VARCHAR(64)  NOT NULL DEFAULT (UUID()),
+  source      VARCHAR(16)  NOT NULL,                  -- 'contact' | 'home'
+  name        VARCHAR(120) NOT NULL,
+  email       VARCHAR(200) NOT NULL DEFAULT (''),
+  phone       VARCHAR(40)  NOT NULL DEFAULT (''),
+  company     VARCHAR(160) NOT NULL DEFAULT (''),
+  service     VARCHAR(120) NOT NULL DEFAULT (''),
+  message     TEXT         NOT NULL,
+  emailed     BOOLEAN      NOT NULL DEFAULT FALSE,
+  created_at  DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+  PRIMARY KEY (id),
+  KEY enquiries_created_idx (created_at),
+  CHECK (source IN ('contact', 'home')),
+  -- A form must leave at least one way to reply.
+  CHECK (email <> '' OR phone <> '')
+) ENGINE = InnoDB;
+
 -- ─── Site settings (single row) ──────────────────────────────────────────────
 -- Home hero copy, About page copy and the portfolio link.
 --
@@ -290,6 +315,15 @@ CREATE TABLE site_settings (
   marketing_title        VARCHAR(255) NOT NULL DEFAULT 'Digital Marketing',
   marketing_description  TEXT         NOT NULL DEFAULT (''),
   marketing_link         TEXT         NOT NULL DEFAULT ('/services/digital-marketing'),
+  media_title            VARCHAR(255) NOT NULL DEFAULT 'Media Production',
+  media_description      TEXT         NOT NULL DEFAULT (''),
+  media_link             TEXT         NOT NULL DEFAULT ('/services/multimedia-production'),
+
+  -- Home trust strip
+  trust_heading_dark     TEXT         NOT NULL DEFAULT (''),   -- one line per line
+  trust_heading_muted    TEXT         NOT NULL DEFAULT (''),
+  trust_stats            JSON         NOT NULL DEFAULT (JSON_ARRAY()),  -- [{label, value, suffix, description}]
+  trust_logos            JSON         NOT NULL DEFAULT (JSON_ARRAY()),  -- [{name, icon}]
 
   -- About page
   about_hero_heading     TEXT         NOT NULL,
@@ -346,7 +380,8 @@ START TRANSACTION;
 -- The one settings row, with the site's current defaults.
 INSERT INTO site_settings (
   hero_heading, hero_description,
-  it_description, marketing_description,
+  it_description, marketing_description, media_description,
+  trust_heading_dark, trust_heading_muted, trust_stats, trust_logos,
   about_hero_heading, about_introduction, about_who_we_are,
   about_approach, about_reasons, about_expertise, about_values,
   about_cta_heading, about_cta_text
@@ -355,6 +390,16 @@ INSERT INTO site_settings (
   '{"blocks":[{"runs":[{"text":"We help ambitious companies launch memorable brands, build high-impact websites, and design digital products people love to use."}]}]}',
   'Websites, web applications and custom software built around the way your business works.',
   'Social media, content and campaigns that help the right people find and choose you.',
+  'Photography, video and multimedia production that gives your brand something worth showing.',
+  'DESIGN\nTHAT WORKS',
+  'RESULTS\nTHAT LAST',
+  '[{"label":"Client Satisfaction","value":"100%","suffix":"","description":"Trusted by growing digital teams"},
+    {"label":"Experience","value":"8+","suffix":"Years","description":"Designing scalable digital products"},
+    {"label":"Delivered Projects","value":"60+","suffix":"","description":"Across SaaS, AI & digital platforms"},
+    {"label":"Growth Impact","value":"+40%","suffix":"","description":"Average ROI growth after new design"}]',
+  '[{"name":"Prisma","icon":"◭"},{"name":"Vertex","icon":"⬡"},{"name":"Lumina","icon":"◈"},
+    {"name":"Nexus","icon":"⊠"},{"name":"Courto","icon":"⊡"},{"name":"Orbital","icon":"◎"},
+    {"name":"Vanta","icon":"●"}]',
   'We create\ndigital experiences\nthat matter.',
   'Mark UI is a creative technology company focused on building meaningful digital experiences, brands, products and solutions for modern businesses.',
   'Mark UI brings together design, technology, marketing and multimedia to help businesses build stronger digital experiences.\n\nWe work across strategy, branding, digital marketing, software, web development, photography and multimedia production.\n\nOur approach is simple: understand the problem, create the right solution and deliver work that creates real value.',

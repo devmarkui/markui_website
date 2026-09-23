@@ -1,49 +1,21 @@
-"use client";
+import { getSettings } from "@/lib/db";
 
-import React from "react";
+/**
+ * The band under the hero: headline, scrolling client names and stat cards.
+ * All of it is edited in the admin dashboard (Trust & Stats), so this reads it
+ * from the store on each render.
+ */
+export default async function Trust() {
+  const { trust } = await getSettings();
 
-const STATS = [
-  {
-    label: "Client Satisfaction",
-    value: "100%",
-    suffix: null,
-    description: "Trusted by growing digital teams",
-    icon: "▾",
-  },
-  {
-    label: "Experience",
-    value: "8+",
-    suffix: "Years",
-    description: "Designing scalable digital products",
-    icon: "+",
-  },
-  {
-    label: "Delivered Projects",
-    value: "60+",
-    suffix: null,
-    description: "Across SaaS, AI & digital platforms",
-    icon: "▾",
-  },
-  {
-    label: "Growth Impact",
-    value: "+40%",
-    suffix: null,
-    description: "Average ROI growth after new design",
-    icon: "+",
-  },
-];
+  const lines = (value: string) =>
+    value.split("\n").map((line) => line.trim()).filter(Boolean);
 
-const MARQUEE_LOGOS = [
-  { name: "Prisma",  icon: "◭" },
-  { name: "Vertex",  icon: "⬡" },
-  { name: "Lumina",  icon: "◈" },
-  { name: "Nexus",   icon: "⊠" },
-  { name: "Courto",  icon: "⊡" },
-  { name: "Orbital", icon: "◎" },
-  { name: "Vanta",   icon: "●" },
-];
+  const darkLines = lines(trust.headingDark);
+  const mutedLines = lines(trust.headingMuted);
+  const STATS = trust.stats;
+  const MARQUEE_LOGOS = trust.logos;
 
-export default function Trust() {
   return (
     <>
       <style>{`
@@ -242,7 +214,6 @@ export default function Trust() {
           justify-content: center;
           font-size: 11px;
           color: var(--text-muted);
-          cursor: pointer;
           flex-shrink: 0;
           background: none;
           transition: border-color var(--transition-fast, 0.2s ease), color var(--transition-fast, 0.2s ease);
@@ -250,7 +221,7 @@ export default function Trust() {
           padding: 0;
         }
 
-        .ts-card-btn:hover {
+        .ts-card:hover .ts-card-btn {
           border-color: var(--primary);
           color: var(--primary);
         }
@@ -277,10 +248,16 @@ export default function Trust() {
 
             {/* ── LEFT: Headline + rule + inline marquee ── */}
             <div className="ts-left">
-              <span className="ts-line ts-line-dark font-display">DESIGN</span>
-              <span className="ts-line ts-line-dark font-display">THAT WORKS</span>
-              <span className="ts-line ts-line-muted font-display">RESULTS</span>
-              <span className="ts-line ts-line-muted font-display">THAT LAST</span>
+              {darkLines.map((line, i) => (
+                <span className="ts-line ts-line-dark font-display" key={`d${i}`}>
+                  {line}
+                </span>
+              ))}
+              {mutedLines.map((line, i) => (
+                <span className="ts-line ts-line-muted font-display" key={`m${i}`}>
+                  {line}
+                </span>
+              ))}
 
               {/* Thin separator rule */}
               <div className="ts-rule" aria-hidden="true" />
@@ -303,8 +280,8 @@ export default function Trust() {
 
             {/* ── RIGHT: 2×2 stat cards ── */}
             <div className="ts-cards">
-              {STATS.map((stat) => (
-                <div className="ts-card" key={stat.label}>
+              {STATS.map((stat, i) => (
+                <div className="ts-card" key={`${stat.label}-${i}`}>
                   <div className="ts-card-top">
                     <span className="ts-card-label">{stat.label}</span>
                     <span className="ts-card-value font-display">{stat.value}</span>
@@ -314,9 +291,10 @@ export default function Trust() {
                   </div>
                   <div className="ts-card-bottom">
                     <span className="ts-card-desc">{stat.description}</span>
-                    <button className="ts-card-btn" aria-label="expand">
-                      {stat.icon}
-                    </button>
+                    {/* Decorative corner mark — the cards do not expand. */}
+                    <span className="ts-card-btn" aria-hidden="true">
+                      {i % 2 === 0 ? "▾" : "+"}
+                    </span>
                   </div>
                 </div>
               ))}

@@ -31,6 +31,7 @@ import {
   DEFAULT_ABOUT,
   DEFAULT_HOME,
   DEFAULT_SETTINGS,
+  DEFAULT_TRUST,
   type Database,
   type HeroPanel,
   type HomeContent,
@@ -42,6 +43,7 @@ import {
   type Settings,
   type StudioItem,
   type TopWork,
+  type TrustContent,
 } from "./types";
 
 /**
@@ -214,6 +216,7 @@ function normalizeSettings(settings: Partial<Settings> | undefined): Settings {
     ...DEFAULT_SETTINGS,
     ...settings,
     home: normalizeHome(settings?.home),
+    trust: normalizeTrust(settings?.trust),
     socialLinks: Array.isArray(settings?.socialLinks) ? settings.socialLinks : [],
     about: {
       ...DEFAULT_ABOUT,
@@ -223,6 +226,23 @@ function normalizeSettings(settings: Partial<Settings> | undefined): Settings {
       expertise: Array.isArray(about?.expertise) ? about.expertise : DEFAULT_ABOUT.expertise,
       values: Array.isArray(about?.values) ? about.values : DEFAULT_ABOUT.values,
     },
+  };
+}
+
+/**
+ * Brings the trust strip up to date. A database from before the strip became
+ * editable has no columns for it, and reads back blank rather than missing —
+ * so an empty heading or an empty list means "never set", and falls back to
+ * what the page used to show.
+ */
+function normalizeTrust(raw: TrustContent | undefined): TrustContent {
+  const stats = Array.isArray(raw?.stats) ? raw.stats : [];
+  const logos = Array.isArray(raw?.logos) ? raw.logos : [];
+  return {
+    headingDark: raw?.headingDark || DEFAULT_TRUST.headingDark,
+    headingMuted: raw?.headingMuted ?? DEFAULT_TRUST.headingMuted,
+    stats: stats.length ? stats : DEFAULT_TRUST.stats,
+    logos: logos.length ? logos : DEFAULT_TRUST.logos,
   };
 }
 
@@ -244,7 +264,13 @@ interface LegacyHome {
 function normalizeHome(raw: unknown): HomeContent {
   const stored = (raw && typeof raw === "object" ? raw : {}) as Partial<HomeContent> &
     LegacyHome;
-  const { heroHeading, heroSubheading, heroDescription, ...rest } = stored;
+  const { heroHeading, heroSubheading, heroDescription, ...storedRest } = stored;
+
+  // A column added after the database was created reads back as undefined.
+  // Dropping those keys lets the defaults below show through instead of a blank.
+  const rest = Object.fromEntries(
+    Object.entries(storedRest).filter(([, value]) => value !== undefined),
+  ) as typeof storedRest;
 
   const lines = (value: string | undefined) =>
     (value ?? "").split("\n").map((l) => l.trim()).filter(Boolean);

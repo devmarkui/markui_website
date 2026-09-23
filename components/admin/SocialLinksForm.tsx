@@ -77,7 +77,7 @@ export default function SocialLinksForm({ links }: { links: SocialLink[] }) {
 
         <div className="ad-list">
           {rows.map((row, index) => (
-            <div className="ad-item" key={row.key}>
+            <div className="ad-item ad-item--plain" key={row.key}>
               <div className="ad-item-body">
                 <div className="ad-grid">
                   <div className="ad-field">
