@@ -95,8 +95,16 @@ code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "https://$SITE_DOM
 [[ "$code" == "200" ]] || die "https://$SITE_DOMAIN/ answered $code — check journalctl -u markui and the nginx error log."
 
 log "https://$SITE_DOMAIN is live (200)"
-certbot renew --dry-run >/dev/null 2>&1 && log "Renewal dry-run passed" || \
-  printf '\033[1;33m[!]\033[0m Renewal dry-run failed — check `certbot renew --dry-run` by hand.\n'
+# --cert-name, because a bare `certbot renew --dry-run` simulates all six certs
+# on this box against Let's Encrypt staging. That takes minutes, can fail for
+# reasons that have nothing to do with markui.lk, and the scary warning it
+# printed here the first time was an SSH timeout, not a renewal problem.
+if certbot renew --dry-run --cert-name "$SITE_DOMAIN" >/dev/null 2>&1; then
+  log "Renewal dry-run passed"
+else
+  printf '\033[1;33m[!]\033[0m Renewal dry-run failed — run it by hand:\n'
+  printf '    certbot renew --dry-run --cert-name %s\n' "$SITE_DOMAIN"
+fi
 
 cat <<DONE
 
