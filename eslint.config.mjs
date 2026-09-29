@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Static homepage bundle (plain browser JS, served as-is).
+    "public/landing/**",
+    // Design-loop workspace, not part of the app.
+    "gan-harness/**",
   ]),
 ]);
 

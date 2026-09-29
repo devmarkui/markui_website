@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
     // half-written with only a warning in the server log.
     proxyClientMaxBodySize: "25mb",
   },
+  async rewrites() {
+    return {
+      // The homepage is the static build in public/landing/ (intro, signal
+      // trace, scroll effects). beforeFiles so it wins over app/page.tsx,
+      // which stays in place: removing this rewrite restores the old home.
+      beforeFiles: [{ source: "/", destination: "/landing/index.html" }],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
 };
 
 export default nextConfig;

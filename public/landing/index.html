@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mark UI — Design the Future. Define the Experience. | Creative technology studio, Colombo</title>
+    <meta name="description" content="Mark UI is a creative technology studio in Colombo, Sri Lanka: IT solutions, digital marketing and media production under one roof. Less Noise. More Impact." />
+    <meta name="theme-color" content="#0d0b0a" />
+    <link rel="icon" href="/landing/assets/brand/icon.png" type="image/png" />
+    <script>
+      /* The intro: full on the first view of a session, a ~1 s cut after that (intro-short). Reduced motion: a still card
+         for ~600 ms on the first view only (intro-static). If the intro never finishes, the hero is released at 7.5 s. */
+      (function (d) { d.classList.add("js"); var seen = false; try { seen = sessionStorage.getItem("markui-intro") === "1"; } catch (e) {}
+        if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) { if (seen) return; d.classList.add("intro-static");
+          try { sessionStorage.setItem("markui-intro", "1"); } catch (e) {}
+          setTimeout(function () { var l = document.querySelector("[data-loader]"); if (l) l.remove(); }, 650); return; }
+        d.classList.add("has-loader"); if (seen) d.classList.add("intro-short");
+        setTimeout(function () { d.classList.add("hero-go", "hero-in", "hero-type-in"); }, 7500); })(document.documentElement);
+    </script>
+    <link rel="preload" href="/landing/assets/fonts/ClashDisplay-Variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" /></noscript>
+    <link rel="stylesheet" href="/landing/styles/site.css" />
+    <script type="module" src="/landing/scripts/loader.js"></script>
+    <script type="module" src="/landing/scripts/main.js"></script>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+      <symbol id="i-arrow" viewBox="0 0 14 14"><path d="M3 11 11 3M4.5 3H11v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" /></symbol>
+      <symbol id="i-down" viewBox="0 0 14 14"><path d="M7 1.5v10M2.5 7.5 7 12l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" /></symbol>
+    </svg>
+
+    <!-- INTRO: static tunes in to "Less Noise.", "More Impact" lands on it, the full stop drops last and flies into the hero disc -->
+    <div class="loader" aria-hidden="true" data-loader>
+      <canvas class="loader-canvas" data-loader-canvas></canvas>
+      <div class="loader-stage" data-loader-stage>
+        <p class="loader-line"><span class="loader-q" data-loader-q>Less Noise<span class="loader-stop">.</span></span><span class="loader-l"><span class="loader-word" data-loader-word>More Impact</span><span class="loader-dot" data-loader-dot></span></span></p>
+      </div>
+      <p class="loader-meta"><span class="loader-count" data-loader-count>000</span><span class="loader-status" data-loader-status>Tuning out the noise</span></p>
+      <p class="loader-skip"><span class="loader-skip-fine">Click or press any key to skip</span><span class="loader-skip-touch">Tap to skip</span></p>
+    </div>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="grain" aria-hidden="true" data-grain></div>
+
+    <!-- ===================================================== NAV -->
+    <header class="nav" data-nav>
+      <div class="nav-bar">
+        <a class="nav-logo" href="/" aria-label="Mark UI home"><img src="/landing/assets/brand/markui-logo-white.png" width="1600" height="319" alt="Mark UI" /></a>
+        <nav class="nav-links" aria-label="Primary">
+          <ul class="nav-list">
+            <li><a class="nav-link" href="/" aria-current="page">Home</a></li><li><a class="nav-link" href="/projects">Projects</a></li><li><a class="nav-link" href="/products">Products</a></li>
+            <li><a class="nav-link" href="/services">Services</a></li><li><a class="nav-link" href="/about">About</a></li><li><a class="nav-link" href="/contact">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="nav-desk" data-nav-desk>
+          <span class="nav-desk-label" id="nav-desk-label">Noise</span>
+          <div class="nav-desk-track" role="slider" tabindex="0" aria-labelledby="nav-desk-label" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="8" aria-valuetext="8 percent" data-desk-track>
+            <span class="nav-desk-rail" aria-hidden="true"></span><span class="nav-desk-fill" aria-hidden="true"></span><span class="nav-desk-cap" aria-hidden="true"></span>
+          </div>
+          <span class="nav-desk-value" aria-hidden="true" data-desk-value>08</span>
+        </div>
+        <div class="nav-actions">
+          <a class="btn-signal nav-cta" href="/proposal">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu" data-nav-toggle>
+            <span class="nav-toggle-text" aria-hidden="true" data-nav-toggle-text>Menu</span>
+            <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span></span>
+          </button>
+        </div>
+      </div>
+      <div class="nav-menu" id="nav-menu" data-nav-menu>
+        <nav class="nav-menu-inner" aria-label="Menu">
+          <ol class="nav-menu-list">
+            <li><a class="nav-menu-link" href="/" aria-current="page"><span class="nav-menu-num">01</span>Home</a></li><li><a class="nav-menu-link" href="/projects"><span class="nav-menu-num">02</span>Projects</a></li><li><a class="nav-menu-link" href="/products"><span class="nav-menu-num">03</span>Products</a></li>
+            <li><a class="nav-menu-link" href="/services"><span class="nav-menu-num">04</span>Services</a></li><li><a class="nav-menu-link" href="/about"><span class="nav-menu-num">05</span>About</a></li><li><a class="nav-menu-link" href="/contact"><span class="nav-menu-num">06</span>Contact</a></li>
+          </ol>
+          <div class="nav-menu-foot">
+            <a class="nav-menu-contact" href="mailto:info@markui.lk">info@markui.lk</a>
+            <a class="nav-menu-contact" href="tel:+94760887702">+94 76 088 7702</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ===================================================== HERO: the signal source. Its disc becomes the dot that travels the page. -->
+      <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
+        <div class="hero-stage" data-hero-stage>
+          <canvas class="hero-field" aria-hidden="true" data-hero-field></canvas>
+          <svg class="hero-route" aria-hidden="true" focusable="false" data-hero-route><path class="sig-ghost" data-ghost /><path class="sig-lit" data-lit /><g data-branches></g></svg>
+          <div class="hero-disc" aria-hidden="true" data-hero-disc></div>
+          <div class="hero-inner">
+            <p class="hero-eyebrow chan"><span class="chan-led" aria-hidden="true"></span><span class="sr-only">Creative technology studio, Colombo, Sri Lanka</span>
+              <span aria-hidden="true" data-decode>Creative technology studio</span><span class="chan-sep" aria-hidden="true"></span><span class="hero-eyebrow-place" aria-hidden="true" data-decode>Colombo, Sri Lanka</span></p>
+            <h1 class="hero-title" id="hero-title" aria-label="Design the Future. Define the Experience." data-hero-title>
+              <span class="hero-lines" aria-hidden="true"><span class="hero-line hero-line-q"><span class="hero-seg">Design the</span> <span class="hero-seg">Future.</span></span>
+                <span class="hero-line hero-line-l"><span class="hero-seg">Define the</span> <span class="hero-seg">Experience.</span></span></span>
+            </h1>
+            <div class="hero-copy">
+              <p class="hero-desc">We help ambitious companies launch memorable brands, build high-impact websites, and design digital products people love to use.</p>
+              <div class="hero-ctas">
+                <a class="btn-signal" href="/proposal">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+                <a class="btn-line" href="/projects">View Projects <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+              </div>
+            </div>
+            <div class="hero-fader" data-fader>
+              <span class="hero-fader-label" id="hero-fader-label">Noise</span>
+              <div class="hero-fader-track" role="slider" tabindex="0" aria-labelledby="hero-fader-label" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="8" aria-valuetext="8 percent" data-fader-track>
+                <span class="hero-fader-rail" aria-hidden="true"></span><span class="hero-fader-fill" aria-hidden="true"></span><span class="hero-fader-cap" aria-hidden="true"></span>
+              </div>
+              <span class="hero-fader-value" aria-hidden="true" data-fader-value>08</span>
+            </div>
+            <ul class="hero-channels" aria-label="What we do">
+              <li class="hero-channel-item" data-channel><a class="hero-channel" href="/services/software-it-solutions"><span class="hero-channel-head"><span class="hero-meter" aria-hidden="true" data-meter><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="hero-channel-num">CH 01</span></span>
+                <span class="hero-channel-title">IT Solutions</span><span class="hero-channel-text">Websites, web applications and custom software built around the way your business works.</span></a></li>
+              <li class="hero-channel-item" data-channel><a class="hero-channel" href="/services/digital-marketing"><span class="hero-channel-head"><span class="hero-meter" aria-hidden="true" data-meter><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="hero-channel-num">CH 02</span></span>
+                <span class="hero-channel-title">Digital Marketing</span><span class="hero-channel-text">Social media, content and campaigns that help the right people find and choose you.</span></a></li>
+              <li class="hero-channel-item" data-channel><a class="hero-channel" href="/services/multimedia-production"><span class="hero-channel-head"><span class="hero-meter" aria-hidden="true" data-meter><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="hero-channel-num">CH 03</span></span>
+                <span class="hero-channel-title">Media Production</span><span class="hero-channel-text">Photography, video and multimedia production that gives your brand something worth showing.</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== PROOF: one number turned all the way up -->
+      <section class="proof" id="proof" aria-labelledby="proof-title" data-section>
+        <div class="proof-inner">
+          <div class="proof-head">
+            <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">01</span><span class="chan-sep" aria-hidden="true"></span><span>Proof</span></p>
+            <h2 class="proof-title" id="proof-title">Design that works. <em>Results that last.</em></h2>
+          </div>
+          <dl class="proof-stats">
+            <div class="proof-lead">
+              <dt class="proof-lead-label"><span class="proof-lead-led" aria-hidden="true"></span>Delivered projects</dt>
+              <dd class="proof-lead-value"><span class="proof-lead-num">60</span><span class="proof-lead-plus">+</span></dd>
+              <dd class="proof-lead-note">Across SaaS, AI &amp; digital platforms</dd>
+            </div>
+            <div class="proof-read"><dt class="proof-read-label">Client satisfaction</dt><dd class="proof-read-value">100<span class="proof-read-unit">%</span></dd><dd class="proof-read-note">Trusted by growing digital teams</dd></div>
+            <div class="proof-read"><dt class="proof-read-label">Years experience</dt><dd class="proof-read-value">8<span class="proof-read-unit">+</span></dd><dd class="proof-read-note">Designing scalable digital products</dd></div>
+            <div class="proof-read"><dt class="proof-read-label">Growth impact</dt><dd class="proof-read-value"><span class="proof-read-unit">+</span>40<span class="proof-read-unit">%</span></dd><dd class="proof-read-note">Average ROI growth after new design</dd></div>
+          </dl>
+        </div>
+        <div class="proof-dial" data-dial>
+          <div class="proof-dial-head">
+            <p class="proof-dial-label" id="proof-dial-label">Clients on the dial</p>
+            <p class="proof-dial-freq" aria-hidden="true"><span data-dial-freq>01 / 07</span></p>
+          </div>
+          <div class="proof-dial-body">
+            <ul class="proof-dial-list" aria-labelledby="proof-dial-label">
+              <li class="proof-dial-name">Prisma</li><li class="proof-dial-name">Vertex</li><li class="proof-dial-name">Lumina</li><li class="proof-dial-name">Nexus</li>
+              <li class="proof-dial-name">Courto</li><li class="proof-dial-name">Orbital</li><li class="proof-dial-name">Vanta</li>
+            </ul>
+            <span class="proof-dial-scale" aria-hidden="true"></span><span class="proof-dial-needle" aria-hidden="true" data-dial-needle></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== SERVICES: a crescendo, then one channel up at a time -->
+      <section class="services" id="services" aria-labelledby="services-title" data-section>
+        <div class="services-inner">
+          <div class="services-head">
+            <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">02</span><span class="chan-sep" aria-hidden="true"></span><span>Services</span></p>
+            <h2 class="services-title" id="services-title" aria-label="Seven disciplines. One team." data-ramp><span class="services-title-line" aria-hidden="true">Seven disciplines.</span> <span class="services-title-line" aria-hidden="true">One team.</span></h2>
+            <svg class="services-hairpin" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 400 3M0 20 400 37" /></svg>
+            <div class="services-intro">
+              <p>Design, web and software, digital marketing, photography and video, multimedia production and events. One team takes it from the first idea to the final frame.</p>
+              <a class="btn-line" href="/services">All services <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+            </div>
+          </div>
+          <ol class="services-list" data-services>
+            <li class="services-row" data-service><span class="services-index" aria-hidden="true">01</span>
+              <h3 class="services-name"><a class="services-link" href="/services/digital-marketing"><span>Digital</span> <span>Marketing</span></a></h3>
+              <div class="services-body"><p class="services-desc">We build marketing systems that connect every channel — search, social, email, and paid media — into one engine that attracts the right audience and turns them into paying clients.</p>
+                <ul class="services-features" aria-label="Includes"><li>Social Media</li><li>SEO</li><li>Google &amp; Meta Ads</li><li>Email Marketing</li><li>Content Strategy</li><li>Analytics</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li>
+            <li class="services-row" data-service><span class="services-index" aria-hidden="true">02</span>
+              <h3 class="services-name"><a class="services-link" href="/services/multimedia-production"><span>Multimedia</span> <span>Production</span></a></h3>
+              <div class="services-body"><p class="services-desc">We direct and produce cinematic video and photo content that communicates quality before a single word is read. From scroll-stopping reels to full brand films.</p>
+                <ul class="services-features" aria-label="Includes"><li>Brand Videography</li><li>Reels &amp; Short-Form</li><li>Motion Graphics</li><li>Promotional Videos</li><li>Event Coverage</li><li>Post-Production</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li>
+            <li class="services-row" data-service><span class="services-index" aria-hidden="true">03</span>
+              <h3 class="services-name"><a class="services-link" href="/services/graphic-designing"><span>Graphic</span> <span>Designing</span></a></h3>
+              <div class="services-body"><p class="services-desc">We create visual identities and design systems that make your brand instantly recognisable — across every surface, from business cards to billboards to social feeds.</p>
+                <ul class="services-features" aria-label="Includes"><li>Brand Identity</li><li>Social Graphics</li><li>Print &amp; Packaging</li><li>Marketing Collateral</li><li>Brand Guidelines</li><li>Poster &amp; Banner</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li>
+            <li class="services-row" data-service><span class="services-index" aria-hidden="true">04</span>
+              <h3 class="services-name"><a class="services-link" href="/services/photography-videography"><span>Photography</span> <span>&amp; Videography</span></a></h3>
+              <div class="services-body"><p class="services-desc">We deliver images and footage that make people stop, look, and trust what they see — from product photography and corporate headshots to cinematic event coverage.</p>
+                <ul class="services-features" aria-label="Includes"><li>Product Photography</li><li>Corporate &amp; Events</li><li>Cinematic Films</li><li>Drone &amp; Aerial</li><li>Food Photography</li><li>Colour Grading</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li>
+            <li class="services-row" data-service><span class="services-index" aria-hidden="true">05</span>
+              <h3 class="services-name"><a class="services-link" href="/services/web-design-development"><span>Web Design</span> <span>&amp; Development</span></a></h3>
+              <div class="services-body"><p class="services-desc">We design and build fast, mobile-first websites that turn visitors into leads. Every site is engineered for performance, clarity, and conversion.</p>
+                <ul class="services-features" aria-label="Includes"><li>UI / UX Design</li><li>Custom Development</li><li>E-commerce</li><li>WordPress &amp; Webflow</li><li>Landing Pages</li><li>Speed &amp; SEO</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li>
+            <li class="services-row" data-service><span class="services-index" aria-hidden="true">06</span>
+              <h3 class="services-name"><a class="services-link" href="/services/software-it-solutions"><span>Software</span> <span>&amp; IT Solutions</span></a></h3>
+              <div class="services-body"><p class="services-desc">We build tools that adapt to your business — from custom management systems that replace messy spreadsheets to AI-powered features that automate repetitive work.</p>
+                <ul class="services-features" aria-label="Includes"><li>Custom Software</li><li>Mobile Apps</li><li>CRM &amp; Systems</li><li>API &amp; Automation</li><li>AI Solutions</li><li>IT Support</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li>
+            <li class="services-row" data-service><span class="services-index" aria-hidden="true">07</span>
+              <h3 class="services-name"><a class="services-link" href="/services/event-organisation-planning"><span>Event Organisation</span> <span>&amp; Planning</span></a></h3>
+              <div class="services-body"><p class="services-desc">We handle the full picture — from concept and logistics to live production, promotion, and post-event media — making sure every moment lands with the impact it deserves.</p>
+                <ul class="services-features" aria-label="Includes"><li>Corporate Events</li><li>Brand Activations</li><li>Stage &amp; AV</li><li>Live Promotion</li><li>Event Media</li><li>Post-Event Package</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ===================================================== WORK: a gallery wall; tuning re-hangs it -->
+      <section class="work" id="work" aria-labelledby="work-title" data-section>
+        <div class="work-inner">
+          <div class="work-head">
+            <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">03</span><span class="chan-sep" aria-hidden="true"></span><span>Selected work</span></p>
+            <h2 class="work-title" id="work-title">The work does the talking.</h2>
+            <p class="work-lede">Ten projects across branding, web, marketing and multimedia. Tune in to one channel: its prints move to the front of the wall and the rest turn down.</p>
+            <a class="btn-line work-all" href="/projects">See all work <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+          </div>
+
+          <div class="work-tuner" data-work-tuner>
+            <p class="work-tuner-label" id="work-tuner-label">Tune in</p>
+            <div class="work-tuner-scroll" data-tuner-scroll>
+              <div class="work-tuner-options" role="group" aria-labelledby="work-tuner-label">
+                <button class="work-tuner-btn" type="button" aria-pressed="true" data-filter="all"><span class="work-tuner-name" data-label="All">All</span><span class="work-tuner-count">10</span></button>
+                <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="web"><span class="work-tuner-name" data-label="Web">Web</span><span class="work-tuner-count">03</span></button>
+                <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="marketing"><span class="work-tuner-name" data-label="Marketing">Marketing</span><span class="work-tuner-count">02</span></button>
+                <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="branding"><span class="work-tuner-name" data-label="Branding">Branding</span><span class="work-tuner-count">03</span></button>
+                <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="multimedia"><span class="work-tuner-name" data-label="Multimedia">Multimedia</span><span class="work-tuner-count">02</span></button>
+              </div>
+            </div>
+            <p class="work-tuner-status" role="status" aria-live="polite" data-work-status>All ten projects in focus.</p>
+          </div>
+
+          <ol class="work-grid" data-work-grid>
+            <li class="work-item" data-cat="branding" data-index="1"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/atlas-1536.webp" srcset="/landing/assets/opt/atlas-800.webp 800w, /landing/assets/opt/atlas-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="ATLAS brand identity: a black brand book, business cards and a mug lit by an orange mountain-shaped light" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">01</span><h3 class="work-name"><a class="work-link" href="/projects/atlas">ATLAS</a></h3><p class="work-meta"><span>Lifestyle</span><span>Branding</span><span class="work-tag">/ framer</span></p><p class="work-desc">Complete brand overhaul and modern web presence for a premium lifestyle company.</p></div></article></li>
+            <li class="work-item" data-cat="multimedia" data-index="2"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/rivet-1536.webp" srcset="/landing/assets/opt/rivet-800.webp 800w, /landing/assets/opt/rivet-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="RIVET in-car interface: dashboard screens showing speed, performance and media glowing orange" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">02</span><h3 class="work-name"><a class="work-link" href="/projects/rivet">RIVET®</a></h3><p class="work-meta"><span>Automotive</span><span>Multimedia</span><span class="work-tag">/ ux/ui design</span></p><p class="work-desc">Immersive multimedia experience showcasing next-gen automotive engineering.</p></div></article></li>
+            <li class="work-item" data-cat="web" data-index="3"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/forge-1536.webp" srcset="/landing/assets/opt/forge-800.webp 800w, /landing/assets/opt/forge-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="FORGE fashion e-commerce site shown on a laptop screen inside a ring of orange light" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">03</span><h3 class="work-name"><a class="work-link" href="/projects/forge">FORGE</a></h3><p class="work-meta"><span>Fashion</span><span>Web</span><span class="work-tag">/ web design</span></p><p class="work-desc">A high-performance e-commerce platform tailored for modern fashion brands.</p></div></article></li>
+            <li class="work-item" data-cat="web" data-index="4"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/kodex-1536.webp" srcset="/landing/assets/opt/kodex-800.webp 800w, /landing/assets/opt/kodex-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="KODEX SaaS dashboard with revenue charts on a desktop monitor, tablet and phone" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">04</span><h3 class="work-name"><a class="work-link" href="/projects/kodex">KODEX</a></h3><p class="work-meta"><span>SaaS</span><span>Web</span><span class="work-tag">/ product design</span></p><p class="work-desc">Streamlined SaaS product design reducing user onboarding friction.</p></div></article></li>
+            <li class="work-item" data-cat="marketing" data-index="5"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/pulse-1536.webp" srcset="/landing/assets/opt/pulse-800.webp 800w, /landing/assets/opt/pulse-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 94vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="PULSE healthcare campaign: a phone app and floating campaign performance panels around an orange ring of light" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">05</span><h3 class="work-name"><a class="work-link" href="/projects/pulse">PULSE</a></h3><p class="work-meta"><span>Health</span><span>Marketing</span><span class="work-tag">/ social + ads</span></p><p class="work-desc">Targeted social media and ad campaigns delivering measurable ROI for health tech.</p></div></article></li>
+            <li class="work-item" data-cat="web" data-index="6"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/nexus-1536.webp" srcset="/landing/assets/opt/nexus-800.webp 800w, /landing/assets/opt/nexus-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="NEXUS B2B software interface with revenue analytics on a tilted tablet" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">06</span><h3 class="work-name"><a class="work-link" href="/projects/nexus">NEXUS</a></h3><p class="work-meta"><span>Tech</span><span>Web</span><span class="work-tag">/ web + software</span></p><p class="work-desc">Scalable B2B software interface designed to maximize user conversion.</p></div></article></li>
+            <li class="work-item" data-cat="branding" data-index="7"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/lunar-1536.webp" srcset="/landing/assets/opt/lunar-800.webp 800w, /landing/assets/opt/lunar-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="LUNAR boutique hotel identity: brand book, key card, envelope and door hanger in black and copper" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">07</span><h3 class="work-name"><a class="work-link" href="/projects/lunar">LUNAR</a></h3><p class="work-meta"><span>Hospitality</span><span>Branding</span><span class="work-tag">/ brand identity</span></p><p class="work-desc">Elegant brand identity and digital booking experience for luxury hospitality.</p></div></article></li>
+            <li class="work-item" data-cat="marketing" data-index="8"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/vela-1536.webp" srcset="/landing/assets/opt/vela-800.webp 800w, /landing/assets/opt/vela-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="VELA e-commerce campaign: a phone on a lit plinth beside campaign performance dashboards" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">08</span><h3 class="work-name"><a class="work-link" href="/projects/vela">VELA</a></h3><p class="work-meta"><span>E-commerce</span><span>Marketing</span><span class="work-tag">/ campaign</span></p><p class="work-desc">Data-driven marketing campaign to rapidly scale audience engagement.</p></div></article></li>
+            <li class="work-item" data-cat="branding" data-index="9"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/crest-1536.webp" srcset="/landing/assets/opt/crest-800.webp 800w, /landing/assets/opt/crest-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="CREST food and beverage branding: coffee bag, menu, olive oil bottle and jar with copper crest logos" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">09</span><h3 class="work-name"><a class="work-link" href="/projects/crest">CREST</a></h3><p class="work-meta"><span>F&amp;B</span><span>Branding</span><span class="work-tag">/ brand + print</span></p><p class="work-desc">Cohesive brand and print design strategy for a growing food &amp; beverage chain.</p></div></article></li>
+            <li class="work-item" data-cat="multimedia" data-index="10"><article class="work-card">
+              <div class="work-frame" data-reveal><img src="/landing/assets/opt/orbit-1536.webp" srcset="/landing/assets/opt/orbit-800.webp 800w, /landing/assets/opt/orbit-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
+                alt="ORBIT video production: an editing suite with a cinematic timeline and night-time film stills" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">10</span><h3 class="work-name"><a class="work-link" href="/projects/orbit">ORBIT</a></h3><p class="work-meta"><span>Events</span><span>Multimedia</span><span class="work-tag">/ video production</span></p><p class="work-desc">High-impact video production capturing the essence of global live events.</p></div></article></li>
+            <li class="work-foot" role="none">
+              <p class="work-foot-note">Ten of the projects we're proudest of. The full archive lives on the projects page.</p>
+              <a class="btn-signal work-foot-cta" href="/projects">See all work <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ===================================================== VOICES: set by length -->
+      <section class="voices" id="voices" aria-labelledby="voices-title" data-section>
+        <div class="voices-inner">
+          <div class="voices-head">
+            <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">04</span><span class="chan-sep" aria-hidden="true"></span><span>Google reviews</span></p>
+            <h2 class="voices-title" id="voices-title">Twelve reviews. All five stars.</h2>
+            <p class="voices-rule">Set by length: the fewer the words, the louder the type.</p>
+          </div>
+          <ul class="voices-wall">
+            <li class="voices-item voices-item-xxl"><figure class="voices-quote"><blockquote class="voices-text"><p>Better than I&nbsp;expected.</p></blockquote>
+              <figcaption class="voices-by"><span class="voices-name">Mohamed Faveed</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-s voices-pos-a"><figure class="voices-quote"><blockquote class="voices-text"><p>Having worked with several marketing partners over the years but out of all I found Mark UI standing out for their data driven approach and commitment towards the task.</p></blockquote>
+              <figcaption class="voices-by"><span class="voices-name">Muhammadh Ayoob</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-xl voices-pos-b"><figure class="voices-quote"><blockquote class="voices-text"><p>I highly recommend.</p></blockquote>
+              <figcaption class="voices-by"><span class="voices-name">Asma Aniff</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-l voices-pos-c"><figure class="voices-quote"><blockquote class="voices-text"><p>Satisfied with the work they&nbsp;do!</p></blockquote>
+              <figcaption class="voices-by"><span class="voices-name">Husni Habeeb</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-s voices-pos-d"><figure class="voices-quote"><blockquote class="voices-text"><p><strong class="voices-hook">Worst place to work as an intern.</strong> You won't feel to leave <span class="voices-emoji">🥺</span> Place and people which feels like home. Literally. They are the business partners who are super friendly but still, without lacking even a peck of professionalism <span class="voices-emoji">🤝</span></p></blockquote>
+              <p class="voices-aside" aria-hidden="true">Keep reading. He's joking.</p>
+              <figcaption class="voices-by"><span class="voices-name">Timothy Nilesh</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-l voices-pos-e"><figure class="voices-quote"><blockquote class="voices-text"><p>Very friendly superb <span class="voices-emoji">👌</span></p></blockquote>
+              <figcaption class="voices-by"><span class="voices-name">Nadira Shafeeq</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-m voices-pos-f"><figure class="voices-quote"><blockquote class="voices-text"><p>Highly recommend... Specially Umer... All the best...</p></blockquote>
+              <figcaption class="voices-by"><span class="voices-name">Hassan Jicker</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-s voices-pos-g"><figure class="voices-quote"><blockquote class="voices-text"><p>Highly recommended for anyone looking to grow their business and build a strong brand presence. Keep up the great work! <span class="voices-emoji">👏🔥</span></p></blockquote>
+              <figcaption class="voices-by"><span class="voices-name">Arshaq Aroos</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-s voices-pos-h"><figure class="voices-quote"><blockquote class="voices-text"><p>Highly recommend places for advertising and marketing your new start up and they are well known for their professionalism and quality of their work.</p></blockquote>
+              <figcaption class="voices-by"><span class="voices-name">Umar Sheriff Hassanali</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
+            <li class="voices-item voices-item-silent voices-pos-i">
+              <p class="voices-silent-label">Zero words. Five stars.</p>
+              <p class="voices-silent-note">Three more reviewers rated us without saying a thing. The quietest reviews of all.</p>
+              <ul class="voices-silent-list">
+                <li class="voices-silent-row"><span class="voices-name">Fathima Shazna Aslam</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></li>
+                <li class="voices-silent-row"><span class="voices-name">Ayush Ag</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></li>
+                <li class="voices-silent-row"><span class="voices-name">Thilina Fernando</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ===================================================== WHY: a four-position knob, turned by scrolling -->
+      <section class="why" id="why" aria-labelledby="why-title" data-section data-why>
+        <div class="why-inner">
+          <div class="why-head">
+            <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">05</span><span class="chan-sep" aria-hidden="true"></span><span>Why Mark UI</span></p>
+            <h2 class="why-title" id="why-title">Why teams choose Mark&nbsp;UI.</h2>
+          </div>
+          <div class="why-rail" aria-hidden="true">
+            <div class="why-knob" data-why-knob>
+              <span class="why-knob-feed" data-why-feed></span><span class="why-knob-ring"></span><svg class="why-knob-arc" viewBox="0 0 100 100"><circle cx="50" cy="50" r="49.6" pathLength="1" data-why-arc /></svg>
+              <span class="why-knob-tick" style="--a: -90deg"><b>01</b></span><span class="why-knob-tick" style="--a: 0deg"><b>02</b></span><span class="why-knob-tick" style="--a: 90deg"><b>03</b></span><span class="why-knob-tick" style="--a: 180deg"><b>04</b></span>
+              <span class="why-knob-plus"><span class="why-knob-notch"></span></span>
+              <p class="why-readout"><span data-why-num>01</span> / 04 <span class="why-readout-name" data-why-name>Integrated team</span></p>
+            </div>
+          </div>
+          <ol class="why-list">
+            <li class="why-item" data-why-item><p class="why-label"><span>01</span>Integrated team</p><h3 class="why-name">Design <span class="why-plus">+</span> Dev, Under One Roof.</h3>
+              <p class="why-text">No handoff chaos. Our designers and developers work side by side, so what gets designed is exactly what gets built.</p></li>
+            <li class="why-item" data-why-item><p class="why-label"><span>02</span>Full-stack execution</p><h3 class="why-name">Strategy to Execution.</h3>
+              <p class="why-text">From brand identity and UI to code deployment and ad campaigns, one team handles the full stack, start to finish.</p></li>
+            <li class="why-item" data-why-item><p class="why-label"><span>03</span>Creative engineering</p><h3 class="why-name">Creative Meets Technology.</h3>
+              <p class="why-text">We don't trade beauty for function. Every project fuses cinematic visual thinking with solid, scalable engineering.</p></li>
+            <li class="why-item" data-why-item><p class="why-label"><span>04</span>Results driven</p><h3 class="why-name">Results, Not Just Visuals.</h3>
+              <p class="why-text">We measure success by leads generated and brands elevated, not by how premium it looks on a screen.</p></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ===================================================== PROCESS: noise in, one clean signal out -->
+      <section class="process" id="process" aria-labelledby="process-title" data-section>
+        <div class="process-inner">
+          <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">06</span><span class="chan-sep" aria-hidden="true"></span><span>Process</span></p>
+          <h2 class="process-title" id="process-title"><span class="process-kicker">Four stages.</span> <span class="process-big">One clean signal.</span></h2>
+          <div class="process-scope" data-process>
+            <svg class="process-wave" aria-hidden="true" data-process-wave>
+              <defs><linearGradient id="process-grad" gradientUnits="userSpaceOnUse" data-process-grad><stop offset="0" stop-color="#15110e" stop-opacity="0.55" /><stop offset="0.62" stop-color="#15110e" /><stop offset="0.86" stop-color="#ff6b00" /><stop offset="1" stop-color="#ff6b00" /></linearGradient></defs>
+              <path class="process-wave-ghost" data-process-ghost /><path class="process-wave-path" pathLength="1" stroke="url(#process-grad)" data-process-path />
+            </svg>
+            <ol class="process-steps">
+              <li class="process-step" data-process-step><span class="process-num">01</span><h3 class="process-name">Discover</h3><p class="process-text">Understand the business, audience and problem.</p><p class="process-tag" aria-hidden="true">All noise</p></li>
+              <li class="process-step" data-process-step><span class="process-num">02</span><h3 class="process-name">Plan</h3><p class="process-text">Define the strategy, direction and solution.</p><p class="process-tag" aria-hidden="true">A pattern</p></li>
+              <li class="process-step" data-process-step><span class="process-num">03</span><h3 class="process-name">Create</h3><p class="process-text">Design, develop and produce the required work.</p><p class="process-tag" aria-hidden="true">A shape</p></li>
+              <li class="process-step" data-process-step><span class="process-num">04</span><h3 class="process-name">Deliver</h3><p class="process-text">Launch, measure and improve the final result.</p><p class="process-tag" aria-hidden="true">Signal</p></li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== CONTACT: the line is open -->
+      <section class="contact" id="contact" aria-labelledby="contact-title" data-section>
+        <div class="contact-inner">
+          <div class="contact-head">
+            <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">07</span><span class="chan-sep" aria-hidden="true"></span><span>Contact</span></p>
+            <h2 class="contact-title" id="contact-title">Start something worth hearing<span class="contact-title-dot">.</span></h2>
+          </div>
+          <div class="contact-scope" aria-hidden="true" data-contact-scope>
+            <canvas class="contact-scope-canvas" data-scope-canvas></canvas>
+            <p class="contact-scope-meta"><span class="contact-scope-led"></span><span>Input</span><span class="contact-scope-state" data-scope-state>Line open. Type and we're listening.</span></p>
+          </div>
+          <div class="contact-intro">
+            <p class="contact-lede">Ready to start your next project? Tell us where you are and where you want to be. A few lines is plenty.</p>
+            <ul class="contact-lines">
+              <li><span class="contact-lines-label">Email</span><a class="contact-lines-link" href="mailto:info@markui.lk">info@markui.lk</a></li>
+              <li><span class="contact-lines-label">Phone</span><a class="contact-lines-link" href="tel:+94760887702">+94 76 088 7702</a></li>
+              <li><span class="contact-lines-label">Studio</span><span class="contact-lines-plain">Colombo, Sri Lanka</span></li>
+            </ul>
+          </div>
+          <div class="contact-panel" data-contact>
+            <form class="contact-form" novalidate data-contact-form>
+              <div class="contact-field" data-field="name">
+                <label class="contact-label" for="c-name"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">01</span>Your name <span class="contact-req">Required</span></label>
+                <input class="contact-input" id="c-name" name="name" type="text" autocomplete="name" placeholder="First and last name" aria-describedby="c-name-err" required />
+                <p class="contact-error" id="c-name-err" data-error></p>
+              </div>
+              <div class="contact-pair">
+                <div class="contact-field" data-field="email">
+                  <label class="contact-label" for="c-email"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">02</span>Email</label>
+                  <input class="contact-input" id="c-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@company.lk" aria-describedby="c-reach-hint c-email-err" />
+                  <p class="contact-error" id="c-email-err" data-error></p>
+                </div>
+                <div class="contact-field" data-field="phone">
+                  <label class="contact-label" for="c-phone"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">03</span>Phone</label>
+                  <input class="contact-input" id="c-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+94 7X XXX XXXX" aria-describedby="c-reach-hint c-phone-err" />
+                  <p class="contact-error" id="c-phone-err" data-error></p>
+                </div>
+                <p class="contact-hint" id="c-reach-hint" data-reach-hint>Email or phone: at least one, so we can reply.</p>
+              </div>
+              <div class="contact-field" data-field="message">
+                <label class="contact-label" for="c-message"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">04</span>About the project <span class="contact-req">Required</span></label>
+                <textarea class="contact-input contact-textarea" id="c-message" name="message" rows="4" placeholder="What are you building, and what would a great result look like?" aria-describedby="c-message-err" required></textarea>
+                <p class="contact-error" id="c-message-err" data-error></p>
+              </div>
+              <div class="contact-actions">
+                <button class="btn-signal contact-submit" type="submit" data-submit>
+                  <span class="contact-submit-text" data-submit-text>Send message</span>
+                  <span class="contact-meter" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+                  <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg>
+                </button>
+                <p class="contact-status" role="status" aria-live="polite" data-form-status></p>
+              </div>
+            </form>
+            <div class="contact-success" tabindex="-1" hidden data-contact-success>
+              <p class="contact-success-kicker">Message sent</p>
+              <p class="contact-success-title">Signal received<span>.</span></p>
+              <p class="contact-success-text" data-success-text>Thanks. We'll be in touch soon.</p>
+              <button class="btn-line contact-again" type="button" data-contact-reset>Send another message</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================================================== FOOTER: the signal docks as the brand line's full stop -->
+    <footer class="footer" data-footer>
+      <div class="footer-inner">
+        <div class="footer-top">
+          <div class="footer-brand">
+            <a class="footer-logo" href="/" aria-label="Mark UI home"><img src="/landing/assets/brand/markui-logo-white.png" width="1600" height="319" alt="Mark UI" loading="lazy" decoding="async" /></a>
+            <p class="footer-note">Creative technology studio. Design, web and software, marketing, media and events under one roof.</p>
+            <a class="btn-signal footer-cta" href="/proposal">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+          </div>
+          <nav class="footer-col footer-col-nav" aria-labelledby="footer-nav-title">
+            <p class="footer-title" id="footer-nav-title">Navigate</p>
+            <ul class="footer-list"><li><a class="footer-link" href="/">Home</a></li><li><a class="footer-link" href="/projects">Projects</a></li><li><a class="footer-link" href="/products">Products</a></li>
+              <li><a class="footer-link" href="/services">Services</a></li><li><a class="footer-link" href="/about">About</a></li><li><a class="footer-link" href="/contact">Contact</a></li></ul>
+          </nav>
+          <nav class="footer-col footer-col-services" aria-labelledby="footer-services-title">
+            <p class="footer-title" id="footer-services-title">Services</p>
+            <ul class="footer-list"><li><a class="footer-link" href="/services/digital-marketing">Digital Marketing</a></li><li><a class="footer-link" href="/services/multimedia-production">Multimedia Production</a></li>
+              <li><a class="footer-link" href="/services/graphic-designing">Graphic Designing</a></li><li><a class="footer-link" href="/services/photography-videography">Photography &amp; Videography</a></li>
+              <li><a class="footer-link" href="/services/web-design-development">Web Design &amp; Development</a></li><li><a class="footer-link" href="/services/software-it-solutions">Software &amp; IT Solutions</a></li>
+              <li><a class="footer-link" href="/services/event-organisation-planning">Event Organisation &amp; Planning</a></li></ul>
+          </nav>
+          <div class="footer-col footer-col-contact">
+            <p class="footer-title">Contact</p>
+            <ul class="footer-list"><li><a class="footer-link" href="mailto:info@markui.lk">info@markui.lk</a></li><li><a class="footer-link" href="tel:+94760887702">+94 76 088 7702</a></li><li><span class="footer-plain">Colombo, Sri Lanka</span></li></ul>
+          </div>
+        </div>
+        <p class="finale" data-finale><span class="finale-kicker" aria-hidden="true"><span class="finale-led"></span>Signal received</span>
+          <span class="finale-q">Less Noise<span class="finale-q-stop">.</span></span> <span class="finale-l"><span class="finale-word">More Impact</span><span class="finale-stop" aria-hidden="true" data-finale-stop></span><span class="sr-only">.</span></span></p>
+        <div class="footer-bottom">
+          <p>© 2026 Mark UI. All rights reserved.</p>
+          <p class="footer-since">Colombo · Since 2023</p>
+          <a class="footer-top-link" href="#top">Back to top <svg class="btn-arrow footer-up" aria-hidden="true"><use href="#i-down" /></svg></a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- SIGNAL: one trace from the hero to the finale. Drawn under all section content. -->
+    <div class="signal" aria-hidden="true" data-signal>
+      <svg class="signal-svg" focusable="false" data-signal-svg>
+        <defs><linearGradient id="sig-ghost-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1" data-grad-ghost></linearGradient>
+          <linearGradient id="sig-lit-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1" data-grad-lit></linearGradient></defs>
+        <g class="signal-ghost" data-signal-ghost></g><g class="signal-lit" data-signal-lit></g><g data-signal-branches></g>
+        <g class="signal-dot" data-signal-dot><circle class="signal-halo" r="15" /><circle class="signal-core" r="5" /></g>
+      </svg>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,5447 @@
+/* Mark UI homepage. The section stylesheets concatenated in load order (sources: gan-harness/prototype/styles/). */
+
+/* ---- tokens.css ---- */
+/* ==========================================================================
+   Mark UI — design tokens
+   Concept: "Volume". Weight is volume; orange is the signal.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Clash Display";
+  src:
+    url("../assets/fonts/ClashDisplay-Variable.ttf") format("truetype-variations"),
+    url("../assets/fonts/ClashDisplay-Variable.ttf") format("truetype");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  /* Grounds */
+  --carbon: #0d0b0a;
+  --soot: #151210;
+  --char: #1f1b18;
+  --line: rgba(241, 236, 230, 0.14);
+  --line-strong: rgba(241, 236, 230, 0.3);
+
+  /* Text on dark */
+  --bone: #f1ece6;
+  --bone-2: #d8d0c8;
+  --ash: #a39a92;
+  --ash-dim: #6f6761;
+
+  /* Gallery wall */
+  --paper: #e8e2da;
+  --paper-2: #ddd5cb;
+  --ink: #15110e;
+  --ink-soft: #5a524b;
+  --line-ink: rgba(21, 17, 14, 0.2);
+
+  /* Signal */
+  --signal: #ff6b00;
+  --signal-hover: #e55c00;
+  --signal-deep: #733508;
+  --signal-glow: rgba(255, 107, 0, 0.32);
+
+  /* Focus ring (overridden on light and orange grounds) */
+  --focus: var(--signal);
+
+  /* The Noise level (0-1) is an effect, never a filter on content:
+     scripts/desk.js writes it only onto the effect layers (the grain behind
+     the content and the signal trace). See desk.css. */
+
+  /* Families */
+  --font-display: "Clash Display", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Type scale (fluid) */
+  --fs-hero: clamp(3.5rem, 10.4vw, 11.5rem);
+  --fs-xl: clamp(2.75rem, 7.2vw, 7.25rem);
+  --fs-l: clamp(2.125rem, 4.6vw, 4.5rem);
+  --fs-m: clamp(1.5rem, 2.5vw, 2.5rem);
+  --fs-s: clamp(1.25rem, 1.7vw, 1.625rem);
+  --fs-body-l: clamp(1.0625rem, 1.25vw, 1.25rem);
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-label: 0.75rem;
+
+  /* Volume (weights) */
+  --w-quiet: 200;
+  --w-soft: 300;
+  --w-mid: 450;
+  --w-loud: 600;
+  --w-max: 700;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-soft: cubic-bezier(0.33, 0, 0.2, 1);
+  --t-fast: 220ms;
+  --t-mid: 560ms;
+  --t-slow: 1100ms;
+
+  /* Layout */
+  --pad: clamp(20px, 3.4vw, 48px);
+  /* The signal runs down the middle of the page margin. */
+  --gutter: calc(var(--pad) / 2);
+  --gap: clamp(12px, 1.7vw, 24px);
+  --max: 1520px;
+  --nav-h: 72px;
+  --section-y: clamp(96px, 12vw, 176px);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --nav-h: 64px;
+    --fs-xl: 2.5rem;
+    --section-y: 72px;
+  }
+}
+
+/* ---- base.css ---- */
+/* ==========================================================================
+   Base: reset, page defaults and the three shared components
+   - .chan-*  channel label that opens every section
+   - .btn-*   buttons and text links
+   Section headings are deliberately NOT shared: each section sets its own
+   heading at its own volume (see the section stylesheets).
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--nav-h) + 16px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--carbon);
+  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  /* The signal layer (styles/signal.css) is positioned against the body. */
+  position: relative;
+}
+
+/* Layering: section grounds, then the signal trace (z 1), then section
+   content (z 2). The trace can pass behind anything but never over it. */
+main > section:not(.hero) > :not(.proof-dial, .grain),
+.proof-dial > *,
+.footer-inner {
+  position: relative;
+  z-index: 2;
+}
+
+body.is-locked {
+  overflow: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ol,
+ul {
+  margin: 0;
+}
+
+ol,
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+  border-radius: 1px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: 12px;
+  z-index: 100;
+  padding: 12px 18px;
+  background: var(--signal);
+  color: var(--ink);
+  font-weight: 500;
+  transform: translateY(-160%);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+  outline-color: var(--bone);
+}
+
+/* Clash Display at negative tracking needs wider word spaces. */
+.hero-title,
+.proof-title,
+.services-name,
+.work-title,
+.work-name,
+.work-foot-note,
+.voices-title,
+.voices-text p,
+.voices-hook,
+.voices-silent-label,
+.why-title,
+.why-name,
+.process-big,
+.process-name,
+.contact-title,
+.contact-success-title,
+.footer-line,
+.nav-menu-link {
+  word-spacing: 0.09em;
+}
+
+/* --------------------------------------------------------------------------
+   Channel label — "01 · Proof"
+   -------------------------------------------------------------------------- */
+
+.chan {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chan-color, var(--ash));
+}
+
+.chan-led {
+  width: 7px;
+  height: 7px;
+  background: var(--chan-led-off, var(--ash-dim));
+  transition: background-color var(--t-mid) var(--ease-out), box-shadow var(--t-mid) var(--ease-out);
+}
+
+.is-live .chan-led {
+  background: var(--chan-led-on, var(--signal));
+  box-shadow: 0 0 12px var(--chan-led-glow, var(--signal-glow));
+}
+
+.chan-num {
+  color: var(--chan-num, var(--bone));
+}
+
+.chan-sep {
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+
+.btn-signal {
+  --btn-bg: var(--signal);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 0 22px 0 24px;
+  background: var(--btn-bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: 2px;
+  transition: background-color var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out);
+}
+
+.btn-signal:hover {
+  --btn-bg: var(--signal-hover);
+}
+
+.btn-signal:active {
+  transform: scale(0.98);
+}
+
+.btn-signal:focus-visible {
+  outline-color: var(--bone);
+}
+
+.btn-arrow {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  transition: transform var(--t-mid) var(--ease-out);
+}
+
+.btn-signal:hover .btn-arrow,
+.btn-line:hover .btn-arrow {
+  transform: translate(3px, -3px);
+}
+
+.btn-line {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--btn-line-color, var(--bone));
+}
+
+.btn-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.45;
+  transform-origin: left;
+  transition: opacity var(--t-fast) var(--ease-out);
+}
+
+.btn-line:hover::after,
+.btn-line:focus-visible::after {
+  opacity: 1;
+  animation: btn-sweep 760ms var(--ease-inout);
+}
+
+@keyframes btn-sweep {
+  0% { transform: scaleX(1); transform-origin: right; }
+  45% { transform: scaleX(0); transform-origin: right; }
+  46% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-line:hover::after,
+  .btn-line:focus-visible::after {
+    animation: none;
+  }
+}
+
+.btn-line .btn-arrow {
+  width: 12px;
+  height: 12px;
+}
+
+/* ---- desk.css ---- */
+/* ==========================================================================
+   Desk — the page-wide Noise channel.
+   The level (0–1) is written by scripts/desk.js whenever either fader moves
+   (the big one in the hero, the small one docked in the nav) or the hero
+   fader slides itself down after the intro. It is an EFFECT: content never
+   fades, blurs or changes colour with it. Only effect layers read --noise:
+   this grain, the signal trace, the particle static (JS) and the hero rings.
+   ========================================================================== */
+
+/* Grain: a texture painted into each ground (scripts/desk.js adds one
+   .grain layer to the hero, every section and the footer), BEHIND the
+   section's content (z-index 1; content is z-index 2, base.css). It
+   textures the ground and never veils text, images or controls. Barely
+   there when clean, film stock at 100. Not a fixed overlay: nothing has to
+   be composited above it. */
+.grain {
+  --noise: 0.05;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  opacity: calc(0.025 + var(--noise) * 0.2);
+  transition: opacity 400ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .is-noisy .grain {
+    animation: desk-grain 0.5s steps(1) infinite;
+  }
+}
+
+@keyframes desk-grain {
+  0% { background-position: 0 0; }
+  20% { background-position: -61px 37px; }
+  40% { background-position: 83px -29px; }
+  60% { background-position: -17px -91px; }
+  80% { background-position: 47px 71px; }
+}
+
+
+/* --------------------------------------------------------------------------
+   Nav desk: the fader docks into the nav once the hero has scrolled away
+   -------------------------------------------------------------------------- */
+
+.nav-desk {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .nav-desk {
+    --level: 0.08;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding-left: 18px;
+    border-left: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition:
+      opacity var(--t-mid) var(--ease-out),
+      transform var(--t-mid) var(--ease-out),
+      visibility 0s linear var(--t-mid);
+  }
+
+  .is-past-hero .nav-desk {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity var(--t-mid) var(--ease-out),
+      transform var(--t-mid) var(--ease-out),
+      visibility 0s linear 0s;
+  }
+}
+
+.nav-desk-label {
+  color: var(--ash);
+}
+
+.nav-desk-track {
+  position: relative;
+  width: 104px;
+  height: 44px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.nav-desk-track:active {
+  cursor: grabbing;
+}
+
+.nav-desk-track:focus-visible {
+  outline-offset: 2px;
+}
+
+.nav-desk-rail {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: calc(50% - 5px);
+  height: 11px;
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) center / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 10%) top / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 10%) bottom / 100% 3px no-repeat;
+}
+
+.nav-desk-fill {
+  position: absolute;
+  left: 6px;
+  top: calc(50% - 1px);
+  width: calc((100% - 12px) * var(--level));
+  height: 2px;
+  background: var(--signal);
+}
+
+.nav-desk-cap {
+  position: absolute;
+  left: calc(6px + (100% - 12px) * var(--level));
+  top: 50%;
+  width: 10px;
+  height: 20px;
+  background: var(--bone);
+  border-radius: 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  transform: translate(-50%, -50%);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.nav-desk-cap::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 4px;
+  width: 2px;
+  background: var(--carbon);
+}
+
+.nav-desk-track:hover .nav-desk-cap,
+.nav-desk-track:focus-visible .nav-desk-cap {
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+.nav-desk-value {
+  min-width: 2ch;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- loader.css ---- */
+/* ==========================================================================
+   Intro — "Less Noise. More Impact." tuned in, then landed.
+   Static (CSS, from first paint) → particles converge on "Less Noise."
+   (scripts/loader.js on the particle engine) → it lands softly → a floor
+   draws in → "More Impact" falls letter by letter and slams onto it (squash,
+   dust, floor ripple, a camera jolt) → the orange full stop drops last and
+   bounces → the words fall away and the dot flies into the hero disc.
+   html.has-loader: scripts + motion. html.intro-short: a repeat view in the
+   same session (~1 s cut). html.intro-static: reduced motion, first view: a
+   still card for ~600 ms. A CSS failsafe lifts the overlay if all else fails.
+   ========================================================================== */
+
+.loader {
+  display: none;
+}
+
+.has-loader .loader,
+.intro-static .loader {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--carbon);
+}
+
+.has-loader .loader {
+  transition: background-color 520ms var(--ease-inout);
+  animation: loader-failsafe 400ms var(--ease-out) 7.2s forwards;
+}
+
+@keyframes loader-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* CSS static, so the screen is already "on" before the script arrives. */
+.loader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.09;
+  transition: opacity 600ms var(--ease-out);
+}
+
+.has-loader .loader::before {
+  animation: desk-grain 0.4s steps(1) infinite;
+}
+
+.loader.is-live::before {
+  opacity: 0.035;
+}
+
+.loader.is-l::before,
+.intro-static .loader::before {
+  opacity: 0;
+}
+
+.loader.is-fading {
+  background-color: rgba(13, 11, 10, 0);
+  pointer-events: none;
+}
+
+.loader-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+/* The stage takes the camera jolts. */
+.loader-stage {
+  position: relative;
+}
+
+.loader-line {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 9vw, 10.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  word-spacing: 0.09em;
+}
+
+.loader-q,
+.loader-l {
+  display: block;
+  white-space: nowrap;
+  transform-origin: 50% 100%;
+  transition:
+    font-weight 520ms var(--ease-inout),
+    color 420ms var(--ease-out),
+    opacity 420ms var(--ease-out),
+    translate 520ms var(--ease-inout);
+}
+
+.loader-q {
+  font-weight: 260;
+  color: var(--ash);
+  opacity: 0;
+  transition-property: font-weight, color, opacity, translate;
+}
+
+/* A thin full stop reads as a comma: pin it heavy. */
+.loader-stop {
+  font-weight: 600;
+}
+
+.loader-l {
+  font-weight: 640;
+  color: var(--bone);
+  visibility: hidden;
+}
+
+.loader-wd {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.loader-ch {
+  display: inline-block;
+  transform-origin: 50% 100%;
+}
+
+.loader-dot {
+  display: inline-block;
+  width: 0.17em;
+  height: 0.17em;
+  margin-left: 0.04em;
+  border-radius: 50%;
+  background: var(--signal);
+  transform-origin: 50% 100%;
+  visibility: hidden;
+}
+
+.loader.is-q .loader-q {
+  opacity: 1;
+  transition-duration: 90ms;
+}
+
+.loader.is-l .loader-l,
+.loader.is-dot .loader-dot {
+  visibility: visible;
+}
+
+/* Hand-off: the words fall away (their weight drops to nothing) while the
+   dot, already handed to the flyer, leaves for the hero. */
+.loader.is-drop .loader-q,
+.loader.is-drop .loader-l {
+  font-weight: 200;
+  color: rgba(241, 236, 230, 0);
+  opacity: 0;
+  translate: 0 0.16em;
+}
+
+.loader.is-drop .loader-l {
+  transition-delay: 60ms;
+}
+
+.loader.is-drop .loader-dot {
+  visibility: hidden;
+}
+
+/* Reduced motion, first view: the line, still, for a moment. */
+.intro-static .loader-q,
+.intro-static .loader-l,
+.intro-static .loader-dot {
+  opacity: 1;
+  visibility: visible;
+  transition: none;
+}
+
+.intro-static :is(.loader-meta, .loader-skip, .loader-canvas) {
+  display: none;
+}
+
+.intro-static .loader.is-gone {
+  display: none;
+}
+
+/* The flying full stop: rendered at the disc's final size and scaled down,
+   so it stays sharp all the way into the hero. */
+.loader-flyer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 91;
+  border-radius: 50%;
+  background: var(--signal);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Readouts ------------------------------------------------------------------ */
+
+.loader-meta,
+.loader-skip {
+  position: absolute;
+  bottom: calc(var(--pad) + 4px);
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+  transition: opacity 300ms var(--ease-out);
+}
+
+.loader-meta {
+  left: var(--pad);
+}
+
+.loader-skip {
+  right: var(--pad);
+}
+
+.loader-count {
+  min-width: 3ch;
+  font-size: 0.875rem;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.loader-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loader-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--ash-dim);
+}
+
+.loader.is-found .loader-status {
+  color: var(--bone);
+}
+
+.loader.is-found .loader-status::before {
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+.loader.is-drop :is(.loader-meta, .loader-skip) {
+  opacity: 0;
+}
+
+/* The tuning scale along the bottom: its needle follows the counter. */
+.loader::after {
+  content: "";
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: calc(var(--pad) + 40px);
+  height: 9px;
+  background:
+    linear-gradient(var(--signal), var(--signal)) calc(var(--tune, 0) * 100%) 0 / 1px 100% no-repeat,
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 2.5%) bottom / 100% 4px no-repeat,
+    linear-gradient(rgba(241, 236, 230, 0.26), rgba(241, 236, 230, 0.26)) bottom / 100% 1px no-repeat;
+  transition: opacity 300ms var(--ease-out);
+}
+
+.loader.is-drop::after,
+.intro-static .loader::after {
+  opacity: 0;
+}
+
+.loader-skip-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .loader-skip-fine {
+    display: none;
+  }
+
+  .loader-skip-touch {
+    display: inline;
+  }
+}
+
+@media (max-width: 767px) {
+  .loader-line {
+    font-size: 13.4vw;
+  }
+}
+
+/* ---- nav.css ---- */
+/* ==========================================================================
+   Nav — quiet links, one loud button that never leaves the screen
+   ========================================================================== */
+
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+}
+
+.nav-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: var(--nav-h);
+  padding-inline: var(--pad);
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--t-mid) var(--ease-out),
+    border-color var(--t-mid) var(--ease-out);
+}
+
+.nav.is-scrolled .nav-bar,
+.nav.is-open .nav-bar {
+  background: rgba(13, 11, 10, 0.94);
+  border-bottom-color: var(--line);
+}
+
+.nav-logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  flex: none;
+}
+
+.nav-logo img {
+  width: auto;
+  height: 26px;
+}
+
+.nav-links {
+  margin-left: auto;
+}
+
+.nav-list {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ash);
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 10px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-mid) var(--ease-out);
+}
+
+.nav-link:hover,
+.nav-link[aria-current="page"] {
+  color: var(--bone);
+}
+
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 12px;
+}
+
+.nav-cta {
+  min-height: 44px;
+  padding-inline: 18px;
+  font-size: 0.875rem;
+}
+
+/* Toggle ------------------------------------------------------------------ */
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 4px 0 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone);
+}
+
+.nav-toggle-bars {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 12px;
+}
+
+.nav-toggle-bars span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  transition:
+    transform var(--t-mid) var(--ease-out),
+    top var(--t-mid) var(--ease-out),
+    width var(--t-mid) var(--ease-out);
+}
+
+.nav-toggle-bars span:first-child {
+  top: 1px;
+}
+
+.nav-toggle-bars span:last-child {
+  top: 9px;
+  width: 62%;
+  left: auto;
+  right: 0;
+}
+
+.nav-toggle:hover .nav-toggle-bars span:last-child {
+  width: 100%;
+}
+
+.nav.is-open .nav-toggle-bars span:first-child {
+  top: 5px;
+  transform: rotate(45deg);
+}
+
+.nav.is-open .nav-toggle-bars span:last-child {
+  top: 5px;
+  width: 100%;
+  transform: rotate(-45deg);
+}
+
+/* Menu overlay ------------------------------------------------------------ */
+
+.nav-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  padding: calc(var(--nav-h) + 24px) var(--pad) 32px;
+  background: var(--carbon);
+  visibility: hidden;
+  clip-path: inset(0 0 100% 0);
+  transition:
+    clip-path 700ms var(--ease-inout),
+    visibility 0s linear 700ms;
+  overflow-y: auto;
+}
+
+.nav.is-open .nav-menu {
+  visibility: visible;
+  clip-path: inset(0 0 0 0);
+  transition:
+    clip-path 700ms var(--ease-inout),
+    visibility 0s linear 0s;
+}
+
+.nav-menu-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+}
+
+.nav-menu-list {
+  display: grid;
+  gap: 2px;
+  border-top: 1px solid var(--line);
+}
+
+.nav-menu-link {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 10px 0 12px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 9vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: var(--w-quiet);
+  color: var(--ash);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.nav-menu-link:hover,
+.nav-menu-link:focus-visible,
+.nav-menu-link[aria-current="page"] {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.nav-menu-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  font-weight: 400;
+  color: var(--ash-dim);
+  transform: translateY(-0.9em);
+}
+
+.nav-menu-link[aria-current="page"] .nav-menu-num {
+  color: var(--signal);
+}
+
+.nav-menu-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+}
+
+.nav-menu-cta {
+  width: 100%;
+}
+
+.nav-menu-contact {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ash);
+}
+
+.nav-menu-contact:hover {
+  color: var(--bone);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nav-menu-list li {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 500ms var(--ease-out),
+      transform 700ms var(--ease-out);
+  }
+
+  .nav.is-open .nav-menu-list li {
+    opacity: 1;
+    transform: none;
+  }
+
+  .nav.is-open .nav-menu-list li:nth-child(1) { transition-delay: 180ms; }
+  .nav.is-open .nav-menu-list li:nth-child(2) { transition-delay: 220ms; }
+  .nav.is-open .nav-menu-list li:nth-child(3) { transition-delay: 260ms; }
+  .nav.is-open .nav-menu-list li:nth-child(4) { transition-delay: 300ms; }
+  .nav.is-open .nav-menu-list li:nth-child(5) { transition-delay: 340ms; }
+  .nav.is-open .nav-menu-list li:nth-child(6) { transition-delay: 380ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-menu,
+  .nav.is-open .nav-menu {
+    transition: none;
+  }
+}
+
+/* Breakpoints ------------------------------------------------------------- */
+
+@media (min-width: 1100px) {
+  .nav-menu {
+    display: none;
+  }
+}
+
+@media (max-width: 1099px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav-actions {
+    margin-left: auto;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 479px) {
+  .nav-bar {
+    gap: 12px;
+  }
+
+  .nav-logo img {
+    height: 22px;
+  }
+
+  .nav-cta {
+    padding-inline: 14px;
+    font-size: 0.8125rem;
+    gap: 8px;
+  }
+
+  .nav-toggle-text {
+    display: none;
+  }
+
+  .nav-toggle {
+    justify-content: center;
+    padding: 0;
+  }
+}
+
+/* ---- hero.css ---- */
+/* ==========================================================================
+   Hero — the signal source.
+   One orange disc, a field of noisy rings flowing out of it (canvas,
+   scripts/hero-field.js) and the headline crossing it: where the type
+   crosses the disc it turns ink (a clipped duplicate, scripts/hero-type.js).
+   On scroll the disc pins (desktop) or shrinks where it is (tablet, phone),
+   becomes a 10px dot and runs the dotted route out of the hero: down to the
+   channel desk, along it, and into the page margin (scripts/signal.js).
+   Geometry lives in custom properties so CSS and JS agree on it.
+   ========================================================================== */
+
+.hero {
+  --stage-h: max(100svh, 640px);
+  --desk-h: clamp(136px, 17svh, 164px);
+  --disc-d: min(38vw, 60svh, 720px);
+  --disc-x: 72%;
+  --disc-y: calc(var(--nav-h) + (var(--stage-h) - var(--nav-h) - var(--desk-h)) * 0.47);
+  --title-fs: clamp(3.25rem, min(7.2vw, 12.4svh), 9rem);
+  --pin: 0px;
+  position: relative;
+  height: calc(var(--stage-h) + var(--pin));
+  background: var(--carbon);
+}
+
+.hero-stage {
+  position: relative;
+  /* Above the page grain (z-index 1), which only textures the ground. */
+  z-index: 2;
+  height: var(--stage-h);
+  overflow: clip;
+}
+
+/* Desktop with motion: the stage holds while the disc turns into the dot. */
+@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
+  .hero {
+    --pin: 90svh;
+  }
+
+  .hero-stage {
+    position: sticky;
+    top: 0;
+  }
+}
+
+.hero-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  pointer-events: none;
+}
+
+.hero-disc {
+  position: absolute;
+  left: var(--disc-x);
+  top: var(--disc-y);
+  z-index: 1;
+  width: var(--disc-d);
+  aspect-ratio: 1;
+  margin: calc(var(--disc-d) / -2) 0 0 calc(var(--disc-d) / -2);
+  border-radius: 50%;
+  background: var(--signal);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.hero-route {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Content --------------------------------------------------------------- */
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  column-gap: var(--gap);
+  height: 100%;
+  padding: calc(var(--nav-h) + clamp(20px, 4.2vh, 44px)) var(--pad) 0;
+}
+
+.hero-eyebrow {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  align-self: start;
+  --chan-color: var(--ash);
+}
+
+.hero-eyebrow .chan-led {
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+.hero-eyebrow [data-decode] {
+  white-space: pre;
+}
+
+/* Headline: two lines on the disc's centre line. The Noise fader moves the
+   weight between them (scripts/hero-type.js): clean, "Define the
+   Experience." is bold; noisy, "Design the Future." is. Weight only, so the
+   layout never moves. --w on each character is its live weight. */
+.hero-title {
+  position: absolute;
+  left: var(--pad);
+  top: calc(var(--disc-y) - var(--title-fs) * 0.9);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--title-fs);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  font-weight: 400;
+}
+
+.hero-lines {
+  display: block;
+  -webkit-mask-image: radial-gradient(circle at var(--cx, -999px) var(--cy, -999px), transparent var(--cr, 0px), #000 calc(var(--cr, 0px) + 0.75px));
+  mask-image: radial-gradient(circle at var(--cx, -999px) var(--cy, -999px), transparent var(--cr, 0px), #000 calc(var(--cr, 0px) + 0.75px));
+}
+
+/* The ink copy: same box as the h1, clipped to the disc. */
+.hero-title-ink {
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-lines.hero-lines-ink {
+  -webkit-mask-image: none;
+  mask-image: none;
+  clip-path: circle(var(--cr, 0px) at var(--cx, -999px) var(--cy, -999px));
+}
+
+.hero-line {
+  display: block;
+  white-space: nowrap;
+}
+
+
+.hero-seg,
+.hero-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.hero-char {
+  display: inline-block;
+  font-weight: var(--w, 400);
+}
+
+.hero-line-q .hero-char {
+  --w: 220;
+  color: var(--bone);
+}
+
+.hero-line-l .hero-char {
+  --w: 640;
+  color: var(--bone);
+}
+
+/* A thin full stop reads as a comma: stops never go below 600, and they
+   carry the signal colour (ink where they cross the disc). */
+.hero-char.is-stop {
+  font-weight: max(600, var(--w, 600));
+  color: var(--signal);
+}
+
+.hero-lines-ink .hero-char {
+  color: var(--ink) !important;
+}
+
+.hero-copy {
+  grid-column: 1 / span 5;
+  grid-row: 3;
+  display: grid;
+  gap: clamp(16px, 2.6vh, 26px);
+  max-width: 470px;
+  padding-bottom: clamp(22px, 3.6vh, 38px);
+}
+
+.hero-desc {
+  font-size: var(--fs-body-l);
+  line-height: 1.55;
+  color: var(--bone-2);
+  max-width: 42ch;
+}
+
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+}
+
+/* Entrance, overlapped with the intro's exit. hero-go (the intro's dot
+   takes off): the copy, CTAs, desk and fader rise. hero-type-in: the
+   headline's letters spring up one by one. hero-in (the dot lands): the
+   disc. Only while the intro is in charge. */
+.has-loader:not(.hero-go) :is(.hero-eyebrow, .hero-copy, .hero-fader, .hero-route, .hero-channel-item) {
+  opacity: 0;
+}
+
+.has-loader:not(.hero-go) :is(.hero-copy, .hero-channel-item, .hero-fader) {
+  transform: translateY(22px);
+}
+
+.has-loader:not(.hero-in) .hero-disc {
+  opacity: 0;
+}
+
+.has-loader:not(.hero-type-in) .hero-char {
+  opacity: 0;
+  transform: translateY(0.34em) scaleY(1.2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .has-loader .hero-char {
+    transform-origin: 50% 100%;
+    transition:
+      opacity 360ms var(--ease-out) calc(var(--ci, 0) * 15ms),
+      transform 760ms cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--ci, 0) * 15ms);
+  }
+
+  .has-loader :is(.hero-eyebrow, .hero-copy, .hero-fader, .hero-route, .hero-channel-item) {
+    transition:
+      opacity 700ms var(--ease-out) var(--in-delay, 0ms),
+      transform 900ms var(--ease-out) var(--in-delay, 0ms);
+  }
+
+  .has-loader:not(.hero-settled) .hero-copy { --in-delay: 160ms; }
+  .has-loader:not(.hero-settled) .hero-channel-item:nth-child(1) { --in-delay: 260ms; }
+  .has-loader:not(.hero-settled) .hero-channel-item:nth-child(2) { --in-delay: 320ms; }
+  .has-loader:not(.hero-settled) .hero-channel-item:nth-child(3) { --in-delay: 380ms; }
+  .has-loader:not(.hero-settled) .hero-fader { --in-delay: 300ms; }
+  .has-loader:not(.hero-settled) .hero-route { --in-delay: 420ms; }
+}
+
+/* Tablet and phone: a poster. Disc top right, the headline crossing its
+   lower half, everything else in flow. The route leaves along the right
+   margin instead of dropping through the copy. ------------------------- */
+
+@media (max-width: 1099px) {
+  .hero {
+    --stage-h: auto;
+    --disc-d: 58vw;
+    --disc-x: 62%;
+    --disc-y: calc(var(--nav-h) + 64px + var(--disc-d) / 2);
+    --title-fs: 11.4vw;
+    height: auto;
+  }
+
+  .hero-stage {
+    height: auto;
+  }
+
+  .hero-inner {
+    grid-template-rows: none;
+    align-content: start;
+    height: auto;
+    padding-top: calc(var(--disc-y) + var(--disc-d) * 0.06);
+    padding-bottom: 44px;
+  }
+
+  /* Out of the grid (an absolutely placed grid item with a grid area would
+     be positioned inside that area). */
+  .hero-eyebrow {
+    position: absolute;
+    left: var(--pad);
+    top: calc(var(--nav-h) + 22px);
+    grid-area: auto;
+  }
+
+  .hero-title {
+    position: relative;
+    left: auto;
+    top: auto;
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .hero-seg {
+    display: block;
+  }
+
+  .hero-copy {
+    grid-column: 1 / span 8;
+    grid-row: 2;
+    max-width: 540px;
+    margin-top: 36px;
+    padding-bottom: 0;
+  }
+
+}
+
+@media (max-width: 767px) {
+  .hero {
+    --disc-d: 84vw;
+    --disc-x: 58%;
+    --disc-y: calc(var(--nav-h) + 56px + var(--disc-d) / 2);
+    --title-fs: 13.2vw;
+  }
+
+  .hero-eyebrow .chan-sep,
+  .hero-eyebrow-place {
+    display: none;
+  }
+
+  .hero-copy {
+    grid-column: 1 / -1;
+    gap: 22px;
+    margin-top: 30px;
+  }
+
+  .hero-ctas {
+    padding-right: 12px;
+  }
+
+  .hero-ctas .btn-signal {
+    flex: 1 1 auto;
+  }
+
+}
+
+
+/* ---- hero-channels.css ---- */
+/* ==========================================================================
+   Hero channels — the three pillars as a mixing-desk strip.
+   Each channel has a small level meter. At rest it flickers like a channel
+   picking up room noise; when the signal runs along the desk and passes it
+   (scripts/signal.js adds .is-fed), the meter jumps to full and settles into
+   one clean orange level, and the channel's title turns up.
+   ========================================================================== */
+
+.hero-channels {
+  position: relative;
+  grid-column: 1 / -1;
+  grid-row: 4;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: var(--desk-h);
+}
+
+/* The desk's top edge: the route runs along it. */
+.hero-channels::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--line-strong);
+  transform-origin: left;
+  transition: transform 1200ms var(--ease-out) 700ms;
+}
+
+.has-loader:not(.hero-in) .hero-channels::before {
+  transform: scaleX(0);
+}
+
+.hero-channel-item + .hero-channel-item {
+  border-left: 1px solid var(--line);
+}
+
+.hero-channel {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  height: 100%;
+  padding: 16px 24px 20px;
+}
+
+.hero-channel-item:first-child .hero-channel {
+  padding-left: 0;
+}
+
+.hero-channel-item:last-child .hero-channel {
+  padding-right: 0;
+}
+
+.hero-channel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms var(--ease-out);
+}
+
+.hero-channel:hover::before,
+.hero-channel:focus-visible::before {
+  transform: scaleX(1);
+}
+
+.hero-channel:focus-visible {
+  outline-offset: -2px;
+}
+
+.hero-channel-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 16px;
+}
+
+.hero-channel-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ash);
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.hero-channel-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--bone-2);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.hero-channel-text {
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ash);
+  max-width: 46ch;
+}
+
+.hero-channel:hover .hero-channel-title,
+.hero-channel:focus-visible .hero-channel-title,
+.is-fed > .hero-channel .hero-channel-title {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.hero-channel:hover .hero-channel-num,
+.hero-channel:focus-visible .hero-channel-num,
+.is-fed > .hero-channel .hero-channel-num {
+  color: var(--bone);
+}
+
+/* Meter ------------------------------------------------------------------ */
+
+.hero-meter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.hero-meter i {
+  width: 3px;
+  height: 100%;
+  background: var(--ash-dim);
+  transform-origin: 50% 100%;
+  transform: scaleY(0.3);
+  transition:
+    transform 420ms var(--ease-out),
+    background-color 420ms var(--ease-out);
+}
+
+.hero-meter i:nth-child(n + 6) {
+  background: color-mix(in oklab, var(--signal) 55%, var(--ash-dim));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-meter i {
+    animation: meter-a 1.3s steps(5, jump-none) infinite;
+  }
+
+  .hero-meter i:nth-child(2n) { animation-name: meter-b; animation-duration: 1.05s; }
+  .hero-meter i:nth-child(3n) { animation-name: meter-c; animation-duration: 1.55s; }
+  .hero-meter i:nth-child(2) { animation-delay: -0.3s; }
+  .hero-meter i:nth-child(4) { animation-delay: -0.7s; }
+  .hero-meter i:nth-child(5) { animation-delay: -0.2s; }
+  .hero-meter i:nth-child(7) { animation-delay: -0.9s; }
+  .hero-channel-item:nth-child(2) .hero-meter i { animation-duration: 1.2s; }
+  .hero-channel-item:nth-child(3) .hero-meter i { animation-duration: 0.95s; }
+}
+
+@keyframes meter-a {
+  0%, 100% { transform: scaleY(0.25); }
+  25% { transform: scaleY(0.7); }
+  50% { transform: scaleY(0.4); }
+  75% { transform: scaleY(0.9); }
+}
+
+@keyframes meter-b {
+  0%, 100% { transform: scaleY(0.55); }
+  30% { transform: scaleY(0.2); }
+  60% { transform: scaleY(0.8); }
+}
+
+@keyframes meter-c {
+  0%, 100% { transform: scaleY(0.35); }
+  40% { transform: scaleY(0.95); }
+  70% { transform: scaleY(0.15); }
+}
+
+/* Fed: one clean, steady level. */
+.is-fed .hero-meter i {
+  animation: none;
+  background: var(--signal);
+  transform: scaleY(0.72);
+}
+
+.is-fed .hero-meter i:nth-child(n + 6) {
+  background: var(--signal);
+  transform: scaleY(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .is-fed .hero-meter i {
+    animation: meter-surge 700ms var(--ease-out) calc(var(--mi, 0) * 40ms) both;
+  }
+
+  .hero-meter i:nth-child(2) { --mi: 1; }
+  .hero-meter i:nth-child(3) { --mi: 2; }
+  .hero-meter i:nth-child(4) { --mi: 3; }
+  .hero-meter i:nth-child(5) { --mi: 4; }
+  .hero-meter i:nth-child(6) { --mi: 5; }
+  .hero-meter i:nth-child(7) { --mi: 6; }
+}
+
+@keyframes meter-surge {
+  0% { transform: scaleY(0.2); }
+  45% { transform: scaleY(1); }
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .hero-channels {
+    grid-row: 4;
+    height: auto;
+    margin-top: 44px;
+  }
+
+  .hero-channel {
+    padding-bottom: 8px;
+  }
+}
+
+/* Phone: stacked rows, the meter sits under the channel number so the
+   signal (in the left margin) can reach it. */
+@media (max-width: 767px) {
+  .hero-channels {
+    grid-template-columns: 1fr;
+    margin-top: 36px;
+  }
+
+  .hero-channel-item + .hero-channel-item {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .hero-channel,
+  .hero-channel-item:last-child .hero-channel {
+    grid-template-columns: 56px 1fr;
+    column-gap: 12px;
+    padding: 18px 0;
+  }
+
+  .hero-channel-head {
+    grid-row: span 2;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 12px;
+    padding-top: 4px;
+  }
+}
+
+/* ---- hero-fader.css ---- */
+/* ==========================================================================
+   Hero fader — the page's Noise control (a console fader, ARIA slider).
+   It writes the desk level: "Design the Future." (weight and size), ring
+   turbulence, grain behind the content, particle static and the trace's
+   shimmer follow it. Content itself never fades or blurs. Vertical on the right
+   edge on desktop; a horizontal strip in the flow on tablet and phone
+   (scripts/hero.js flips aria-orientation to match).
+   ========================================================================== */
+
+.hero-fader {
+  --level: 0.08;
+  position: absolute;
+  z-index: 3;
+  right: calc(var(--pad) - 10px);
+  top: calc(var(--disc-y) - clamp(120px, 17vh, 160px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-fader-label {
+  color: var(--ash);
+}
+
+.hero-fader-track {
+  position: relative;
+  width: 44px;
+  height: clamp(150px, 24vh, 230px);
+  cursor: grab;
+  touch-action: none;
+  outline-offset: 6px;
+}
+
+.hero-fader-track:active {
+  cursor: grabbing;
+}
+
+.hero-fader-rail {
+  position: absolute;
+  inset: 7px 0;
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) center / 1px 100% no-repeat,
+    repeating-linear-gradient(to bottom, var(--ash-dim) 0 1px, transparent 1px 10%) left / 8px 100% no-repeat,
+    repeating-linear-gradient(to bottom, var(--ash-dim) 0 1px, transparent 1px 10%) right / 8px 100% no-repeat;
+}
+
+.hero-fader-fill {
+  position: absolute;
+  left: calc(50% - 1px);
+  bottom: 7px;
+  width: 2px;
+  height: calc((100% - 14px) * var(--level));
+  background: var(--signal);
+}
+
+.hero-fader-cap {
+  position: absolute;
+  left: 50%;
+  bottom: calc((100% - 14px) * var(--level));
+  width: 30px;
+  height: 14px;
+  transform: translateX(-50%);
+  background: var(--bone);
+  border-radius: 1px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.hero-fader-cap::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 6px;
+  height: 2px;
+  background: var(--carbon);
+}
+
+.hero-fader-track:hover .hero-fader-cap,
+.hero-fader-track:focus-visible .hero-fader-cap {
+  transform: translateX(-50%) scale(1.12);
+}
+
+/* While the fader moves itself (after the intro) its cap glows: this is the
+   control that just turned the headline up. */
+.hero-fader.is-auto .hero-fader-cap {
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.6);
+}
+
+.hero-fader.is-auto .hero-fader-value {
+  color: var(--signal);
+}
+
+.hero-fader-value {
+  min-width: 3ch;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tablet and phone: horizontal, in the flow beside the scroll cue. ------ */
+
+@media (max-width: 1099px) {
+  .hero-fader {
+    position: relative;
+    right: auto;
+    top: auto;
+    grid-column: 1 / span 6;
+    grid-row: 3;
+    flex-direction: row;
+    justify-self: start;
+    margin-top: 28px;
+  }
+
+  .hero-fader-track {
+    width: clamp(120px, 26vw, 200px);
+    height: 44px;
+  }
+
+  .hero-fader-rail {
+    inset: calc(50% - 5px) 7px auto;
+    height: 11px;
+    background:
+      linear-gradient(var(--line-strong), var(--line-strong)) center / 100% 1px no-repeat,
+      repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 10%) top / 100% 3px no-repeat,
+      repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 10%) bottom / 100% 3px no-repeat;
+  }
+
+  .hero-fader-fill {
+    left: 7px;
+    top: calc(50% - 1px);
+    bottom: auto;
+    width: calc((100% - 14px) * var(--level));
+    height: 2px;
+  }
+
+  .hero-fader-cap {
+    left: calc(7px + (100% - 14px) * var(--level));
+    top: 50%;
+    bottom: auto;
+    width: 12px;
+    height: 24px;
+    transform: translate(-50%, -50%);
+  }
+
+  .hero-fader-cap::after {
+    left: 5px;
+    right: auto;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    height: auto;
+  }
+
+  .hero-fader-track:hover .hero-fader-cap,
+  .hero-fader-track:focus-visible .hero-fader-cap {
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-fader {
+    grid-column: 1 / span 5;
+    margin-top: 24px;
+    gap: 10px;
+  }
+
+  .hero-fader-track {
+    width: 108px;
+  }
+}
+
+/* ---- signal.css ---- */
+/* ==========================================================================
+   Signal — the trace that carries the hero's dot to the finale.
+   One SVG the height of the page, positioned against <body>, between the
+   section grounds and their content (z-index 1; content is z-index 2, see
+   base.css), so it can run behind anything and never over text.
+   Ahead of the dot the route is a dotted ghost; behind it, solid signal.
+   On the orange reviews ground both turn ink. Colours per ground come from
+   two gradients written by scripts/signal.js.
+   ========================================================================== */
+
+.signal {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.signal:not(.is-ready) {
+  visibility: hidden;
+}
+
+.signal-svg {
+  display: block;
+  max-width: none;
+  overflow: visible;
+}
+
+.sig-ghost,
+.sig-lit,
+.sig-branch {
+  fill: none;
+  stroke-linejoin: round;
+}
+
+/* Square dots (butt-capped dashes): round-capped zero-length dashes look
+   the same but cost a lot to rasterise every time the lit path above them
+   changes. */
+.sig-ghost {
+  stroke-width: 2.25;
+  stroke-linecap: butt;
+  stroke-dasharray: 2.25 7;
+}
+
+.sig-lit {
+  stroke-width: 2.75;
+  stroke-linecap: butt;
+}
+
+.hero-route .sig-ghost {
+  stroke: rgba(241, 236, 230, 0.5);
+}
+
+.hero-route .sig-lit {
+  stroke: var(--signal);
+}
+
+/* Branches: a short stub from the route to each channel meter or LED. */
+.sig-branch {
+  stroke: rgba(241, 236, 230, 0.45);
+  stroke-width: 1.75;
+  stroke-linecap: butt;
+  stroke-dasharray: 1.75 5;
+  transition: stroke 360ms var(--ease-out);
+}
+
+.sig-branch.is-lit {
+  stroke: var(--signal);
+  stroke-width: 2.25;
+  stroke-dasharray: none;
+  stroke-linecap: butt;
+}
+
+.sig-branch[data-ground="light"] {
+  stroke: rgba(21, 17, 14, 0.32);
+}
+
+.sig-branch[data-ground="orange"] {
+  stroke: rgba(21, 17, 14, 0.45);
+}
+
+.sig-branch[data-ground="light"].is-lit {
+  stroke: var(--signal);
+}
+
+.sig-branch[data-ground="orange"].is-lit {
+  stroke: var(--ink);
+}
+
+/* The dot ------------------------------------------------------------------ */
+
+.signal-core {
+  r: 7.5px;
+  fill: var(--signal);
+}
+
+.signal-halo {
+  r: 24px;
+  fill: var(--signal);
+  opacity: 0.18;
+}
+
+/* The comet: static shed by the dot as it travels (scripts/signal-comet.js).
+   It rides with the dot; with the Noise fader up it fizzes at rest. */
+.signal-comet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 300px;
+  height: 300px;
+  max-width: none;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .is-noisy .signal-halo {
+    animation: signal-fizz 0.24s steps(2) infinite;
+  }
+}
+
+@keyframes signal-fizz {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.1; }
+}
+
+.signal-dot[data-ground="light"] .signal-halo {
+  opacity: 0.2;
+}
+
+.signal-dot[data-ground="orange"] .signal-core {
+  fill: var(--ink);
+}
+
+.signal-dot[data-ground="orange"] .signal-halo {
+  opacity: 0;
+}
+
+.signal-dot.is-hidden {
+  visibility: hidden;
+}
+
+@media (max-width: 1099px) {
+  .signal-core {
+    r: 5.5px;
+  }
+
+  .signal-halo {
+    r: 16px;
+  }
+
+  .sig-lit {
+    stroke-width: 2.25;
+  }
+
+  .sig-ghost {
+    stroke-width: 2;
+    stroke-dasharray: 2 6;
+  }
+}
+
+/* Once the disc has become the dot it hands over to the page layer. */
+.hero-disc.is-away {
+  visibility: hidden;
+}
+
+/* Fed channels: a section's LED stays lit once the signal has reached it,
+   and flashes as it arrives. */
+.is-fed .chan-led {
+  background: var(--chan-led-on, var(--signal));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .is-fed .chan-led {
+    animation: signal-led 800ms var(--ease-out);
+  }
+}
+
+@keyframes signal-led {
+  0% { box-shadow: 0 0 0 0 var(--chan-led-on, var(--signal)); }
+  100% { box-shadow: 0 0 0 12px rgba(255, 107, 0, 0); }
+}
+
+/* ---- proof.css ---- */
+/* ==========================================================================
+   Proof — one number turned all the way up, three turned down.
+   The heading is deliberately small: the loud thing here is "60+", whose
+   weight scrubs from 200 to 700 as it scrolls in (--p, scripts/scrub.js).
+   The other three stats are quiet readouts on the side.
+   ========================================================================== */
+
+.proof {
+  position: relative;
+  padding-top: clamp(96px, 10vw, 160px);
+  background: var(--carbon);
+}
+
+.proof-inner {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.proof-head {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+  row-gap: 20px;
+}
+
+.proof-head .chan {
+  grid-column: 1 / span 4;
+}
+
+.proof-title {
+  grid-column: 5 / -1;
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.1vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+  color: var(--bone);
+  text-wrap: balance;
+}
+
+.proof-title em {
+  font-style: normal;
+  color: var(--ash);
+}
+
+/* Stats ------------------------------------------------------------------- */
+
+.proof-stats {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: repeat(3, auto) 1fr;
+  margin-top: clamp(56px, 7vw, 112px);
+}
+
+.proof-lead {
+  grid-column: 1 / span 8;
+  grid-row: 1 / span 4;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.proof-lead-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone);
+}
+
+.proof-lead-led {
+  width: 7px;
+  height: 7px;
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+.proof-lead-value {
+  display: flex;
+  align-items: flex-start;
+  margin: clamp(20px, 3vw, 44px) 0 0 -0.04em;
+  font-family: var(--font-display);
+  font-size: clamp(10rem, 31vw, 29rem);
+  line-height: 0.76;
+  letter-spacing: -0.065em;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.proof-lead-num {
+  font-weight: calc(200 + var(--p, 1) * 500);
+}
+
+.proof-lead-plus {
+  margin: 0.02em 0 0 0.03em;
+  font-size: 0.52em;
+  line-height: 1;
+  font-weight: calc(300 + var(--p, 1) * 300);
+  color: var(--signal);
+}
+
+.proof-lead-note {
+  margin-top: clamp(20px, 2.4vw, 36px);
+  max-width: 30ch;
+  font-size: var(--fs-body-l);
+  line-height: 1.5;
+  color: var(--bone-2);
+}
+
+.proof-read {
+  grid-column: 9 / span 4;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 16px;
+  row-gap: 6px;
+  padding: 20px 0 28px;
+  border-top: 1px solid var(--line);
+}
+
+.proof-read:nth-child(2) {
+  border-top-color: var(--line-strong);
+}
+
+.proof-read-label {
+  grid-column: 1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.proof-read-value {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4vw, 3.75rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-weight: 300;
+  color: var(--bone-2);
+  font-variant-numeric: tabular-nums;
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.proof-read-unit {
+  font-size: 0.5em;
+  font-weight: 300;
+  color: var(--ash);
+  vertical-align: 0.55em;
+}
+
+.proof-read-note {
+  grid-column: 1;
+  max-width: 26ch;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ash);
+}
+
+/* A quiet readout turns up only while you point at it. */
+.proof-read:hover .proof-read-value {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .proof-head .chan,
+  .proof-title {
+    grid-column: 1 / -1;
+  }
+
+  .proof-lead-value {
+    font-size: clamp(8rem, 36vw, 19rem);
+  }
+
+  .proof-lead {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .proof-stats {
+    grid-template-rows: none;
+  }
+
+  .proof-read {
+    grid-column: span 4;
+    grid-template-columns: 1fr;
+    margin-top: 48px;
+  }
+
+  .proof-read-value {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 8px 0 6px;
+  }
+
+  .proof-read-note {
+    grid-row: 3;
+  }
+
+  .proof-read + .proof-read {
+    padding-left: 16px;
+    border-left: 1px solid var(--line);
+  }
+}
+
+/* Mobile ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  .proof {
+    padding-top: 64px;
+  }
+
+  .proof-lead-value {
+    font-size: clamp(8rem, 50vw, 13rem);
+  }
+
+  .proof-read,
+  .proof-read + .proof-read {
+    grid-column: 1 / -1;
+    grid-template-columns: 112px minmax(0, 1fr);
+    margin-top: 0;
+    padding: 18px 0 20px;
+    border-left: 0;
+  }
+
+  .proof-read:nth-child(2) {
+    margin-top: 48px;
+  }
+
+  .proof-read-value {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    margin: 0;
+    font-size: 2.75rem;
+  }
+
+  .proof-read-label,
+  .proof-read-note {
+    grid-column: 2;
+    grid-row: auto;
+  }
+}
+
+/* ---- proof-dial.css ---- */
+/* ==========================================================================
+   Proof dial — client names on an analogue tuning dial, on its own band.
+   An orange needle sweeps station to station (scripts/dial.js) and turns
+   each name up as it arrives; hovering a name tunes straight to it.
+   ========================================================================== */
+
+.proof-dial {
+  --dial-axis: x;
+  margin-top: clamp(96px, 11vw, 176px);
+  padding: clamp(36px, 4vw, 56px) var(--pad) clamp(44px, 4.6vw, 72px);
+  background: var(--soot);
+  border-block: 1px solid var(--line);
+}
+
+.proof-dial-head,
+.proof-dial-body {
+  max-width: calc(var(--max) - var(--pad) * 2);
+  margin: 0 auto;
+}
+
+.proof-dial-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: clamp(28px, 3.6vw, 52px);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.proof-dial-label {
+  color: var(--ash);
+}
+
+.proof-dial-freq {
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.proof-dial-body {
+  position: relative;
+  padding-bottom: 34px;
+}
+
+.proof-dial-list {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.proof-dial-name {
+  padding: 10px 0 18px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.1vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-weight: 250;
+  color: var(--ash-dim);
+  cursor: default;
+  transition:
+    font-weight 800ms var(--ease-out),
+    color 800ms var(--ease-out);
+}
+
+.proof-dial-name.is-on {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.proof-dial-scale {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  border-bottom: 1px solid var(--line-strong);
+  background:
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px calc(100% / 70)) bottom / 100% 7px no-repeat,
+    repeating-linear-gradient(90deg, var(--ash) 0 1px, transparent 1px calc(100% / 14)) bottom / 100% 16px no-repeat;
+}
+
+.proof-dial-needle {
+  position: absolute;
+  left: -1px;
+  top: -10px;
+  bottom: 0;
+  width: 2px;
+  background: var(--signal);
+  box-shadow: 0 0 18px var(--signal-glow);
+  opacity: 0;
+  transition:
+    transform 1000ms var(--ease-inout),
+    opacity var(--t-mid) var(--ease-out);
+}
+
+.proof-dial.is-ready .proof-dial-needle {
+  opacity: 1;
+}
+
+.proof-dial-needle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  background: var(--signal);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proof-dial-name {
+    color: var(--ash);
+  }
+}
+
+/* Mobile: the dial turns vertical ----------------------------------------- */
+
+@media (max-width: 767px) {
+  .proof-dial {
+    --dial-axis: y;
+  }
+
+  .proof-dial-body {
+    padding: 0 0 0 48px;
+  }
+
+  .proof-dial-list {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-dial-name {
+    padding: 9px 0;
+    text-align: left;
+    font-size: 2rem;
+  }
+
+  .proof-dial-scale {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    width: 26px;
+    height: auto;
+    border-bottom: 0;
+    border-left: 1px solid var(--line-strong);
+    background:
+      repeating-linear-gradient(180deg, var(--ash-dim) 0 1px, transparent 1px calc(100% / 35)) left / 7px 100% no-repeat,
+      repeating-linear-gradient(180deg, var(--ash) 0 1px, transparent 1px calc(100% / 7)) left / 16px 100% no-repeat;
+  }
+
+  .proof-dial-needle {
+    left: 0;
+    top: -1px;
+    bottom: auto;
+    width: 34px;
+    height: 2px;
+  }
+
+  .proof-dial-needle::after {
+    left: auto;
+    right: -5px;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%) rotate(45deg);
+  }
+}
+
+/* ---- services.css ---- */
+/* ==========================================================================
+   Services — a crescendo, then seven channels, one turned up at a time.
+   The heading is one long volume swell: every character is a little heavier
+   and brighter than the one before (scripts/services.js splits it, --i is
+   each character's position). The swell opens as the heading scrolls in
+   (--p). It tunes in from particles when the signal reaches it.
+   ========================================================================== */
+
+.services {
+  position: relative;
+  padding: var(--section-y) 0;
+  background: var(--carbon);
+}
+
+.services-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.services-head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 28px var(--gap);
+  align-items: end;
+  margin-bottom: clamp(56px, 7vw, 104px);
+}
+
+.services-head .chan {
+  grid-column: 1 / -1;
+}
+
+.services-title {
+  grid-column: 1 / span 8;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-weight: 450;
+  color: var(--bone);
+}
+
+.services-title-line {
+  display: block;
+}
+
+.ramp-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.ramp-ch {
+  font-weight: calc(200 + var(--i) * 500 * var(--p, 1));
+  color: color-mix(in oklab, var(--bone) calc(40% + var(--i) * var(--p, 1) * 60%), var(--ash));
+}
+
+/* The crescendo mark (<) from a score, drawn under the heading. */
+.services-hairpin {
+  grid-column: 1 / span 7;
+  grid-row: 3;
+  width: 100%;
+  height: clamp(18px, 2.2vw, 32px);
+  overflow: visible;
+  transform-origin: left center;
+  transform: scaleY(calc(0.08 + var(--p, 1) * 0.92));
+}
+
+.services-hairpin path {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.services-intro {
+  grid-column: 9 / span 4;
+  grid-row: 2 / span 2;
+  align-self: end;
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  color: var(--ash);
+  font-size: var(--fs-body);
+  max-width: 42ch;
+}
+
+/* Rows -------------------------------------------------------------------- */
+
+.services-list {
+  border-bottom: 1px solid var(--line);
+}
+
+.services-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  padding: clamp(26px, 2.6vw, 40px) 0;
+  border-top: 1px solid var(--line);
+}
+
+.services-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 900ms var(--ease-out);
+}
+
+.services-index {
+  grid-column: 1;
+  padding-top: 0.9em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ash-dim);
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.services-name {
+  grid-column: 2 / span 6;
+  font-family: var(--font-display);
+  font-size: var(--fs-l);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: 300;
+  color: var(--ash);
+  transition:
+    font-weight 800ms var(--ease-out),
+    color 500ms var(--ease-out);
+}
+
+.services-link > span {
+  display: block;
+  white-space: nowrap;
+}
+
+.services-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.services-link:focus-visible {
+  outline: none;
+}
+
+.services-row:has(.services-link:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 6px;
+}
+
+.services-body {
+  grid-column: 8 / span 4;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding-top: 0.4em;
+}
+
+.services-desc {
+  max-width: 48ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--ash);
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.services-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: 6px 28px;
+  font-family: var(--font-mono);
+  font-size: 0.71875rem;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+/* No separators to strand at a line end: every feature is its own channel
+   with its own tick, which lights when the row is turned up. */
+.services-features li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.services-features li::before {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  background: var(--ash-dim);
+  transform: translateY(-1px);
+  transition: background-color var(--t-mid) var(--ease-out);
+}
+
+.services-row.is-on .services-features li::before {
+  background: var(--signal);
+}
+
+.services-go {
+  grid-column: 12;
+  justify-self: end;
+  width: 22px;
+  height: 22px;
+  margin-top: 0.7em;
+  color: var(--signal);
+  opacity: 0;
+  transform: translate(-8px, 8px);
+  transition:
+    opacity var(--t-mid) var(--ease-out),
+    transform var(--t-mid) var(--ease-out);
+}
+
+/* Turned up ----------------------------------------------------------------
+   The channel that is up is lit: a bone strip wipes in behind it from the
+   signal's side, its type turns ink, and it travels down the list as you
+   read (or follows the pointer). The page's one light moment in the dark
+   run between the hero and the gallery wall. It stops short of the page
+   margin, so the signal's trace is never covered. */
+
+.services-row::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--pad) / -2 + 9px);
+  right: calc(var(--pad) / -2 + 9px);
+  background: var(--bone);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 760ms var(--ease-out);
+}
+
+.services-row.is-on::after {
+  transform: scaleX(1);
+}
+
+.services-row.is-on::before {
+  transform: scaleX(1);
+}
+
+.services-row.is-on .services-index {
+  color: var(--ink);
+}
+
+.services-row.is-on .services-name {
+  font-weight: var(--w-loud);
+  color: var(--ink);
+}
+
+.services-row.is-on .services-desc,
+.services-row.is-on .services-features {
+  color: var(--ink-soft);
+}
+
+.services-row.is-on .services-desc {
+  color: var(--ink);
+}
+
+.services-row.is-on .services-go {
+  color: var(--ink);
+}
+
+.services-row:has(.services-link:focus-visible) {
+  outline-color: var(--signal);
+}
+
+.services-row.is-on .services-go {
+  opacity: 1;
+  transform: none;
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .services-title {
+    grid-column: 1 / -1;
+  }
+
+  .services-hairpin {
+    grid-column: 1 / span 10;
+  }
+
+  .services-intro {
+    grid-column: 1 / span 9;
+    grid-row: auto;
+    margin-top: 12px;
+  }
+
+  .services-row {
+    grid-template-columns: 48px minmax(0, 1fr) 32px;
+    row-gap: 18px;
+  }
+
+  .services-index {
+    grid-column: 1;
+  }
+
+  .services-name {
+    grid-column: 2;
+    font-size: clamp(2.25rem, 7vw, 3.75rem);
+  }
+
+  .services-body {
+    grid-column: 2;
+    padding-top: 0;
+  }
+
+  .services-go {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+/* Mobile ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  .services-title {
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+  }
+
+  .services-hairpin {
+    grid-column: 1 / -1;
+  }
+
+  .services-intro {
+    grid-column: 1 / -1;
+  }
+
+  .services-features {
+    column-gap: 18px;
+  }
+
+  .services-row {
+    grid-template-columns: minmax(0, 1fr) 24px;
+    row-gap: 12px;
+    padding: 18px 0 20px;
+  }
+
+  .services-index {
+    grid-column: 1;
+    padding-top: 0;
+  }
+
+  .services-name {
+    grid-column: 1 / -1;
+    font-size: clamp(1.875rem, 8.6vw, 2.5rem);
+  }
+
+  .services-body {
+    grid-column: 1 / -1;
+  }
+
+  .services-go {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ---- work.css ---- */
+/* ==========================================================================
+   Work — the gallery wall. Dark prints hung on warm paper.
+   The hang is defined by SLOT (nth-child), not by project, so tuning to a
+   channel can re-hang the wall: matching prints move to the front slots,
+   the rest are turned down behind them (scripts/work.js).
+   Every project image has its title baked into its left third, so any crop
+   narrower than 3:2 is anchored to the left edge (--pos: 0%) and the baked
+   title is never sliced. Phones get the untouched 3:2 print.
+   ========================================================================== */
+
+.work {
+  --focus: var(--ink);
+  --chan-color: var(--ink-soft);
+  --chan-num: var(--ink);
+  --chan-led-off: rgba(21, 17, 14, 0.28);
+  --chan-led-on: var(--signal);
+  --btn-line-color: var(--ink);
+  position: relative;
+  padding: var(--section-y) 0 clamp(96px, 10vw, 160px);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.work ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.work-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+/* The heading is a wall label: calm, one weight. The prints are the loud part. */
+.work-head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px var(--gap);
+  align-items: end;
+}
+
+.work-head .chan {
+  grid-column: 1 / -1;
+}
+
+.work-title {
+  grid-column: 1 / span 7;
+  font-family: var(--font-display);
+  font-size: var(--fs-l);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.work-lede {
+  grid-column: 8 / span 3;
+  max-width: 36ch;
+  font-size: var(--fs-small);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.work-all {
+  grid-column: 11 / span 2;
+  justify-self: end;
+}
+
+/* The hang --------------------------------------------------------------- */
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: clamp(56px, 6vw, 96px);
+  align-items: start;
+}
+
+.work-grid > :nth-child(1) { grid-column: 1 / span 7; }
+.work-grid > :nth-child(2) { grid-column: 9 / span 4; --ar: 4 / 5; --pos: 0% 50%; }
+.work-grid > :nth-child(3) { grid-column: 1 / span 4; --ar: 4 / 5; --pos: 0% 50%; }
+.work-grid > :nth-child(4) { grid-column: 6 / span 7; margin-top: clamp(24px, 3vw, 48px); }
+.work-grid > :nth-child(5) { grid-column: 1 / -1; --ar: 16 / 9; --pos: 50% 34%; }
+.work-grid > :nth-child(6) { grid-column: 1 / span 5; --ar: 1 / 1; --pos: 0% 50%; }
+.work-grid > :nth-child(7) { grid-column: 7 / span 6; --ar: 5 / 4; --pos: 0% 50%; margin-top: clamp(16px, 2vw, 32px); }
+.work-grid > :nth-child(8) { grid-column: 2 / span 6; }
+.work-grid > :nth-child(9) { grid-column: 9 / span 4; --ar: 1 / 1; --pos: 0% 50%; }
+.work-grid > :nth-child(10) { grid-column: 1 / span 8; --ar: 16 / 9; --pos: 50% 40%; }
+
+.work-card {
+  position: relative;
+  display: block;
+}
+
+.work-frame {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--ar, 3 / 2);
+  overflow: hidden;
+  background: var(--carbon);
+  transition: opacity 700ms var(--ease-out);
+}
+
+.work-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pos, 50% 50%);
+  transition:
+    transform 1100ms var(--ease-out),
+    filter 900ms var(--ease-out);
+}
+
+.work-view {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--signal);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transform: translateY(101%);
+  transition: transform 520ms var(--ease-out);
+}
+
+.work-view .btn-arrow {
+  width: 11px;
+  height: 11px;
+}
+
+.work-caption {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 8px;
+  padding-top: 20px;
+}
+
+.work-index {
+  grid-row: 1 / span 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: start;
+  padding-top: 0.55em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.work-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.625rem, 2.5vw, 2.375rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: var(--w-loud);
+  color: var(--ink);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.work-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.work-link:focus-visible {
+  outline: none;
+}
+
+.work-card:has(.work-link:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 8px;
+}
+
+.work-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.71875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.work-tag {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.work-desc {
+  max-width: 44ch;
+  margin-top: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* The wide slot gets a horizontal museum label. */
+.work-grid > :nth-child(5) .work-caption {
+  grid-template-columns: 40px minmax(0, 3fr) minmax(0, 4fr);
+}
+
+.work-grid > :nth-child(5) .work-index {
+  grid-row: 1 / span 2;
+}
+
+.work-grid > :nth-child(5) .work-desc {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  margin-top: 0;
+  justify-self: end;
+}
+
+/* Hover: the print you point at is the only one turned up. */
+@media (hover: hover) {
+  .work-card:hover .work-frame img {
+    transform: scale(1.045);
+  }
+
+  .work-card:hover .work-view,
+  .work-card:has(.work-link:focus-visible) .work-view {
+    transform: none;
+  }
+
+  .work-grid:has(.work-card:hover) .work-item:not(.is-muted) .work-card:not(:hover) .work-frame {
+    opacity: 0.5;
+  }
+
+  .work-card:hover .work-index {
+    color: var(--ink);
+  }
+
+  .work-card:hover .work-index::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--signal);
+  }
+}
+
+/* Lights on: each print develops out of the dark as it enters. With the
+   tune-in system running (html.fx) the prints de-noise instead
+   (scripts/denoise.js, styles/fx.css). ------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js:not(.fx) .work-frame {
+    clip-path: inset(7% 7% 7% 7%);
+    transition:
+      clip-path 1400ms var(--ease-out),
+      opacity 700ms var(--ease-out);
+  }
+
+  .js:not(.fx) .work-frame img {
+    transform: scale(1.14);
+    filter: brightness(0.08) saturate(0.2);
+  }
+
+  .js:not(.fx) .work-frame.is-in {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .js:not(.fx) .work-frame.is-in img {
+    transform: scale(1.001);
+    filter: none;
+    transition:
+      transform 1600ms var(--ease-out),
+      filter 1300ms var(--ease-out) 150ms;
+  }
+
+  .js:not(.fx) .work-card:hover .work-frame.is-in img {
+    transform: scale(1.045);
+    transition:
+      transform 1100ms var(--ease-out),
+      filter 900ms var(--ease-out);
+  }
+
+  /* Re-hang: the lights dip, the wall is re-hung, then each print comes
+     back up in its new slot, front to back. */
+  .work-grid.is-dimming .work-item {
+    opacity: 0;
+    transition: opacity 240ms var(--ease-inout);
+  }
+
+  .work-grid.is-rehung .work-item {
+    animation: work-rehang 900ms var(--ease-out) both;
+    animation-delay: calc(var(--slot, 0) * 70ms);
+  }
+}
+
+@keyframes work-rehang {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+/* Turned down ------------------------------------------------------------- */
+
+.work-item.is-muted .work-frame {
+  opacity: 0.4;
+}
+
+.js .work-item.is-muted .work-frame img,
+.work-item.is-muted .work-frame img {
+  filter: grayscale(1) brightness(0.7);
+}
+
+.work-item.is-muted .work-name {
+  font-weight: 250;
+  color: var(--ink-soft);
+}
+
+/* Foot: the closing wall text sits beside the last print ------------------ */
+
+.work-foot {
+  grid-column: 10 / span 3;
+  align-self: end;
+  display: grid;
+  justify-items: start;
+  gap: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-ink);
+}
+
+.work-foot-note {
+  font-family: var(--font-display);
+  font-size: var(--fs-s);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.work-foot-cta:focus-visible {
+  outline-color: var(--ink);
+}
+
+/* Tablet: pairs of equal prints, so rows never leave a hole ---------------- */
+
+@media (max-width: 1099px) {
+  .work-title {
+    grid-column: 1 / -1;
+  }
+
+  .work-lede {
+    grid-column: 1 / span 8;
+  }
+
+  .work-all {
+    grid-column: 9 / span 4;
+  }
+
+  .work-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .work-grid > .work-item {
+    margin-top: 0;
+  }
+
+  .work-grid > :nth-child(1),
+  .work-grid > :nth-child(4),
+  .work-grid > :nth-child(8) { grid-column: 1 / -1; --ar: 3 / 2; --pos: 50% 50%; }
+  .work-grid > :nth-child(5) { grid-column: 1 / -1; }
+  .work-grid > :nth-child(2),
+  .work-grid > :nth-child(6),
+  .work-grid > :nth-child(9) { grid-column: 1 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
+  .work-grid > :nth-child(3),
+  .work-grid > :nth-child(7),
+  .work-grid > :nth-child(10) { grid-column: 4 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
+
+  .work-grid > :nth-child(5) .work-caption {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .work-grid > :nth-child(5) .work-desc {
+    grid-column: 2;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 4px;
+  }
+
+  .work-foot {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+/* Mobile: the whole print, never cropped ----------------------------------- */
+
+@media (max-width: 767px) {
+  .work-lede,
+  .work-all {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .work-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 40px;
+  }
+
+  .work-grid > .work-item {
+    grid-column: 1;
+    --ar: 3 / 2;
+    --pos: 50% 50%;
+  }
+
+  .work-grid > :nth-child(3n + 1) {
+    margin-inline: calc(var(--pad) * -1);
+  }
+
+  .work-grid > :nth-child(3n + 1) .work-caption {
+    padding-inline: var(--pad);
+  }
+
+  .work-grid > :nth-child(3n + 2) {
+    width: 88%;
+    margin-left: auto;
+  }
+
+  .work-grid > :nth-child(3n) {
+    width: 88%;
+  }
+
+  .work-caption,
+  .work-grid > :nth-child(5) .work-caption {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .work-grid > .work-foot {
+    grid-column: 1;
+    grid-template-columns: 1fr;
+    width: auto;
+    margin: 0;
+  }
+
+  .work-foot-cta {
+    width: 100%;
+  }
+}
+
+/* ---- work-tuner.css ---- */
+/* ==========================================================================
+   Work tuner — the category filter. Sticky under the nav while you browse.
+   ========================================================================== */
+
+.work-tuner {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 20px;
+  margin: clamp(48px, 6vw, 88px) calc(var(--pad) * -1) clamp(48px, 6vw, 80px);
+  padding: 6px var(--pad);
+  background: var(--paper);
+  border-block: 1px solid var(--line-ink);
+}
+
+.work-tuner-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.work-tuner-options {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.work-tuner-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  padding: 10px 12px 0;
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-weight: 300;
+  color: var(--ink-soft);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+/* Reserve the bold width so the bar never shifts when weight changes. */
+.work-tuner-name {
+  display: inline-grid;
+}
+
+.work-tuner-name::after {
+  content: attr(data-label);
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 600;
+}
+
+.work-tuner-count {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.work-tuner-btn::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 3px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-mid) var(--ease-out);
+}
+
+.work-tuner-btn:hover {
+  color: var(--ink);
+}
+
+.work-tuner-btn[aria-pressed="true"] {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.work-tuner-btn[aria-pressed="true"]::after {
+  transform: scaleX(1);
+}
+
+.work-tuner-btn:focus-visible {
+  outline-offset: -2px;
+}
+
+.work-tuner-status {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 1099px) {
+  .work-tuner-status {
+    flex-basis: 100%;
+    margin-left: 0;
+    padding-bottom: 6px;
+  }
+}
+
+@media (max-width: 767px) {
+  .work-tuner {
+    gap: 0;
+    padding-block: 4px;
+  }
+
+  .work-tuner-label {
+    display: none;
+  }
+
+  /* The row scrolls sideways under a fade that shows there is more, and
+     snaps channel by channel. The fade drops away at either end. */
+  .work-tuner-scroll {
+    --fade-start: 0px;
+    --fade-end: 0px;
+    width: calc(100% + var(--pad) * 2);
+    margin-inline: calc(var(--pad) * -1);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--pad);
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent 100%);
+  }
+
+  .work-tuner.has-more-start .work-tuner-scroll {
+    --fade-start: 40px;
+  }
+
+  .work-tuner.has-more-end .work-tuner-scroll {
+    --fade-end: 64px;
+  }
+
+  .work-tuner-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .work-tuner-options {
+    flex-wrap: nowrap;
+    width: max-content;
+    padding-inline: calc(var(--pad) - 12px);
+  }
+
+  .work-tuner-btn {
+    flex: none;
+    font-size: 1.0625rem;
+    scroll-snap-align: start;
+  }
+
+  /* Still announced, just not shown on the narrow bar. */
+  .work-tuner-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* ---- voices.css ---- */
+/* ==========================================================================
+   Voices — the page's one loud colour field.
+   Type size is inversely proportional to word count.
+   ========================================================================== */
+
+.voices {
+  scroll-margin-top: var(--nav-h);
+  --focus: var(--ink);
+  --chan-color: var(--ink);
+  --chan-num: var(--ink);
+  --chan-led-off: rgba(21, 17, 14, 0.35);
+  --chan-led-on: var(--ink);
+  --chan-led-glow: transparent;
+  position: relative;
+  padding: calc(var(--section-y) + 24px) 0 var(--section-y);
+  background: var(--signal);
+  color: var(--ink);
+  overflow: clip;
+}
+
+.voices ::selection {
+  background: var(--ink);
+  color: var(--signal);
+}
+
+.voices-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.voices-head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 28px var(--gap);
+  align-items: end;
+  margin-bottom: clamp(56px, 7vw, 112px);
+}
+
+.voices-head .chan {
+  grid-column: 1 / -1;
+}
+
+/* The heading stays small and solid ink (well above 3:1 on the orange):
+   the reviews themselves are the display type here. */
+.voices-title {
+  grid-column: 1 / span 7;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.1vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-weight: 500;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.voices-rule {
+  grid-column: 9 / span 4;
+  max-width: 30ch;
+  padding-top: 14px;
+  border-top: 1px solid rgba(21, 17, 14, 0.4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Wall -------------------------------------------------------------------- */
+
+.voices-wall {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: clamp(64px, 7vw, 112px);
+  align-items: end;
+}
+
+.voices-quote {
+  display: grid;
+  gap: 20px;
+}
+
+.voices-text p {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.voices-by {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.voices-by::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+}
+
+.voices-stars {
+  display: inline-block;
+  flex: none;
+  width: 64px;
+  height: 11px;
+  background: currentColor;
+  -webkit-mask: var(--star) left center / 13px 11px repeat-x;
+  mask: var(--star) left center / 13px 11px repeat-x;
+  --star: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 .9l2.1 4.6 5 .5-3.8 3.4 1.1 4.9L8 11.8l-4.4 2.5 1.1-4.9L.9 6l5-.5z%27/%3E%3C/svg%3E");
+}
+
+.voices-emoji {
+  font-size: 0.62em;
+  vertical-align: 0.12em;
+  letter-spacing: 0;
+}
+
+/* Sizes: the fewer the words, the louder ---------------------------------- */
+
+.voices-item-xxl .voices-text p {
+  font-size: clamp(3.75rem, 13.4vw, 13.5rem);
+  line-height: 0.84;
+  letter-spacing: -0.055em;
+  font-weight: var(--w-loud);
+}
+
+.voices-item-xl .voices-text p {
+  font-size: clamp(2.75rem, 7.4vw, 7.25rem);
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  font-weight: 560;
+}
+
+.voices-item-l .voices-text p {
+  font-size: clamp(2.25rem, 5vw, 4.875rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-weight: 500;
+}
+
+.voices-item-m .voices-text p {
+  font-size: clamp(1.625rem, 2.9vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+}
+
+.voices-item-s .voices-text p {
+  max-width: 44ch;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: 0;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+/* Placement --------------------------------------------------------------- */
+
+.voices-item-xxl { grid-column: 1 / -1; }
+.voices-item-xxl .voices-quote { grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 32px; }
+.voices-item-xxl .voices-by { padding-bottom: 0.9em; }
+
+.voices-pos-a { grid-column: 1 / span 4; }
+.voices-pos-b { grid-column: 6 / span 7; }
+.voices-pos-c { grid-column: 1 / span 8; }
+.voices-pos-d { grid-column: 9 / span 4; }
+.voices-pos-e { grid-column: 4 / span 9; }
+.voices-pos-f { grid-column: 1 / span 6; }
+.voices-pos-g { grid-column: 8 / span 5; }
+.voices-pos-h { grid-column: 1 / span 5; }
+.voices-pos-i { grid-column: 7 / span 6; }
+
+/* The intern joke --------------------------------------------------------- */
+
+.voices-hook {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: var(--w-loud);
+}
+
+.voices-aside {
+  justify-self: start;
+  padding: 6px 10px;
+  background: var(--ink);
+  color: var(--signal);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+}
+
+/* Silent five-star reviews ------------------------------------------------ */
+
+.voices-item-silent {
+  display: grid;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(21, 17, 14, 0.4);
+}
+
+.voices-silent-label {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+.voices-silent-note {
+  max-width: 44ch;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.voices-silent-list {
+  display: grid;
+  margin-top: 6px;
+}
+
+.voices-silent-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(21, 17, 14, 0.2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .voices-title {
+    grid-column: 1 / -1;
+  }
+
+  .voices-rule {
+    grid-column: 1 / span 8;
+  }
+
+  .voices-pos-a { grid-column: 1 / span 6; }
+  .voices-pos-b { grid-column: 1 / -1; }
+  .voices-pos-c { grid-column: 1 / -1; }
+  .voices-pos-d { grid-column: 4 / -1; }
+  .voices-pos-e { grid-column: 1 / -1; }
+  .voices-pos-f { grid-column: 1 / span 9; }
+  .voices-pos-g { grid-column: 1 / span 6; }
+  .voices-pos-h { grid-column: 7 / span 6; }
+  .voices-pos-i { grid-column: 1 / -1; }
+
+  .voices-item-xxl .voices-quote {
+    grid-template-columns: 1fr;
+  }
+
+  .voices-item-xxl .voices-by {
+    padding-bottom: 0;
+  }
+}
+
+/* Mobile ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  .voices-rule {
+    grid-column: 1 / -1;
+  }
+
+  .voices-head {
+    margin-bottom: 56px;
+  }
+
+  .voices-wall {
+    row-gap: 40px;
+  }
+
+  .voices-wall > .voices-item {
+    grid-column: 1 / -1;
+  }
+
+  .voices-pos-d,
+  .voices-pos-g {
+    margin-left: 12%;
+  }
+
+  .voices-item-xxl .voices-text p {
+    font-size: clamp(3.5rem, 19vw, 5.5rem);
+  }
+
+  .voices-item-xl .voices-text p {
+    font-size: clamp(2.75rem, 14vw, 4rem);
+  }
+
+  .voices-item-l .voices-text p {
+    font-size: clamp(2.125rem, 10.4vw, 3rem);
+  }
+}
+
+/* ---- why.css ---- */
+/* ==========================================================================
+   Why — four reasons on a four-position knob. The orange "+" (from
+   "Design + Dev") is the knob: it stays pinned while the reasons scroll
+   past, and scrolling turns it from 01 to 04 (scripts/why.js writes
+   --turn). It has detents, so it rests on a clean "+" at each reason.
+   Each reason is only as loud as it is close to the centre line (--on).
+   ========================================================================== */
+
+.why {
+  --knob: min(30vw, 56svh, 440px);
+  position: relative;
+  padding: var(--section-y) 0 calc(var(--section-y) * 0.6);
+  background: var(--carbon);
+}
+
+.why-inner {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.why-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 24px;
+}
+
+.why-title {
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.8vw, 3.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  font-weight: 300;
+  color: var(--bone-2);
+}
+
+/* The knob ---------------------------------------------------------------- */
+
+.why-rail {
+  grid-column: 1 / span 5;
+  grid-row: 2;
+}
+
+.why-knob {
+  position: sticky;
+  top: calc(var(--nav-h) + (100svh - var(--nav-h) - var(--knob)) / 2 - 24px);
+  width: var(--knob);
+  aspect-ratio: 1;
+  margin: calc(var(--section-y) * 0.5) auto 0;
+}
+
+.why-knob-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+}
+
+.why-knob-tick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotate(var(--a));
+}
+
+.why-knob-tick::before {
+  content: "";
+  position: absolute;
+  left: -0.5px;
+  top: calc(var(--knob) / -2 - 14px);
+  width: 1px;
+  height: 14px;
+  background: var(--ash);
+}
+
+.why-knob-tick b {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--ash-dim);
+  transform: translate(-50%, calc(var(--knob) / -2 - 36px)) translateY(-50%) rotate(calc(var(--a) * -1));
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.why[data-active="1"] .why-knob-tick:nth-child(2) b,
+.why[data-active="2"] .why-knob-tick:nth-child(3) b,
+.why[data-active="3"] .why-knob-tick:nth-child(4) b,
+.why[data-active="4"] .why-knob-tick:nth-child(5) b {
+  color: var(--signal);
+}
+
+.why-knob-plus {
+  position: absolute;
+  inset: 15%;
+  background:
+    linear-gradient(var(--signal), var(--signal)) center / 100% 13% no-repeat,
+    linear-gradient(var(--signal), var(--signal)) center / 13% 100% no-repeat;
+  transform: rotate(var(--turn, -90deg));
+  transition: transform 180ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .why-knob-plus {
+    transition: none;
+  }
+}
+
+/* The pointer: a dark line cut into one arm, like the mark on a pot. */
+.why-knob-notch {
+  position: absolute;
+  left: 50%;
+  top: 3%;
+  width: 3px;
+  height: 17%;
+  background: var(--carbon);
+  transform: translateX(-50%);
+}
+
+.why-readout {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 68px);
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+  font-variant-numeric: tabular-nums;
+}
+
+.why-readout span:first-child {
+  color: var(--bone);
+}
+
+.why-readout-name {
+  color: var(--bone);
+}
+
+.why-readout-name::before {
+  content: "";
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  margin-right: 10px;
+  vertical-align: middle;
+  background: var(--line-strong);
+}
+
+/* The signal feeds the knob: a line from the page margin meets the rim at
+   7:30, and once the signal has arrived (.is-fed, scripts/signal.js) the
+   rim lights from there round to the current reason (scripts/why.js). */
+.why-knob-feed {
+  position: absolute;
+  right: calc(50% + var(--knob) * 0.3536);
+  top: calc(50% + var(--knob) * 0.3536);
+  width: var(--feed-w, 0px);
+  border-top: 1.5px dotted rgba(241, 236, 230, 0.34);
+  transition: border-color var(--t-mid) var(--ease-out);
+}
+
+.why.is-fed .why-knob-feed {
+  border-top-style: solid;
+  border-top-color: var(--signal);
+}
+
+.why-knob-arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(135deg);
+  opacity: 0;
+  transition: opacity var(--t-mid) var(--ease-out);
+}
+
+.why-knob-arc circle {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 0.5;
+  stroke-dasharray: 0.125 1;
+}
+
+.why.is-fed .why-knob-arc {
+  opacity: 1;
+}
+
+/* The reasons ------------------------------------------------------------- */
+
+.why-list {
+  grid-column: 7 / span 6;
+  grid-row: 2;
+  padding: 2svh 0 4svh;
+}
+
+.why-item {
+  --on: 1;
+  --lift: var(--on);
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  min-height: 60svh;
+}
+
+.why-label {
+  display: flex;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.why-label span {
+  color: var(--bone);
+}
+
+.why-name {
+  max-width: 12ch;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4.6vw, 4.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: calc(200 + var(--lift) * 460);
+  color: color-mix(in oklab, var(--bone) calc(var(--lift) * 100%), var(--ash-dim));
+}
+
+.why-plus {
+  color: var(--signal);
+}
+
+.why-text {
+  max-width: 40ch;
+  color: var(--ash);
+}
+
+/* Tablet: the knob keeps its left column but can't crowd its labels ----- */
+
+@media (max-width: 1099px) and (min-width: 768px) {
+  .why {
+    --knob: min(26vw, 40svh, 300px);
+  }
+
+  .why-rail {
+    grid-column: 1 / span 5;
+  }
+
+  .why-list {
+    grid-column: 6 / span 7;
+  }
+
+  .why-item {
+    min-height: 52svh;
+  }
+}
+
+/* Phones: the knob shrinks to a small pinned control beside the reasons --- */
+
+@media (max-width: 767px) {
+  .why {
+    --knob: 56px;
+  }
+
+  .why-inner {
+    grid-template-columns: minmax(0, 1fr) 64px;
+    column-gap: 16px;
+  }
+
+  .why-rail {
+    grid-column: 2;
+  }
+
+  .why-knob {
+    top: calc(var(--nav-h) + 28px);
+    margin: 40px 0 0 auto;
+  }
+
+  .why-knob-tick b,
+  .why-readout,
+  .why-knob-feed {
+    display: none;
+  }
+
+  .why-knob-tick::before {
+    top: calc(var(--knob) / -2 - 7px);
+    height: 6px;
+  }
+
+  .why-knob-notch {
+    width: 2px;
+  }
+
+  .why-list {
+    grid-column: 1;
+    padding: 24px 0 0;
+  }
+
+  .why-item {
+    min-height: 0;
+    padding: 24px 0 28px;
+    border-top: 1px solid var(--line);
+  }
+
+  .why-name {
+    font-size: clamp(2rem, 9.4vw, 2.5rem);
+  }
+}
+
+/* ---- process.css ---- */
+/* ==========================================================================
+   Process — the page's one bone-white inversion. Four stages, one line:
+   it starts as pure noise at Discover and resolves, stage by stage, into
+   one clean orange sine at Deliver. "One clean signal." runs the full
+   width of the page. Scrolling draws the line (--p) and turns each stage
+   up as the line reaches it (--s, scripts/process.js).
+   ========================================================================== */
+
+.process {
+  --focus: var(--ink);
+  --chan-color: var(--ink-soft);
+  --chan-num: var(--ink);
+  --chan-led-off: rgba(21, 17, 14, 0.28);
+  --chan-led-on: var(--signal);
+  --chan-led-glow: transparent;
+  position: relative;
+  padding: var(--section-y) 0 clamp(96px, 10vw, 150px);
+  background: var(--bone);
+  color: var(--ink);
+  overflow: clip;
+}
+
+.process ::selection {
+  background: var(--ink);
+  color: var(--bone);
+}
+
+.process-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.process-title {
+  margin-top: clamp(28px, 3vw, 44px);
+  font-family: var(--font-display);
+}
+
+.process-kicker {
+  display: block;
+  margin-bottom: 0.5em;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.process-big {
+  display: block;
+  margin-left: -0.04em;
+  font-size: min(12.65vw, 12.05rem);
+  line-height: 0.84;
+  letter-spacing: -0.055em;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+/* The scope --------------------------------------------------------------- */
+
+.process-scope {
+  position: relative;
+  margin-top: clamp(48px, 6vw, 96px);
+}
+
+.process-wave {
+  display: block;
+  width: 100%;
+  height: clamp(150px, 15vw, 230px);
+  overflow: visible;
+}
+
+.process-wave-ghost {
+  fill: none;
+  stroke: rgba(21, 17, 14, 0.1);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+}
+
+.process-wave-path {
+  fill: none;
+  stroke-width: 2.25;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 1 1;
+}
+
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--gap);
+  margin-top: 32px;
+  border-top: 1px solid var(--line-ink);
+}
+
+.process-step {
+  --s: 1;
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding-top: 24px;
+}
+
+/* A tick where each stage begins on the line above. */
+.process-step::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -15px;
+  width: 1px;
+  height: 14px;
+  background: var(--ink);
+}
+
+.process-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.process-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.125rem, 3.8vw, 3.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-weight: calc(200 + var(--s) * 400);
+  color: color-mix(in oklab, var(--ink) calc(var(--s) * 100%), var(--ink-soft));
+}
+
+.process-text {
+  max-width: 26ch;
+  color: var(--ink-soft);
+}
+
+.process-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.process-tag::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--ink-soft);
+}
+
+.process-step:last-child .process-tag {
+  color: var(--ink);
+}
+
+.process-step:last-child .process-tag::before {
+  background: var(--signal);
+}
+
+/* Phones: the line runs down the page beside the stages ------------------- */
+
+@media (max-width: 767px) {
+  .process-big {
+    font-size: 19vw;
+    line-height: 0.86;
+    white-space: normal;
+  }
+
+  .process-scope {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    column-gap: 20px;
+  }
+
+  .process-wave {
+    grid-column: 1;
+    grid-row: 1;
+    width: 52px;
+    height: 100%;
+  }
+
+  .process-steps {
+    grid-column: 2;
+    grid-row: 1;
+    grid-template-columns: 1fr;
+    row-gap: 40px;
+    margin-top: 0;
+    border-top: 0;
+  }
+
+  .process-step {
+    padding-top: 0;
+  }
+
+  .process-step::before {
+    display: none;
+  }
+}
+
+/* ---- contact.css ---- */
+/* ==========================================================================
+   Contact — the line is open.
+   A full-width input scope sits between the heading and the form: one flat
+   hairline at rest, it jumps with every keystroke and settles back
+   (scripts/contact-scope.js). When the form is complete the line turns
+   orange; once sent it holds one clean sine. The form's fields are
+   channels with "signal present" LEDs (styles/contact-form.css).
+   ========================================================================== */
+
+.contact {
+  --error: #ffa36b;
+  position: relative;
+  padding: var(--section-y) 0;
+  background: var(--carbon);
+}
+
+.contact-inner {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.contact-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 28px;
+}
+
+.contact-title {
+  max-width: 13ch;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7.6vw, 7.75rem);
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+  color: var(--bone);
+  text-wrap: balance;
+}
+
+.contact-title-dot {
+  color: var(--signal);
+}
+
+/* The scope --------------------------------------------------------------- */
+
+.contact-scope {
+  grid-column: 1 / -1;
+  position: relative;
+  height: clamp(104px, 10vw, 150px);
+  margin: clamp(40px, 5vw, 72px) calc(var(--pad) * -1) clamp(48px, 6vw, 88px);
+  border-block: 1px solid var(--line);
+  background:
+    repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 64px) left top / 100% 6px no-repeat,
+    repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 64px) left bottom / 100% 6px no-repeat;
+}
+
+.contact-scope-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.contact-scope-meta {
+  position: absolute;
+  left: var(--pad);
+  top: 14px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.contact-scope-led {
+  width: 7px;
+  height: 7px;
+  background: var(--ash-dim);
+  transition:
+    background-color var(--t-mid) var(--ease-out),
+    box-shadow var(--t-mid) var(--ease-out);
+}
+
+.contact-scope-state {
+  color: var(--bone-2);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.contact-scope[data-state="live"] .contact-scope-led {
+  background: var(--bone);
+}
+
+.contact-scope:is([data-state="ready"], [data-state="sent"]) .contact-scope-led {
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+/* Direct lines ------------------------------------------------------------ */
+
+.contact-intro {
+  grid-column: 1 / span 5;
+  display: grid;
+  align-content: start;
+  gap: 28px;
+}
+
+.contact-lede {
+  max-width: 36ch;
+  font-size: var(--fs-body-l);
+  line-height: 1.55;
+  color: var(--bone-2);
+}
+
+.contact-lines {
+  border-top: 1px solid var(--line);
+}
+
+.contact-lines li {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  min-height: 64px;
+  border-bottom: 1px solid var(--line);
+}
+
+.contact-lines-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.contact-lines-link,
+.contact-lines-plain {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.9vw, 1.75rem);
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--bone);
+  transition: font-weight var(--t-mid) var(--ease-out);
+}
+
+.contact-lines-plain {
+  font-weight: 300;
+  color: var(--bone-2);
+}
+
+.contact-lines-link:hover,
+.contact-lines-link:focus-visible {
+  font-weight: var(--w-loud);
+}
+
+/* Success ----------------------------------------------------------------- */
+
+.contact-success {
+  display: grid;
+  gap: 18px;
+  padding-top: 32px;
+  border-top: 2px solid var(--signal);
+}
+
+.contact-success:focus {
+  outline: none;
+}
+
+.contact-success:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 8px;
+}
+
+.contact-success-kicker {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.contact-success-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6.4vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.contact-success-title span {
+  color: var(--signal);
+}
+
+.contact-success-text {
+  max-width: 44ch;
+  font-size: var(--fs-body-l);
+  color: var(--bone-2);
+}
+
+.contact-again {
+  justify-self: start;
+  margin-top: 8px;
+}
+
+/* Tablet and mobile -------------------------------------------------------- */
+
+@media (max-width: 1099px) {
+  .contact-intro,
+  .contact-panel {
+    grid-column: 1 / -1;
+  }
+
+  .contact-intro {
+    max-width: 640px;
+    margin-bottom: 64px;
+  }
+}
+
+@media (max-width: 767px) {
+  .contact-title {
+    font-size: clamp(2.75rem, 14vw, 3.75rem);
+  }
+
+  .contact-scope-state {
+    display: none;
+  }
+}
+
+/* ---- contact-form.css ---- */
+/* ==========================================================================
+   Contact form — each field is a channel: a number, a label and a
+   "signal present" LED that lights orange as soon as the value is usable
+   (scripts/contact.js toggles .is-ok). Errors turn the LED and the rule
+   warm; they never rely on colour alone (each has a written message).
+   ========================================================================== */
+
+.contact-panel {
+  grid-column: 7 / span 6;
+  align-self: start;
+  padding-top: 8px;
+}
+
+.contact-form {
+  display: grid;
+  gap: 32px;
+}
+
+.contact-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px var(--gap);
+}
+
+.contact-field {
+  display: grid;
+  gap: 6px;
+}
+
+.contact-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.contact-req {
+  margin-left: auto;
+  color: var(--ash);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.contact-led {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: var(--ash-dim);
+  transition:
+    background-color var(--t-mid) var(--ease-out),
+    box-shadow var(--t-mid) var(--ease-out);
+}
+
+.contact-ch {
+  color: var(--bone);
+}
+
+.contact-field.is-ok .contact-led {
+  background: var(--signal);
+  box-shadow: 0 0 10px var(--signal-glow);
+}
+
+.contact-field.is-error .contact-led {
+  background: var(--error);
+  box-shadow: none;
+}
+
+.contact-input {
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 0 10px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--bone);
+  caret-color: var(--signal);
+  transition:
+    border-color var(--t-fast) var(--ease-out),
+    box-shadow var(--t-fast) var(--ease-out),
+    background-color var(--t-fast) var(--ease-out);
+}
+
+.contact-input::placeholder {
+  color: #857d76;
+  opacity: 1;
+}
+
+.contact-input:hover {
+  border-bottom-color: var(--ash);
+}
+
+.contact-input:focus {
+  outline: none;
+}
+
+.contact-input:focus-visible {
+  outline: none;
+  border-bottom-color: var(--signal);
+  box-shadow: 0 2px 0 0 var(--signal);
+  background-color: rgba(255, 107, 0, 0.05);
+}
+
+.contact-textarea {
+  min-height: 132px;
+  resize: vertical;
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  letter-spacing: 0;
+  padding-top: 12px;
+}
+
+.contact-field.is-error .contact-input,
+.contact-pair:has(.contact-hint.is-error) .contact-input {
+  border-bottom-color: var(--error);
+}
+
+.contact-field.is-error .contact-label {
+  color: var(--error);
+}
+
+.contact-error {
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--error);
+}
+
+.contact-error:empty {
+  display: none;
+}
+
+.contact-hint {
+  grid-column: 1 / -1;
+  font-size: var(--fs-small);
+  color: var(--ash);
+}
+
+.contact-hint.is-error {
+  color: var(--error);
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 28px;
+  margin-top: 4px;
+}
+
+.contact-submit {
+  min-width: 232px;
+  min-height: 56px;
+  justify-content: space-between;
+}
+
+.contact-submit[disabled] {
+  cursor: progress;
+}
+
+.contact-meter {
+  display: none;
+  align-items: flex-end;
+  gap: 3px;
+  height: 14px;
+}
+
+.contact-meter span {
+  width: 3px;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: bottom;
+  animation: contact-meter 640ms var(--ease-inout) infinite alternate;
+}
+
+.contact-meter span:nth-child(2) { animation-delay: -120ms; }
+.contact-meter span:nth-child(3) { animation-delay: -360ms; }
+.contact-meter span:nth-child(4) { animation-delay: -220ms; }
+.contact-meter span:nth-child(5) { animation-delay: -480ms; }
+
+.is-sending .contact-meter {
+  display: inline-flex;
+}
+
+.is-sending .contact-submit .btn-arrow {
+  display: none;
+}
+
+@keyframes contact-meter {
+  from { transform: scaleY(0.2); }
+  to { transform: scaleY(1); }
+}
+
+.contact-status {
+  font-size: var(--fs-small);
+  color: var(--ash);
+}
+
+.contact-status.is-error {
+  color: var(--error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-meter span {
+    animation: none;
+    transform: scaleY(0.6);
+  }
+}
+
+@media (max-width: 1099px) {
+  .contact-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .contact-pair {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .contact-hint {
+    grid-row: 1;
+    margin-bottom: -12px;
+  }
+
+  .contact-submit {
+    width: 100%;
+  }
+}
+
+/* ---- footer.css ---- */
+/* ==========================================================================
+   Footer — navigation, services, contact, then the finale.
+   The finale restates the brand line at full page width: "Less Noise."
+   turned down on the left, "More Impact" on the right with its full stop
+   missing. The travelling signal docks in that gap (scripts/signal.js adds
+   .is-docked): the stop appears, a shockwave rings out, and "More Impact"
+   swells from weight 250 to 600. "More Impact" is set flush right so the
+   stop never moves while the weight swells.
+   ========================================================================== */
+
+.footer {
+  position: relative;
+  /* The finale's shockwave can ring past the page edge; keep it in. */
+  overflow-x: clip;
+  padding: clamp(72px, 8vw, 120px) 0 28px;
+  background: var(--carbon);
+  border-top: 1px solid var(--line);
+}
+
+.footer-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 48px var(--gap);
+}
+
+.footer-brand {
+  grid-column: 1 / span 4;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 24px;
+}
+
+.footer-logo {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.footer-logo img {
+  width: auto;
+  height: 28px;
+}
+
+.footer-note {
+  max-width: 34ch;
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  color: var(--ash);
+}
+
+.footer-col-nav {
+  grid-column: 6 / span 2;
+}
+
+.footer-col-services {
+  grid-column: 8 / span 3;
+}
+
+.footer-col-contact {
+  grid-column: 11 / span 2;
+}
+
+.footer-title {
+  margin-bottom: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.footer-list {
+  display: grid;
+}
+
+.footer-link,
+.footer-plain {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  font-size: 0.9375rem;
+  color: var(--bone-2);
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.footer-link:hover {
+  color: var(--bone);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+
+/* Finale ------------------------------------------------------------------ */
+
+.finale {
+  display: grid;
+  margin-top: clamp(96px, 12vw, 190px);
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 12.2vw, 14.5rem);
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+  word-spacing: 0.09em;
+}
+
+.finale-kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: clamp(20px, 2.4vw, 36px);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  word-spacing: normal;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.finale-led {
+  width: 7px;
+  height: 7px;
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+  transition:
+    background-color var(--t-mid) var(--ease-out),
+    box-shadow var(--t-mid) var(--ease-out);
+}
+
+.finale-q {
+  justify-self: start;
+  font-weight: 200;
+  color: var(--ash);
+  white-space: nowrap;
+}
+
+/* A thin full stop reads as a comma: pin it heavy. */
+.finale-q-stop {
+  font-weight: 600;
+}
+
+.finale-l {
+  justify-self: end;
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.finale-word {
+  font-weight: 600;
+  color: var(--bone);
+  transition:
+    font-weight 1200ms var(--ease-out),
+    color 900ms var(--ease-out);
+}
+
+.finale-stop {
+  position: relative;
+  display: inline-block;
+  width: 0.16em;
+  height: 0.16em;
+  margin-left: 0.045em;
+  border-radius: 50%;
+  background: var(--signal);
+  transition:
+    transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 160ms var(--ease-out);
+}
+
+.finale-stop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--signal);
+  opacity: 0;
+}
+
+/* Waiting for the signal (only when scripts run it). */
+.finale.is-docked.fx-wait .finale-word,
+.js .finale:not(.is-docked) .finale-word {
+  font-weight: 250;
+  color: var(--bone-2);
+}
+
+.js .finale:not(.is-docked) .finale-stop {
+  opacity: 0;
+  transform: scale(0.34);
+}
+
+.js .finale:not(.is-docked) .finale-led {
+  background: var(--ash-dim);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .finale.is-docked .finale-stop::after {
+    animation: finale-shock 1300ms var(--ease-out) 60ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finale-word,
+  .finale-stop {
+    transition: none;
+  }
+}
+
+@keyframes finale-shock {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(11); opacity: 0; }
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: clamp(40px, 5vw, 72px);
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.footer-top-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  color: var(--bone);
+}
+
+.footer-up {
+  transform: rotate(180deg);
+}
+
+.footer-top-link:hover .footer-up {
+  transform: rotate(180deg) translateY(3px);
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-col-nav {
+    grid-column: 1 / span 3;
+  }
+
+  .footer-col-services {
+    grid-column: 4 / span 5;
+  }
+
+  .footer-col-contact {
+    grid-column: 9 / span 4;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer {
+    padding-top: 56px;
+  }
+
+  .footer-top {
+    row-gap: 36px;
+  }
+
+  .footer-col-nav {
+    grid-column: 1 / span 5;
+  }
+
+  .footer-col-services {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .footer-col-contact {
+    grid-column: 7 / span 6;
+  }
+
+  .footer-link,
+  .footer-plain {
+    min-height: 44px;
+  }
+
+  .finale {
+    margin-top: 72px;
+    font-size: 14.4vw;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ---- fx.css ---- */
+/* ==========================================================================
+   FX — the section tune-in system (scripts/particles.js, particle-fx.js,
+   denoise.js, tune-in.js). Every section starts as static and tunes in
+   when the signal reaches it. The real text is always in the DOM; during
+   the tune-in only its words are transparent (never the section, never
+   the whole page), and they come back the moment the particles land.
+   html.fx is set only when scripts and motion are both allowed.
+   ========================================================================== */
+
+.fx-host {
+  position: relative;
+}
+
+.fx-canvas {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  max-width: none;
+  pointer-events: none;
+}
+
+/* Words wait as static, then land. A word under the pointer hands over to
+   its particles (fx-off) and comes back when they settle. */
+.fx .fx-wait .fx-w {
+  opacity: 0;
+}
+
+.fx .fx-in .fx-w {
+  transition: opacity 360ms var(--ease-out);
+}
+
+.fx .fx-w.fx-off {
+  opacity: 0;
+  transition: none;
+}
+
+/* Prints: the static canvas covers the photo until it tunes in; the photo
+   settles from a push-in as it arrives. It is always a little larger than
+   its frame so it can drift inside it (parallax, scripts/scroll-fx.js). */
+.fx .work-frame img {
+  scale: 1.13;
+  transition:
+    transform 1100ms var(--ease-out),
+    scale 1600ms var(--ease-out);
+}
+
+.fx .work-frame.fx-static img {
+  scale: 1.22;
+}
+
+/* While the page moves, the leaning elements get their own layers. */
+.is-scrolling :is(.work-frame, .proof-lead-value, .process-big, .voices-item-xxl .voices-text) {
+  will-change: transform;
+}
+
+/* Rows lock on like channels: a short flicker as the name lands. */
+@media (prefers-reduced-motion: no-preference) {
+  .fx .services-row.is-locked .services-name {
+    animation: fx-lock 420ms steps(1) both;
+  }
+
+  .fx .services-row.is-locked .services-index {
+    animation: fx-lock 420ms steps(1) 80ms both;
+  }
+}
+
+@keyframes fx-lock {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  35% { opacity: 0.45; }
+  55% { opacity: 1; }
+  70% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* Decoded text keeps its box while it scrambles. */
+[data-decode-twin] {
+  white-space: pre;
+}
+
+/* ---- cursor.css ---- */
+/* ==========================================================================
+   Cursor — the signal as the pointer (scripts/cursor.js). A dot that
+   follows exactly and a ring that trails on a spring; it swells on links,
+   becomes a "View" disc on prints and says "Drag" on the faders. Magnetic
+   buttons lean towards it. Desktop mouse only; the native cursor is hidden
+   only once this one is running (html.has-cursor), and text fields keep
+   their caret.
+   ========================================================================== */
+
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 95;
+  pointer-events: none;
+}
+
+/* Until the first mouse move there is no position to show; without this the
+   dot and ring sit parked in the top-left corner. */
+html:not(.has-cursor) .cursor {
+  visibility: hidden;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.cursor-dot::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal);
+  transition: transform 260ms var(--ease-out), opacity 200ms var(--ease-out);
+}
+
+.cursor-ring::before {
+  content: "";
+  position: absolute;
+  left: -19px;
+  top: -19px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 107, 0, 0.7);
+  transition:
+    transform 420ms var(--ease-out),
+    background-color 300ms var(--ease-out),
+    border-color 300ms var(--ease-out),
+    opacity 300ms var(--ease-out);
+}
+
+.cursor-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.cursor[data-mode="hover"] .cursor-ring::before {
+  transform: scale(1.7);
+  background: rgba(255, 107, 0, 0.12);
+}
+
+.cursor[data-mode="hover"] .cursor-dot::before {
+  transform: scale(0.6);
+}
+
+.cursor[data-mode="view"] .cursor-ring::before,
+.cursor[data-mode="drag"] .cursor-ring::before {
+  transform: scale(2.4);
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.cursor[data-mode="view"] .cursor-label,
+.cursor[data-mode="drag"] .cursor-label {
+  opacity: 1;
+}
+
+.cursor[data-mode="view"] .cursor-dot::before,
+.cursor[data-mode="drag"] .cursor-dot::before,
+.cursor[data-mode="text"] .cursor-dot::before,
+.cursor[data-mode="text"] .cursor-ring::before,
+.cursor.is-out .cursor-dot::before,
+.cursor.is-out .cursor-ring::before {
+  opacity: 0;
+}
+
+.cursor.is-down .cursor-ring::before {
+  transform: scale(0.8);
+}
+
+.cursor.is-down[data-mode="view"] .cursor-ring::before {
+  transform: scale(2.1);
+}
+
+/* Hidden native cursor, only while the custom one runs. Text fields keep
+   their caret; the view disc replaces the pointer on prints. */
+html.has-cursor,
+html.has-cursor * {
+  cursor: none !important;
+}
+
+html.has-cursor :is(input, textarea, select) {
+  cursor: text !important;
+}
+
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor {
+    display: none;
+  }
+}
