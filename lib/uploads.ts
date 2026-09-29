@@ -60,7 +60,7 @@ export async function saveUpload(
 
   await fs.mkdir(UPLOADS_DIR, { recursive: true });
   await fs.writeFile(
-    path.join(UPLOADS_DIR, filename),
+    path.join(/* turbopackIgnore: true */ UPLOADS_DIR, filename),
     Buffer.from(await file.arrayBuffer()),
   );
 
@@ -83,7 +83,7 @@ export async function deleteUpload(url: string | undefined | null) {
   if (!filename || filename.includes("/") || filename.startsWith(".")) return;
 
   try {
-    await fs.unlink(path.join(UPLOADS_DIR, filename));
+    await fs.unlink(path.join(/* turbopackIgnore: true */ UPLOADS_DIR, filename));
   } catch {
     // Already gone — nothing to clean up.
   }
@@ -102,6 +102,6 @@ export function resolveUploadPath(segments: string[]): string | null {
   }
   if (!(path.extname(filename).toLowerCase() in CONTENT_TYPES)) return null;
 
-  const resolved = path.join(UPLOADS_DIR, filename);
+  const resolved = path.join(/* turbopackIgnore: true */ UPLOADS_DIR, filename);
   return resolved.startsWith(UPLOADS_DIR + path.sep) ? resolved : null;
 }

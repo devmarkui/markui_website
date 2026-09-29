@@ -56,10 +56,14 @@ import {
  * `.data/db.json` when it exists, otherwise from the seed.
  */
 
-export const DATA_DIR = path.join(process.cwd(), ".data");
-export const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
+// Every path.join into `.data` carries turbopackIgnore, here and in uploads.ts.
+// On the VPS `.data` is a symlink out of the project, and the build panics if
+// it traces into it once uploads exist. Turbopack still evaluates DATA_DIR
+// wherever it is reused, so each join needs its own comment.
+export const DATA_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), ".data");
+export const UPLOADS_DIR = path.join(/* turbopackIgnore: true */ DATA_DIR, "uploads");
 /** The pre-MySQL store; only read once, to import it. */
-const LEGACY_DB_FILE = path.join(DATA_DIR, "db.json");
+const LEGACY_DB_FILE = path.join(/* turbopackIgnore: true */ DATA_DIR, "db.json");
 
 /**
  * Serialises reads and writes within this process so two concurrent admin
@@ -320,7 +324,9 @@ function seedHeroServices() {
 async function publicFileExists(publicPath: string) {
   if (!publicPath.startsWith("/")) return false;
   try {
-    await fs.access(path.join(process.cwd(), "public", publicPath.slice(1)));
+    await fs.access(
+      path.join(/* turbopackIgnore: true */ process.cwd(), "public", publicPath.slice(1)),
+    );
     return true;
   } catch {
     return false;

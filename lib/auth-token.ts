@@ -54,7 +54,11 @@ function getSecret(): string {
     );
   }
 
-  const devSecretFile = path.join(process.cwd(), ".data", "dev-session-secret");
+  const devSecretFile = path.join(
+    /* turbopackIgnore: true */ process.cwd(),
+    ".data",
+    "dev-session-secret",
+  );
   try {
     cachedSecret = fs.readFileSync(devSecretFile, "utf8").trim();
     if (cachedSecret.length >= 16) return cachedSecret;
