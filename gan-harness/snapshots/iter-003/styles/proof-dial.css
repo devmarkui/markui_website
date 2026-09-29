@@ -1,0 +1,168 @@
+/* ==========================================================================
+   Proof dial — client names on an analogue tuning dial, on its own band.
+   An orange needle sweeps station to station (scripts/dial.js) and turns
+   each name up as it arrives; hovering a name tunes straight to it.
+   ========================================================================== */
+
+.proof-dial {
+  --dial-axis: x;
+  margin-top: clamp(96px, 11vw, 176px);
+  padding: clamp(36px, 4vw, 56px) var(--pad) clamp(44px, 4.6vw, 72px);
+  background: var(--soot);
+  border-block: 1px solid var(--line);
+}
+
+.proof-dial-head,
+.proof-dial-body {
+  max-width: calc(var(--max) - var(--pad) * 2);
+  margin: 0 auto;
+}
+
+.proof-dial-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: clamp(28px, 3.6vw, 52px);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.proof-dial-label {
+  color: var(--ash);
+}
+
+.proof-dial-freq {
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.proof-dial-body {
+  position: relative;
+  padding-bottom: 34px;
+}
+
+.proof-dial-list {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.proof-dial-name {
+  padding: 10px 0 18px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.1vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-weight: calc(250 + var(--floor));
+  color: var(--ash-dim);
+  cursor: default;
+  transition:
+    font-weight 800ms var(--ease-out),
+    color 800ms var(--ease-out);
+}
+
+.proof-dial-name.is-on {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.proof-dial-scale {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  border-bottom: 1px solid var(--line-strong);
+  background:
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px calc(100% / 70)) bottom / 100% 7px no-repeat,
+    repeating-linear-gradient(90deg, var(--ash) 0 1px, transparent 1px calc(100% / 14)) bottom / 100% 16px no-repeat;
+}
+
+.proof-dial-needle {
+  position: absolute;
+  left: -1px;
+  top: -10px;
+  bottom: 0;
+  width: 2px;
+  background: var(--signal);
+  box-shadow: 0 0 18px var(--signal-glow);
+  opacity: 0;
+  transition:
+    transform 1000ms var(--ease-inout),
+    opacity var(--t-mid) var(--ease-out);
+}
+
+.proof-dial.is-ready .proof-dial-needle {
+  opacity: 1;
+}
+
+.proof-dial-needle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  background: var(--signal);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proof-dial-name {
+    color: var(--ash);
+  }
+}
+
+/* Mobile: the dial turns vertical ----------------------------------------- */
+
+@media (max-width: 767px) {
+  .proof-dial {
+    --dial-axis: y;
+  }
+
+  .proof-dial-body {
+    padding: 0 0 0 48px;
+  }
+
+  .proof-dial-list {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-dial-name {
+    padding: 9px 0;
+    text-align: left;
+    font-size: 2rem;
+  }
+
+  .proof-dial-scale {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    width: 26px;
+    height: auto;
+    border-bottom: 0;
+    border-left: 1px solid var(--line-strong);
+    background:
+      repeating-linear-gradient(180deg, var(--ash-dim) 0 1px, transparent 1px calc(100% / 35)) left / 7px 100% no-repeat,
+      repeating-linear-gradient(180deg, var(--ash) 0 1px, transparent 1px calc(100% / 7)) left / 16px 100% no-repeat;
+  }
+
+  .proof-dial-needle {
+    left: 0;
+    top: -1px;
+    bottom: auto;
+    width: 34px;
+    height: 2px;
+  }
+
+  .proof-dial-needle::after {
+    left: auto;
+    right: -5px;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%) rotate(45deg);
+  }
+}

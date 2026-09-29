@@ -1,0 +1,430 @@
+/* ==========================================================================
+   Hero — the page turns its own noise down
+   --v (0–1) is the noise level, written by scripts/hero-fader.js.
+   Every visual below is a function of it.
+   ========================================================================== */
+
+.hero {
+  --v: 0.08;
+  /* The channel strip is the "desk" the figure stands on; the bust never
+     drops below its top edge. */
+  --desk-h: clamp(136px, 17svh, 168px);
+  --bust-h: min(calc(100svh - var(--nav-h) - var(--desk-h) - 8px), 880px, 60vw);
+  --head-x: 75%;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: max(100svh, 640px);
+  overflow: clip;
+  background: var(--carbon);
+}
+
+/* Noise field ------------------------------------------------------------- */
+
+.hero-noise {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  pointer-events: none;
+  image-rendering: pixelated;
+  opacity: calc(0.018 + var(--v) * 0.55);
+}
+
+/* Stage: disc + bust ------------------------------------------------------ */
+
+.hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-disc {
+  position: absolute;
+  left: var(--head-x);
+  bottom: calc(var(--desk-h) + var(--bust-h) * 0.742);
+  width: calc(var(--bust-h) * 0.5);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--signal);
+  /* --p is the scroll-exit progress (scripts/scrub.js): leaving the hero,
+     the signal narrows to a point. */
+  transform: translate(-50%, 50%) scale(calc((1 - var(--v) * 0.4) * (1 - var(--p, 0) * 0.6)));
+  opacity: calc(1 - var(--v) * 0.92);
+  will-change: transform, opacity;
+}
+
+/* A faint second ring: the "speaker cone" edge. */
+.hero-disc::after {
+  content: "";
+  position: absolute;
+  inset: -9%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 107, 0, 0.35);
+  transform: scale(calc(1 + var(--v) * 0.5));
+}
+
+.hero-bust {
+  position: absolute;
+  left: var(--head-x);
+  bottom: var(--desk-h);
+  width: auto;
+  height: var(--bust-h);
+  max-width: none;
+  transform: translate(-50.6%, calc(var(--p, 0) * 14%));
+  opacity: calc(1 - var(--v) * 0.55);
+  user-select: none;
+}
+
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, var(--carbon) 0, var(--carbon) var(--desk-h), rgba(13, 11, 10, 0.7) calc(var(--desk-h) + 36px), rgba(13, 11, 10, 0) calc(var(--desk-h) + 120px)),
+    linear-gradient(90deg, rgba(13, 11, 10, 0.92) 0%, rgba(13, 11, 10, 0.6) 34%, rgba(13, 11, 10, 0) 56%);
+}
+
+/* Content ----------------------------------------------------------------- */
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  /* Headline anchors to the top, the copy sits on the desk: the space
+     between them is the quiet. */
+  grid-template-rows: auto auto minmax(24px, 1fr) auto auto;
+  column-gap: var(--gap);
+  width: 100%;
+  padding: calc(var(--nav-h) + clamp(24px, 4.6vh, 52px)) var(--pad) 0;
+}
+
+.hero-eyebrow {
+  grid-column: 1 / -1;
+  --chan-color: var(--ash);
+}
+
+.hero-eyebrow .chan-led {
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+.hero-title {
+  grid-column: 1 / span 9;
+  margin-top: clamp(14px, 5.5vh, 60px);
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, min(8.9vw, 16svh), 9.75rem);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+}
+
+.hero-line {
+  display: block;
+  white-space: nowrap;
+}
+
+/* The two lines trade weight as the noise level changes. */
+.hero-line-q {
+  font-weight: calc(200 + var(--v) * 420);
+  color: color-mix(in oklab, var(--bone) calc(var(--v) * 100%), var(--ash-dim));
+  letter-spacing: -0.03em;
+}
+
+.hero-line-l {
+  font-weight: calc(620 - var(--v) * 420);
+  color: color-mix(in oklab, var(--ash-dim) calc(var(--v) * 100%), var(--bone));
+}
+
+.hero-dot {
+  color: var(--signal);
+  opacity: calc(1 - var(--v));
+}
+
+.hero-char {
+  display: inline-block;
+  transform: translate(var(--jx, 0), var(--jy, 0));
+}
+
+.hero-copy {
+  grid-column: 1 / span 5;
+  grid-row: 4;
+  display: grid;
+  gap: clamp(18px, 3vh, 28px);
+  max-width: 460px;
+  padding-bottom: clamp(24px, 4vh, 40px);
+}
+
+.hero-desc {
+  font-size: var(--fs-body-l);
+  line-height: 1.55;
+  color: var(--bone-2);
+  max-width: 40ch;
+}
+
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+}
+
+/* Channels: the three pillars as mixing-desk channels -------------------- */
+
+.hero-channels {
+  grid-column: 1 / -1;
+  grid-row: 5;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: var(--desk-h);
+  border-top: 1px solid var(--line-strong);
+}
+
+.hero-channel-item + .hero-channel-item {
+  border-left: 1px solid var(--line);
+}
+
+.hero-channel {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  height: 100%;
+  padding: 18px 24px 22px;
+}
+
+.hero-channel-item:first-child .hero-channel {
+  padding-left: 0;
+}
+
+.hero-channel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms var(--ease-out);
+}
+
+.hero-channel:hover::before,
+.hero-channel:focus-visible::before {
+  transform: scaleX(1);
+}
+
+.hero-channel:focus-visible {
+  outline-offset: -2px;
+}
+
+.hero-channel-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ash-dim);
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.hero-channel-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--bone);
+  transition: font-weight var(--t-mid) var(--ease-out);
+}
+
+.hero-channel-text {
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ash);
+  max-width: 46ch;
+}
+
+.hero-channel:hover .hero-channel-title,
+.hero-channel:focus-visible .hero-channel-title {
+  font-weight: var(--w-loud);
+}
+
+.hero-channel:hover .hero-channel-num,
+.hero-channel:focus-visible .hero-channel-num {
+  color: var(--signal);
+}
+
+/* Intro: copy and channels arrive after the noise drops -------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .hero-eyebrow,
+  .js .hero-copy,
+  .js .hero-channel-item {
+    opacity: 0;
+    transition: opacity 900ms var(--ease-out);
+  }
+
+  .js .hero-copy,
+  .js .hero-channel-item {
+    transform: translateY(18px);
+    transition:
+      opacity 900ms var(--ease-out),
+      transform 1100ms var(--ease-out);
+  }
+
+  .js .hero.is-ready .hero-eyebrow,
+  .js .hero.is-ready .hero-copy,
+  .js .hero.is-ready .hero-channel-item,
+  .js .hero.is-ready .hero-fader,
+  .intro-done .hero-eyebrow,
+  .intro-done .hero-copy,
+  .intro-done .hero-channel-item,
+  .intro-done .hero-fader {
+    opacity: 1;
+    transform: none;
+  }
+
+  .js .hero.is-ready .hero-eyebrow { transition-delay: 0ms; }
+  .js .hero.is-ready .hero-copy { transition-delay: 120ms; }
+  .js .hero.is-ready .hero-channel-item:nth-child(1) { transition-delay: 260ms; }
+  .js .hero.is-ready .hero-channel-item:nth-child(2) { transition-delay: 340ms; }
+  .js .hero.is-ready .hero-channel-item:nth-child(3) { transition-delay: 420ms; }
+  .js .hero.is-ready .hero-fader { transition-delay: 500ms; }
+}
+
+/* Tablet and mobile: poster composition, figure on top, type over the chest */
+
+@media (max-width: 1099px) {
+  .hero {
+    --bust-h: min(72vw, 62svh);
+    --bust-top: calc(var(--nav-h) + 64px);
+    --head-x: 50%;
+    min-height: 0;
+  }
+
+  .hero-disc {
+    bottom: auto;
+    top: calc(var(--bust-top) + var(--bust-h) * 0.258);
+    transform: translate(-50%, -50%) scale(calc((1 - var(--v) * 0.4) * (1 - var(--p, 0) * 0.6)));
+  }
+
+  .hero-bust {
+    bottom: auto;
+    top: var(--bust-top);
+  }
+
+  .hero-scrim {
+    background: linear-gradient(
+      to bottom,
+      rgba(13, 11, 10, 0) 0,
+      rgba(13, 11, 10, 0) calc(var(--bust-top) + var(--bust-h) * 0.4),
+      rgba(13, 11, 10, 0.72) calc(var(--bust-top) + var(--bust-h) * 0.66),
+      rgba(13, 11, 10, 0.9) calc(var(--bust-top) + var(--bust-h) * 0.88),
+      var(--carbon) calc(var(--bust-top) + var(--bust-h))
+    );
+  }
+
+  .hero-inner {
+    grid-template-rows: auto;
+    padding-top: calc(var(--nav-h) + 20px);
+    padding-bottom: 56px;
+  }
+
+  .hero-title {
+    grid-column: 1 / -1;
+    margin-top: calc(var(--bust-top) + var(--bust-h) * 0.6 - var(--nav-h) - 60px);
+    font-size: clamp(3.5rem, 12.6vw, 7rem);
+  }
+
+  .hero-copy {
+    grid-column: 1 / span 9;
+    grid-row: auto;
+    max-width: 520px;
+    margin-top: 32px;
+    padding-bottom: 0;
+  }
+
+  .hero-channels {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    min-height: 0;
+    margin-top: 56px;
+  }
+
+  .hero-channel {
+    padding-bottom: 6px;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    --bust-h: 112vw;
+    --bust-top: calc(var(--nav-h) + 52px);
+  }
+
+  .hero-eyebrow .chan-sep,
+  .hero-eyebrow span:last-child {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: clamp(3.25rem, 20.5vw, 5.5rem);
+    line-height: 0.84;
+    margin-top: calc(var(--bust-top) + var(--bust-h) * 0.56 - var(--nav-h) - 52px);
+  }
+
+  .hero-word {
+    display: block;
+  }
+
+  .hero-inner {
+    padding-bottom: 32px;
+  }
+
+  .hero-copy {
+    grid-column: 1 / -1;
+    gap: 24px;
+    margin-top: 28px;
+  }
+
+  .hero-ctas .btn-signal {
+    flex: 1 1 auto;
+  }
+
+  .hero-channels {
+    grid-template-columns: 1fr;
+    margin-top: 40px;
+  }
+
+  .hero-channel-item + .hero-channel-item {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .hero-channel {
+    grid-template-columns: 56px 1fr;
+    column-gap: 12px;
+    padding: 18px 0 18px;
+  }
+
+  .hero-channel-num {
+    grid-row: span 2;
+    padding-top: 5px;
+  }
+
+  .hero-channel::before {
+    top: -1px;
+  }
+}
+
+/* Before the module takes over, the hero starts loud (and falls back to calm
+   if scripts never run). */
+.intro .hero {
+  --v: 1;
+}
+
+.intro.intro-done .hero {
+  --v: 0.08;
+}

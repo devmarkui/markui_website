@@ -1,0 +1,457 @@
+/* ==========================================================================
+   Work — the gallery wall. Dark prints hung on warm paper.
+   The hang is defined by SLOT (nth-child), not by project, so tuning to a
+   channel can re-hang the wall: matching prints move to the front slots,
+   the rest are turned down behind them (scripts/work.js).
+   Every project image has its title baked into its left third, so any crop
+   narrower than 3:2 is anchored to the left edge (--pos: 0%) and the baked
+   title is never sliced. Phones get the untouched 3:2 print.
+   ========================================================================== */
+
+.work {
+  --focus: var(--ink);
+  --chan-color: var(--ink-soft);
+  --chan-num: var(--ink);
+  --chan-led-off: rgba(21, 17, 14, 0.28);
+  --chan-led-on: var(--signal);
+  --btn-line-color: var(--ink);
+  position: relative;
+  padding: var(--section-y) 0 clamp(96px, 10vw, 160px);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.work ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.work-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+/* The heading is a wall label: calm, one weight. The prints are the loud part. */
+.work-head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px var(--gap);
+  align-items: end;
+}
+
+.work-head .chan {
+  grid-column: 1 / -1;
+}
+
+.work-title {
+  grid-column: 1 / span 7;
+  font-family: var(--font-display);
+  font-size: var(--fs-l);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.work-lede {
+  grid-column: 8 / span 3;
+  max-width: 36ch;
+  font-size: var(--fs-small);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.work-all {
+  grid-column: 11 / span 2;
+  justify-self: end;
+}
+
+/* The hang --------------------------------------------------------------- */
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: clamp(56px, 6vw, 96px);
+  align-items: start;
+}
+
+.work-grid > :nth-child(1) { grid-column: 1 / span 7; }
+.work-grid > :nth-child(2) { grid-column: 9 / span 4; --ar: 4 / 5; --pos: 0% 50%; }
+.work-grid > :nth-child(3) { grid-column: 1 / span 4; --ar: 4 / 5; --pos: 0% 50%; }
+.work-grid > :nth-child(4) { grid-column: 6 / span 7; margin-top: clamp(24px, 3vw, 48px); }
+.work-grid > :nth-child(5) { grid-column: 1 / -1; --ar: 16 / 9; --pos: 50% 34%; }
+.work-grid > :nth-child(6) { grid-column: 1 / span 5; --ar: 1 / 1; --pos: 0% 50%; }
+.work-grid > :nth-child(7) { grid-column: 7 / span 6; --ar: 5 / 4; --pos: 0% 50%; margin-top: clamp(16px, 2vw, 32px); }
+.work-grid > :nth-child(8) { grid-column: 2 / span 6; }
+.work-grid > :nth-child(9) { grid-column: 9 / span 4; --ar: 1 / 1; --pos: 0% 50%; }
+.work-grid > :nth-child(10) { grid-column: 1 / span 8; --ar: 16 / 9; --pos: 50% 40%; }
+
+.work-card {
+  position: relative;
+  display: block;
+}
+
+.work-frame {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--ar, 3 / 2);
+  overflow: hidden;
+  background: var(--carbon);
+  transition: opacity 700ms var(--ease-out);
+}
+
+.work-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pos, 50% 50%);
+  transition:
+    transform 1100ms var(--ease-out),
+    filter 900ms var(--ease-out);
+}
+
+.work-view {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--signal);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transform: translateY(101%);
+  transition: transform 520ms var(--ease-out);
+}
+
+.work-view .btn-arrow {
+  width: 11px;
+  height: 11px;
+}
+
+.work-caption {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 8px;
+  padding-top: 20px;
+}
+
+.work-index {
+  grid-row: 1 / span 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: start;
+  padding-top: 0.55em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.work-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.625rem, 2.5vw, 2.375rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: var(--w-loud);
+  color: var(--ink);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.work-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.work-link:focus-visible {
+  outline: none;
+}
+
+.work-card:has(.work-link:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 8px;
+}
+
+.work-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.71875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.work-tag {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.work-desc {
+  max-width: 44ch;
+  margin-top: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* The wide slot gets a horizontal museum label. */
+.work-grid > :nth-child(5) .work-caption {
+  grid-template-columns: 40px minmax(0, 3fr) minmax(0, 4fr);
+}
+
+.work-grid > :nth-child(5) .work-index {
+  grid-row: 1 / span 2;
+}
+
+.work-grid > :nth-child(5) .work-desc {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  margin-top: 0;
+  justify-self: end;
+}
+
+/* Hover: the print you point at is the only one turned up. */
+@media (hover: hover) {
+  .work-card:hover .work-frame img {
+    transform: scale(1.045);
+  }
+
+  .work-card:hover .work-view,
+  .work-card:has(.work-link:focus-visible) .work-view {
+    transform: none;
+  }
+
+  .work-grid:has(.work-card:hover) .work-item:not(.is-muted) .work-card:not(:hover) .work-frame {
+    opacity: 0.5;
+  }
+
+  .work-card:hover .work-index {
+    color: var(--ink);
+  }
+
+  .work-card:hover .work-index::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--signal);
+  }
+}
+
+/* Lights on: each print develops out of the dark as it enters. With the
+   tune-in system running (html.fx) the prints de-noise instead
+   (scripts/denoise.js, styles/fx.css). ------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js:not(.fx) .work-frame {
+    clip-path: inset(7% 7% 7% 7%);
+    transition:
+      clip-path 1400ms var(--ease-out),
+      opacity 700ms var(--ease-out);
+  }
+
+  .js:not(.fx) .work-frame img {
+    transform: scale(1.14);
+    filter: brightness(0.08) saturate(0.2);
+  }
+
+  .js:not(.fx) .work-frame.is-in {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .js:not(.fx) .work-frame.is-in img {
+    transform: scale(1.001);
+    filter: none;
+    transition:
+      transform 1600ms var(--ease-out),
+      filter 1300ms var(--ease-out) 150ms;
+  }
+
+  .js:not(.fx) .work-card:hover .work-frame.is-in img {
+    transform: scale(1.045);
+    transition:
+      transform 1100ms var(--ease-out),
+      filter 900ms var(--ease-out);
+  }
+
+  /* Re-hang: the lights dip, the wall is re-hung, then each print comes
+     back up in its new slot, front to back. */
+  .work-grid.is-dimming .work-item {
+    opacity: 0;
+    transition: opacity 240ms var(--ease-inout);
+  }
+
+  .work-grid.is-rehung .work-item {
+    animation: work-rehang 900ms var(--ease-out) both;
+    animation-delay: calc(var(--slot, 0) * 70ms);
+  }
+}
+
+@keyframes work-rehang {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+/* Turned down ------------------------------------------------------------- */
+
+.work-item.is-muted .work-frame {
+  opacity: 0.4;
+}
+
+.js .work-item.is-muted .work-frame img,
+.work-item.is-muted .work-frame img {
+  filter: grayscale(1) brightness(0.7);
+}
+
+.work-item.is-muted .work-name {
+  font-weight: 250;
+  color: var(--ink-soft);
+}
+
+/* Foot: the closing wall text sits beside the last print ------------------ */
+
+.work-foot {
+  grid-column: 10 / span 3;
+  align-self: end;
+  display: grid;
+  justify-items: start;
+  gap: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-ink);
+}
+
+.work-foot-note {
+  font-family: var(--font-display);
+  font-size: var(--fs-s);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.work-foot-cta:focus-visible {
+  outline-color: var(--ink);
+}
+
+/* Tablet: pairs of equal prints, so rows never leave a hole ---------------- */
+
+@media (max-width: 1099px) {
+  .work-title {
+    grid-column: 1 / -1;
+  }
+
+  .work-lede {
+    grid-column: 1 / span 8;
+  }
+
+  .work-all {
+    grid-column: 9 / span 4;
+  }
+
+  .work-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .work-grid > .work-item {
+    margin-top: 0;
+  }
+
+  .work-grid > :nth-child(1),
+  .work-grid > :nth-child(4),
+  .work-grid > :nth-child(8) { grid-column: 1 / -1; --ar: 3 / 2; --pos: 50% 50%; }
+  .work-grid > :nth-child(5) { grid-column: 1 / -1; }
+  .work-grid > :nth-child(2),
+  .work-grid > :nth-child(6),
+  .work-grid > :nth-child(9) { grid-column: 1 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
+  .work-grid > :nth-child(3),
+  .work-grid > :nth-child(7),
+  .work-grid > :nth-child(10) { grid-column: 4 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
+
+  .work-grid > :nth-child(5) .work-caption {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .work-grid > :nth-child(5) .work-desc {
+    grid-column: 2;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 4px;
+  }
+
+  .work-foot {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+/* Mobile: the whole print, never cropped ----------------------------------- */
+
+@media (max-width: 767px) {
+  .work-lede,
+  .work-all {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .work-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 40px;
+  }
+
+  .work-grid > .work-item {
+    grid-column: 1;
+    --ar: 3 / 2;
+    --pos: 50% 50%;
+  }
+
+  .work-grid > :nth-child(3n + 1) {
+    margin-inline: calc(var(--pad) * -1);
+  }
+
+  .work-grid > :nth-child(3n + 1) .work-caption {
+    padding-inline: var(--pad);
+  }
+
+  .work-grid > :nth-child(3n + 2) {
+    width: 88%;
+    margin-left: auto;
+  }
+
+  .work-grid > :nth-child(3n) {
+    width: 88%;
+  }
+
+  .work-caption,
+  .work-grid > :nth-child(5) .work-caption {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .work-grid > .work-foot {
+    grid-column: 1;
+    grid-template-columns: 1fr;
+    width: auto;
+    margin: 0;
+  }
+
+  .work-foot-cta {
+    width: 100%;
+  }
+}

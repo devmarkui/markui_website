@@ -1,0 +1,79 @@
+/* ==========================================================================
+   FX — the section tune-in system (scripts/particles.js, particle-fx.js,
+   denoise.js, tune-in.js). Every section starts as static and tunes in
+   when the signal reaches it. The real text is always in the DOM; during
+   the tune-in only its words are transparent (never the section, never
+   the whole page), and they come back the moment the particles land.
+   html.fx is set only when scripts and motion are both allowed.
+   ========================================================================== */
+
+.fx-host {
+  position: relative;
+}
+
+.fx-canvas {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  max-width: none;
+  pointer-events: none;
+}
+
+/* Words wait as static, then land. A word under the pointer hands over to
+   its particles (fx-off) and comes back when they settle. */
+.fx .fx-wait .fx-w {
+  opacity: 0;
+}
+
+.fx .fx-in .fx-w {
+  transition: opacity 360ms var(--ease-out);
+}
+
+.fx .fx-w.fx-off {
+  opacity: 0;
+  transition: none;
+}
+
+/* Prints: the static canvas covers the photo until it tunes in; the photo
+   settles from a push-in as it arrives. It is always a little larger than
+   its frame so it can drift inside it (parallax, scripts/scroll-fx.js). */
+.fx .work-frame img {
+  scale: 1.13;
+  transition:
+    transform 1100ms var(--ease-out),
+    scale 1600ms var(--ease-out);
+}
+
+.fx .work-frame.fx-static img {
+  scale: 1.22;
+}
+
+/* While the page moves, the leaning elements get their own layers. */
+.is-scrolling :is(.work-frame, .proof-lead-value, .process-big, .voices-item-xxl .voices-text) {
+  will-change: transform;
+}
+
+/* Rows lock on like channels: a short flicker as the name lands. */
+@media (prefers-reduced-motion: no-preference) {
+  .fx .services-row.is-locked .services-name {
+    animation: fx-lock 420ms steps(1) both;
+  }
+
+  .fx .services-row.is-locked .services-index {
+    animation: fx-lock 420ms steps(1) 80ms both;
+  }
+}
+
+@keyframes fx-lock {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  35% { opacity: 0.45; }
+  55% { opacity: 1; }
+  70% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* Decoded text keeps its box while it scrambles. */
+[data-decode-twin] {
+  white-space: pre;
+}

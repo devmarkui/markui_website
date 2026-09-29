@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Mark UI — design tokens
+   Concept: "Volume". Weight is volume; orange is the signal.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Clash Display";
+  src:
+    url("../assets/fonts/ClashDisplay-Variable.ttf") format("truetype-variations"),
+    url("../assets/fonts/ClashDisplay-Variable.ttf") format("truetype");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  /* Grounds */
+  --carbon: #0d0b0a;
+  --soot: #151210;
+  --char: #1f1b18;
+  /* Hairlines thicken and brighten with the page noise (see desk.css). */
+  --line: rgba(241, 236, 230, calc(0.12 + var(--noise) * 0.22));
+  --line-strong: rgba(241, 236, 230, calc(0.26 + var(--noise) * 0.24));
+
+  /* Text on dark */
+  --bone: #f1ece6;
+  --bone-2: #d8d0c8;
+  --ash: #a39a92;
+  --ash-dim: #6f6761;
+
+  /* Gallery wall */
+  --paper: #e8e2da;
+  --paper-2: #ddd5cb;
+  --ink: #15110e;
+  --ink-soft: #5a524b;
+  --line-ink: rgba(21, 17, 14, calc(0.16 + var(--noise) * 0.24));
+
+  /* Signal */
+  --signal: #ff6b00;
+  --signal-hover: #e55c00;
+  --signal-deep: #733508;
+  --signal-glow: rgba(255, 107, 0, 0.32);
+
+  /* Focus ring (overridden on light and orange grounds) */
+  --focus: var(--signal);
+
+  /* The page-wide noise level (0-1). Written by scripts/desk.js whenever
+     either Noise fader moves; grain, hairlines and every "turned down"
+     element read it, so the whole page behaves like one mixing desk. */
+  --noise: 0.08;
+  /* "Turned down" type is pushed up by the noise floor. */
+  --floor: calc(var(--noise) * 360);
+
+  /* Families */
+  --font-display: "Clash Display", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Type scale (fluid) */
+  --fs-hero: clamp(3.5rem, 10.4vw, 11.5rem);
+  --fs-xl: clamp(2.75rem, 7.2vw, 7.25rem);
+  --fs-l: clamp(2.125rem, 4.6vw, 4.5rem);
+  --fs-m: clamp(1.5rem, 2.5vw, 2.5rem);
+  --fs-s: clamp(1.25rem, 1.7vw, 1.625rem);
+  --fs-body-l: clamp(1.0625rem, 1.25vw, 1.25rem);
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-label: 0.75rem;
+
+  /* Volume (weights) */
+  --w-quiet: 200;
+  --w-soft: 300;
+  --w-mid: 450;
+  --w-loud: 600;
+  --w-max: 700;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-soft: cubic-bezier(0.33, 0, 0.2, 1);
+  --t-fast: 220ms;
+  --t-mid: 560ms;
+  --t-slow: 1100ms;
+
+  /* Layout */
+  --pad: clamp(20px, 3.4vw, 48px);
+  /* The signal runs down the middle of the page margin. */
+  --gutter: calc(var(--pad) / 2);
+  --gap: clamp(12px, 1.7vw, 24px);
+  --max: 1520px;
+  --nav-h: 72px;
+  --section-y: clamp(96px, 12vw, 176px);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --nav-h: 64px;
+    --fs-xl: 2.5rem;
+    --section-y: 72px;
+  }
+}

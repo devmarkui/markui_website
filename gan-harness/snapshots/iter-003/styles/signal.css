@@ -1,0 +1,148 @@
+/* ==========================================================================
+   Signal — the trace that carries the hero's dot to the finale.
+   One SVG the height of the page, positioned against <body>, between the
+   section grounds and their content (z-index 1; content is z-index 2, see
+   base.css), so it can run behind anything and never over text.
+   Ahead of the dot the route is a dotted ghost; behind it, solid signal.
+   On the orange reviews ground both turn ink. Colours per ground come from
+   two gradients written by scripts/signal.js.
+   ========================================================================== */
+
+.signal {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.signal:not(.is-ready) {
+  visibility: hidden;
+}
+
+.signal-svg {
+  display: block;
+  max-width: none;
+  overflow: visible;
+}
+
+.sig-ghost,
+.sig-lit,
+.sig-branch {
+  fill: none;
+  stroke-linejoin: round;
+}
+
+/* Square dots (butt-capped dashes): round-capped zero-length dashes look
+   the same but cost a lot to rasterise every time the lit path above them
+   changes. */
+.sig-ghost {
+  stroke-width: 1.75;
+  stroke-linecap: butt;
+  stroke-dasharray: 1.75 6;
+}
+
+.sig-lit {
+  stroke-width: 1.75;
+  stroke-linecap: butt;
+}
+
+.hero-route .sig-ghost {
+  stroke: rgba(241, 236, 230, 0.36);
+}
+
+.hero-route .sig-lit {
+  stroke: var(--signal);
+}
+
+/* Branches: a short stub from the route to each channel meter or LED. */
+.sig-branch {
+  stroke: rgba(241, 236, 230, 0.36);
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+  stroke-dasharray: 1.5 4.5;
+  transition: stroke 360ms var(--ease-out);
+}
+
+.sig-branch.is-lit {
+  stroke: var(--signal);
+  stroke-dasharray: none;
+  stroke-linecap: butt;
+}
+
+.sig-branch[data-ground="light"] {
+  stroke: rgba(21, 17, 14, 0.32);
+}
+
+.sig-branch[data-ground="orange"] {
+  stroke: rgba(21, 17, 14, 0.45);
+}
+
+.sig-branch[data-ground="light"].is-lit {
+  stroke: var(--signal);
+}
+
+.sig-branch[data-ground="orange"].is-lit {
+  stroke: var(--ink);
+}
+
+/* The dot ------------------------------------------------------------------ */
+
+.signal-core {
+  r: 5px;
+  fill: var(--signal);
+}
+
+.signal-halo {
+  r: 15px;
+  fill: var(--signal);
+  opacity: 0.16;
+}
+
+.signal-dot[data-ground="light"] .signal-halo {
+  opacity: 0.2;
+}
+
+.signal-dot[data-ground="orange"] .signal-core {
+  fill: var(--ink);
+}
+
+.signal-dot[data-ground="orange"] .signal-halo {
+  opacity: 0;
+}
+
+.signal-dot.is-hidden {
+  visibility: hidden;
+}
+
+@media (max-width: 1099px) {
+  .signal-core {
+    r: 4px;
+  }
+
+  .signal-halo {
+    r: 11px;
+  }
+}
+
+/* Once the disc has become the dot it hands over to the page layer. */
+.hero-disc.is-away {
+  visibility: hidden;
+}
+
+/* Fed channels: a section's LED stays lit once the signal has reached it,
+   and flashes as it arrives. */
+.is-fed .chan-led {
+  background: var(--chan-led-on, var(--signal));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .is-fed .chan-led {
+    animation: signal-led 800ms var(--ease-out);
+  }
+}
+
+@keyframes signal-led {
+  0% { box-shadow: 0 0 0 0 var(--chan-led-on, var(--signal)); }
+  100% { box-shadow: 0 0 0 12px rgba(255, 107, 0, 0); }
+}

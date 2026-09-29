@@ -1,0 +1,32 @@
+toggle box {"x":326,"y":9.5,"width":44,"height":44}
+expanded true
+focus in menu: nav-menu-link
+tab 02Projects
+tab 03Products
+tab 04Services
+tab 05About
+tab 06Contact
+tab Book a Call
+tab info@markui.lk
+tab +94 76 088 7702
+after esc expanded false focus nav-toggle
+console.error Failed to load resource: the server responded with a status of 404 (File not found)
+console.error Failed to load resource: the server responded with a status of 404 (File not found)
+after link tap url http://localhost:4400/services
+focus after empty c-name
+status 3 things to fix before we can send this.
+errors ["Tell us your name so we know who we're talking to.","","","A line or two about the project is enough to get started."]
+errors2 ["","This needs an @, for example name@company.lk.","","Could you add a little more? One sentence helps us prepare."]
+errors3 ["","","Use digits only, with an optional + for the country code.","Could you add a little more? One sentence helps us prepare."]
+errors4 (both missing) ["","","","Could you add a little more? One sentence helps us prepare."]
+disabled  aria-busy true
+success text Thanks, <script>alert(1)</script>. We'll get back to you at test@example.com soon. Can't wait? Call the studio on +94 76 088 7702.
+focus after success contact-success
+name after reset ''
+fader after keys 38
+End 100
+drag→ 94
+Home 0
+status Web: three projects in focus, the other seven turned down.
+pressed true
+work item count 1

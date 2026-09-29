@@ -1,0 +1,400 @@
+/* ==========================================================================
+   Work — the gallery wall. Dark prints hung on warm paper.
+   Filtering turns projects down in place; nothing disappears.
+   ========================================================================== */
+
+.work {
+  --focus: var(--ink);
+  --chan-color: var(--ink-soft);
+  --chan-num: var(--ink);
+  --chan-led-off: rgba(21, 17, 14, 0.28);
+  --chan-led-on: var(--signal);
+  --vol-q: var(--ink-soft);
+  --vol-l: var(--ink);
+  --btn-line-color: var(--ink);
+  position: relative;
+  padding: var(--section-y) 0 clamp(96px, 10vw, 160px);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.work ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.work-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.work-head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 28px var(--gap);
+  align-items: end;
+}
+
+.work-head .chan {
+  grid-column: 1 / -1;
+}
+
+.work-title {
+  grid-column: 1 / span 9;
+}
+
+.work-all {
+  grid-column: 10 / span 3;
+  justify-self: end;
+}
+
+/* Gallery grid ------------------------------------------------------------ */
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: clamp(64px, 7.5vw, 120px);
+  align-items: start;
+}
+
+.work-item-1 { grid-column: 1 / span 7; }
+.work-item-2 { grid-column: 9 / span 4; margin-top: clamp(64px, 9vw, 140px); --ar: 4 / 5; --pos: 74% 50%; }
+.work-item-3 { grid-column: 2 / span 4; --ar: 4 / 5; --pos: 100% 50%; }
+.work-item-4 { grid-column: 7 / span 6; margin-top: clamp(40px, 5vw, 80px); }
+.work-item-5 { grid-column: 1 / -1; --ar: 21 / 9; --pos: 50% 34%; }
+.work-item-6 { grid-column: 1 / span 4; --ar: 4 / 5; --pos: 70% 50%; }
+.work-item-7 { grid-column: 6 / span 7; margin-top: clamp(48px, 6vw, 96px); }
+.work-item-8 { grid-column: 1 / span 6; }
+.work-item-9 { grid-column: 8 / span 5; margin-top: clamp(56px, 7vw, 112px); --ar: 1 / 1; --pos: 96% 50%; }
+.work-item-10 { grid-column: 3 / span 8; --ar: 16 / 9; }
+
+.work-card {
+  position: relative;
+  display: block;
+}
+
+.work-frame {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--ar, 3 / 2);
+  overflow: hidden;
+  background: var(--carbon);
+  transition: opacity 700ms var(--ease-out);
+}
+
+.work-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pos, 50% 50%);
+  transition:
+    transform 1100ms var(--ease-out),
+    filter 900ms var(--ease-out);
+}
+
+.work-view {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--signal);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transform: translateY(101%);
+  transition: transform 520ms var(--ease-out);
+}
+
+.work-view .btn-arrow {
+  width: 11px;
+  height: 11px;
+}
+
+.work-caption {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 8px;
+  padding-top: 20px;
+}
+
+.work-index {
+  grid-row: 1 / span 3;
+  padding-top: 0.55em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.work-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.625rem, 2.5vw, 2.375rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: var(--w-loud);
+  color: var(--ink);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.work-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.work-link:focus-visible {
+  outline: none;
+}
+
+.work-card:has(.work-link:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 8px;
+}
+
+.work-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.71875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.work-tag {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.work-desc {
+  max-width: 44ch;
+  margin-top: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* The wide PULSE print gets a horizontal label. */
+.work-item-5 .work-caption {
+  grid-template-columns: 40px minmax(0, 3fr) minmax(0, 4fr);
+}
+
+.work-item-5 .work-index {
+  grid-row: 1 / span 2;
+}
+
+.work-item-5 .work-desc {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  margin-top: 0;
+  justify-self: end;
+}
+
+@media (hover: hover) {
+  .work-card:hover .work-frame img {
+    transform: scale(1.045);
+  }
+
+  .work-card:hover .work-view,
+  .work-card:has(.work-link:focus-visible) .work-view {
+    transform: none;
+  }
+}
+
+/* Lights on: each print develops out of the dark as it enters ------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .work-frame {
+    clip-path: inset(7% 7% 7% 7%);
+    transition:
+      clip-path 1400ms var(--ease-out),
+      opacity 700ms var(--ease-out);
+  }
+
+  .js .work-frame img {
+    transform: scale(1.14);
+    filter: brightness(0.08) saturate(0.2);
+  }
+
+  .js .work-frame.is-in {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .js .work-frame.is-in img {
+    transform: scale(1.001);
+    filter: none;
+    transition:
+      transform 1600ms var(--ease-out),
+      filter 1300ms var(--ease-out) 150ms;
+  }
+
+  .js .work-card:hover .work-frame.is-in img {
+    transform: scale(1.045);
+    transition:
+      transform 1100ms var(--ease-out),
+      filter 900ms var(--ease-out);
+  }
+}
+
+/* Turned down ------------------------------------------------------------- */
+
+.work-item.is-muted .work-frame {
+  opacity: 0.4;
+}
+
+.js .work-item.is-muted .work-frame img,
+.work-item.is-muted .work-frame img {
+  filter: grayscale(1) brightness(0.7);
+}
+
+.work-item.is-muted .work-name {
+  font-weight: var(--w-quiet);
+  color: var(--ink-soft);
+}
+
+/* Foot -------------------------------------------------------------------- */
+
+.work-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: clamp(80px, 9vw, 140px);
+  padding-top: 28px;
+  border-top: 1px solid var(--line-ink);
+}
+
+.work-foot-note {
+  font-family: var(--font-display);
+  font-size: var(--fs-m);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 300;
+  color: var(--ink);
+}
+
+.work-foot-cta:focus-visible {
+  outline-color: var(--ink);
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .work-title {
+    grid-column: 1 / -1;
+  }
+
+  .work-all {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .work-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .work-item-1,
+  .work-item-4,
+  .work-item-5,
+  .work-item-8 {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+
+  .work-item-2,
+  .work-item-6,
+  .work-item-9 {
+    grid-column: 1 / span 3;
+    margin-top: 0;
+  }
+
+  .work-item-3,
+  .work-item-7,
+  .work-item-10 {
+    grid-column: 4 / span 3;
+    margin-top: clamp(64px, 12vw, 120px);
+  }
+
+  .work-item-7 { --ar: 4 / 5; --pos: 70% 50%; }
+  .work-item-10 { --ar: 1 / 1; --pos: 64% 50%; }
+
+  .work-item-5 .work-caption {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .work-item-5 .work-desc {
+    grid-column: 2;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 4px;
+  }
+}
+
+/* Mobile ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  .work-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 48px;
+  }
+
+  .work-grid > .work-item {
+    grid-column: 1;
+    margin-top: 0;
+  }
+
+  .work-item-1,
+  .work-item-5,
+  .work-item-8 {
+    margin-inline: calc(var(--pad) * -1);
+  }
+
+  .work-item-1 .work-caption,
+  .work-item-5 .work-caption,
+  .work-item-8 .work-caption {
+    padding-inline: var(--pad);
+  }
+
+  .work-item-5 { --ar: 3 / 2; --pos: 50% 50%; }
+  .work-item-2,
+  .work-item-3,
+  .work-item-6 { --ar: 1 / 1; }
+
+  .work-item-2,
+  .work-item-6,
+  .work-item-9 {
+    width: 84%;
+    margin-left: auto;
+  }
+
+  .work-item-3,
+  .work-item-7 {
+    width: 84%;
+  }
+
+  .work-caption {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .work-item-5 .work-caption {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .work-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

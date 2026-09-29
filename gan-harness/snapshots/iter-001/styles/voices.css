@@ -1,0 +1,303 @@
+/* ==========================================================================
+   Voices — the page's one loud colour field.
+   Type size is inversely proportional to word count.
+   ========================================================================== */
+
+.voices {
+  --focus: var(--ink);
+  --chan-color: var(--ink);
+  --chan-num: var(--ink);
+  --chan-led-off: rgba(21, 17, 14, 0.35);
+  --chan-led-on: var(--ink);
+  --chan-led-glow: transparent;
+  --vol-q: var(--signal-deep);
+  --vol-l: var(--ink);
+  position: relative;
+  padding: var(--section-y) 0;
+  background: var(--signal);
+  color: var(--ink);
+  overflow: clip;
+}
+
+.voices ::selection {
+  background: var(--ink);
+  color: var(--signal);
+}
+
+.voices-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.voices-head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 28px var(--gap);
+  align-items: end;
+  margin-bottom: clamp(72px, 9vw, 140px);
+}
+
+.voices-head .chan {
+  grid-column: 1 / -1;
+}
+
+.voices-title {
+  grid-column: 1 / span 8;
+}
+
+.voices-rule {
+  grid-column: 9 / span 4;
+  max-width: 30ch;
+  padding-top: 14px;
+  border-top: 1px solid rgba(21, 17, 14, 0.4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Wall -------------------------------------------------------------------- */
+
+.voices-wall {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: clamp(64px, 7vw, 112px);
+  align-items: end;
+}
+
+.voices-quote {
+  display: grid;
+  gap: 20px;
+}
+
+.voices-text p {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.voices-by {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.voices-by::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+}
+
+.voices-stars {
+  display: inline-block;
+  flex: none;
+  width: 64px;
+  height: 11px;
+  background: currentColor;
+  -webkit-mask: var(--star) left center / 13px 11px repeat-x;
+  mask: var(--star) left center / 13px 11px repeat-x;
+  --star: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 .9l2.1 4.6 5 .5-3.8 3.4 1.1 4.9L8 11.8l-4.4 2.5 1.1-4.9L.9 6l5-.5z%27/%3E%3C/svg%3E");
+}
+
+.voices-emoji {
+  font-size: 0.62em;
+  vertical-align: 0.12em;
+  letter-spacing: 0;
+}
+
+/* Sizes: the fewer the words, the louder ---------------------------------- */
+
+.voices-item-xxl .voices-text p {
+  font-size: clamp(3.75rem, 13.4vw, 13.5rem);
+  line-height: 0.84;
+  letter-spacing: -0.055em;
+  font-weight: var(--w-loud);
+}
+
+.voices-item-xl .voices-text p {
+  font-size: clamp(2.75rem, 7.4vw, 7.25rem);
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  font-weight: 560;
+}
+
+.voices-item-l .voices-text p {
+  font-size: clamp(2.25rem, 5vw, 4.875rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-weight: 500;
+}
+
+.voices-item-m .voices-text p {
+  font-size: clamp(1.625rem, 2.9vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+}
+
+.voices-item-s .voices-text p {
+  max-width: 44ch;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: 0;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+/* Placement --------------------------------------------------------------- */
+
+.voices-item-xxl { grid-column: 1 / -1; }
+.voices-item-xxl .voices-quote { grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 32px; }
+.voices-item-xxl .voices-by { padding-bottom: 0.9em; }
+
+.voices-pos-a { grid-column: 1 / span 4; }
+.voices-pos-b { grid-column: 6 / span 7; }
+.voices-pos-c { grid-column: 1 / span 8; }
+.voices-pos-d { grid-column: 9 / span 4; }
+.voices-pos-e { grid-column: 4 / span 9; }
+.voices-pos-f { grid-column: 1 / span 6; }
+.voices-pos-g { grid-column: 8 / span 5; }
+.voices-pos-h { grid-column: 1 / span 5; }
+.voices-pos-i { grid-column: 7 / span 6; }
+
+/* The intern joke --------------------------------------------------------- */
+
+.voices-hook {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: var(--w-loud);
+}
+
+.voices-aside {
+  justify-self: start;
+  padding: 6px 10px;
+  background: var(--ink);
+  color: var(--signal);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+}
+
+/* Silent five-star reviews ------------------------------------------------ */
+
+.voices-item-silent {
+  display: grid;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(21, 17, 14, 0.4);
+}
+
+.voices-silent-label {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+.voices-silent-note {
+  max-width: 44ch;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.voices-silent-list {
+  display: grid;
+  margin-top: 6px;
+}
+
+.voices-silent-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(21, 17, 14, 0.2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .voices-title {
+    grid-column: 1 / -1;
+  }
+
+  .voices-rule {
+    grid-column: 1 / span 8;
+  }
+
+  .voices-pos-a { grid-column: 1 / span 6; }
+  .voices-pos-b { grid-column: 1 / -1; }
+  .voices-pos-c { grid-column: 1 / -1; }
+  .voices-pos-d { grid-column: 4 / -1; }
+  .voices-pos-e { grid-column: 1 / -1; }
+  .voices-pos-f { grid-column: 1 / span 9; }
+  .voices-pos-g { grid-column: 1 / span 6; }
+  .voices-pos-h { grid-column: 7 / span 6; }
+  .voices-pos-i { grid-column: 1 / -1; }
+
+  .voices-item-xxl .voices-quote {
+    grid-template-columns: 1fr;
+  }
+
+  .voices-item-xxl .voices-by {
+    padding-bottom: 0;
+  }
+}
+
+/* Mobile ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  .voices-rule {
+    grid-column: 1 / -1;
+  }
+
+  .voices-head {
+    margin-bottom: 56px;
+  }
+
+  .voices-wall {
+    row-gap: 48px;
+  }
+
+  .voices-wall > .voices-item {
+    grid-column: 1 / -1;
+  }
+
+  .voices-pos-d,
+  .voices-pos-g {
+    margin-left: 12%;
+  }
+
+  .voices-item-xxl .voices-text p {
+    font-size: clamp(3.5rem, 19vw, 5.5rem);
+  }
+
+  .voices-item-xl .voices-text p {
+    font-size: clamp(2.75rem, 14vw, 4rem);
+  }
+
+  .voices-item-l .voices-text p {
+    font-size: clamp(2.125rem, 10.4vw, 3rem);
+  }
+}

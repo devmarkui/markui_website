@@ -1,0 +1,309 @@
+/* ==========================================================================
+   Footer — navigation, services, contact, then the finale.
+   The finale restates the brand line at full page width: "Less Noise."
+   turned down on the left, "More Impact" on the right with its full stop
+   missing. The travelling signal docks in that gap (scripts/signal.js adds
+   .is-docked): the stop appears, a shockwave rings out, and "More Impact"
+   swells from weight 250 to 600. "More Impact" is set flush right so the
+   stop never moves while the weight swells.
+   ========================================================================== */
+
+.footer {
+  position: relative;
+  /* The finale's shockwave can ring past the page edge; keep it in. */
+  overflow-x: clip;
+  padding: clamp(72px, 8vw, 120px) 0 28px;
+  background: var(--carbon);
+  border-top: 1px solid var(--line);
+}
+
+.footer-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 48px var(--gap);
+}
+
+.footer-brand {
+  grid-column: 1 / span 4;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 24px;
+}
+
+.footer-logo {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.footer-logo img {
+  width: auto;
+  height: 28px;
+}
+
+.footer-note {
+  max-width: 34ch;
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  color: var(--ash);
+}
+
+.footer-col-nav {
+  grid-column: 6 / span 2;
+}
+
+.footer-col-services {
+  grid-column: 8 / span 3;
+}
+
+.footer-col-contact {
+  grid-column: 11 / span 2;
+}
+
+.footer-title {
+  margin-bottom: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.footer-list {
+  display: grid;
+}
+
+.footer-link,
+.footer-plain {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  font-size: 0.9375rem;
+  color: var(--bone-2);
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.footer-link:hover {
+  color: var(--bone);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+
+/* Finale ------------------------------------------------------------------ */
+
+.finale {
+  display: grid;
+  margin-top: clamp(96px, 12vw, 190px);
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 12.2vw, 14.5rem);
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+  word-spacing: 0.09em;
+}
+
+.finale-kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: clamp(20px, 2.4vw, 36px);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  word-spacing: normal;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.finale-led {
+  width: 7px;
+  height: 7px;
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+  transition:
+    background-color var(--t-mid) var(--ease-out),
+    box-shadow var(--t-mid) var(--ease-out);
+}
+
+.finale-q {
+  justify-self: start;
+  font-weight: 200;
+  color: var(--ash);
+  white-space: nowrap;
+}
+
+/* A thin full stop reads as a comma: pin it heavy. */
+.finale-q-stop {
+  font-weight: 600;
+}
+
+.finale-l {
+  justify-self: end;
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.finale-word {
+  font-weight: 600;
+  color: var(--bone);
+  transition:
+    font-weight 1200ms var(--ease-out),
+    color 900ms var(--ease-out);
+}
+
+.finale-stop {
+  position: relative;
+  display: inline-block;
+  width: 0.16em;
+  height: 0.16em;
+  margin-left: 0.045em;
+  border-radius: 50%;
+  background: var(--signal);
+  transition:
+    transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 160ms var(--ease-out);
+}
+
+.finale-stop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--signal);
+  opacity: 0;
+}
+
+/* Waiting for the signal (only when scripts run it). */
+.finale.is-docked.fx-wait .finale-word,
+.js .finale:not(.is-docked) .finale-word {
+  font-weight: 250;
+  color: var(--bone-2);
+}
+
+.js .finale:not(.is-docked) .finale-stop {
+  opacity: 0;
+  transform: scale(0.34);
+}
+
+.js .finale:not(.is-docked) .finale-led {
+  background: var(--ash-dim);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .finale.is-docked .finale-stop::after {
+    animation: finale-shock 1300ms var(--ease-out) 60ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finale-word,
+  .finale-stop {
+    transition: none;
+  }
+}
+
+@keyframes finale-shock {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(11); opacity: 0; }
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: clamp(40px, 5vw, 72px);
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.footer-top-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  color: var(--bone);
+}
+
+.footer-up {
+  transform: rotate(180deg);
+}
+
+.footer-top-link:hover .footer-up {
+  transform: rotate(180deg) translateY(3px);
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-col-nav {
+    grid-column: 1 / span 3;
+  }
+
+  .footer-col-services {
+    grid-column: 4 / span 5;
+  }
+
+  .footer-col-contact {
+    grid-column: 9 / span 4;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer {
+    padding-top: 56px;
+  }
+
+  .footer-top {
+    row-gap: 36px;
+  }
+
+  .footer-col-nav {
+    grid-column: 1 / span 5;
+  }
+
+  .footer-col-services {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .footer-col-contact {
+    grid-column: 7 / span 6;
+  }
+
+  .footer-link,
+  .footer-plain {
+    min-height: 44px;
+  }
+
+  .finale {
+    margin-top: 72px;
+    font-size: 14.4vw;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

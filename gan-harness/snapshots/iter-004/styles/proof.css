@@ -1,0 +1,260 @@
+/* ==========================================================================
+   Proof — one number turned all the way up, three turned down.
+   The heading is deliberately small: the loud thing here is "60+", whose
+   weight scrubs from 200 to 700 as it scrolls in (--p, scripts/scrub.js).
+   The other three stats are quiet readouts on the side.
+   ========================================================================== */
+
+.proof {
+  position: relative;
+  padding-top: clamp(96px, 10vw, 160px);
+  background: var(--carbon);
+}
+
+.proof-inner {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.proof-head {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+  row-gap: 20px;
+}
+
+.proof-head .chan {
+  grid-column: 1 / span 4;
+}
+
+.proof-title {
+  grid-column: 5 / -1;
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.1vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+  color: var(--bone);
+  text-wrap: balance;
+}
+
+.proof-title em {
+  font-style: normal;
+  color: var(--ash);
+}
+
+/* Stats ------------------------------------------------------------------- */
+
+.proof-stats {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: repeat(3, auto) 1fr;
+  margin-top: clamp(56px, 7vw, 112px);
+}
+
+.proof-lead {
+  grid-column: 1 / span 8;
+  grid-row: 1 / span 4;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.proof-lead-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone);
+}
+
+.proof-lead-led {
+  width: 7px;
+  height: 7px;
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+.proof-lead-value {
+  display: flex;
+  align-items: flex-start;
+  margin: clamp(20px, 3vw, 44px) 0 0 -0.04em;
+  font-family: var(--font-display);
+  font-size: clamp(10rem, 31vw, 29rem);
+  line-height: 0.76;
+  letter-spacing: -0.065em;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.proof-lead-num {
+  font-weight: calc(200 + var(--p, 1) * 500);
+}
+
+.proof-lead-plus {
+  margin: 0.02em 0 0 0.03em;
+  font-size: 0.52em;
+  line-height: 1;
+  font-weight: calc(300 + var(--p, 1) * 300);
+  color: var(--signal);
+}
+
+.proof-lead-note {
+  margin-top: clamp(20px, 2.4vw, 36px);
+  max-width: 30ch;
+  font-size: var(--fs-body-l);
+  line-height: 1.5;
+  color: var(--bone-2);
+}
+
+.proof-read {
+  grid-column: 9 / span 4;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 16px;
+  row-gap: 6px;
+  padding: 20px 0 28px;
+  border-top: 1px solid var(--line);
+}
+
+.proof-read:nth-child(2) {
+  border-top-color: var(--line-strong);
+}
+
+.proof-read-label {
+  grid-column: 1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.proof-read-value {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4vw, 3.75rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-weight: 300;
+  color: var(--bone-2);
+  font-variant-numeric: tabular-nums;
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.proof-read-unit {
+  font-size: 0.5em;
+  font-weight: 300;
+  color: var(--ash);
+  vertical-align: 0.55em;
+}
+
+.proof-read-note {
+  grid-column: 1;
+  max-width: 26ch;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ash);
+}
+
+/* A quiet readout turns up only while you point at it. */
+.proof-read:hover .proof-read-value {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .proof-head .chan,
+  .proof-title {
+    grid-column: 1 / -1;
+  }
+
+  .proof-lead-value {
+    font-size: clamp(8rem, 36vw, 19rem);
+  }
+
+  .proof-lead {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .proof-stats {
+    grid-template-rows: none;
+  }
+
+  .proof-read {
+    grid-column: span 4;
+    grid-template-columns: 1fr;
+    margin-top: 48px;
+  }
+
+  .proof-read-value {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 8px 0 6px;
+  }
+
+  .proof-read-note {
+    grid-row: 3;
+  }
+
+  .proof-read + .proof-read {
+    padding-left: 16px;
+    border-left: 1px solid var(--line);
+  }
+}
+
+/* Mobile ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  .proof {
+    padding-top: 64px;
+  }
+
+  .proof-lead-value {
+    font-size: clamp(8rem, 50vw, 13rem);
+  }
+
+  .proof-read,
+  .proof-read + .proof-read {
+    grid-column: 1 / -1;
+    grid-template-columns: 112px minmax(0, 1fr);
+    margin-top: 0;
+    padding: 18px 0 20px;
+    border-left: 0;
+  }
+
+  .proof-read:nth-child(2) {
+    margin-top: 48px;
+  }
+
+  .proof-read-value {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    margin: 0;
+    font-size: 2.75rem;
+  }
+
+  .proof-read-label,
+  .proof-read-note {
+    grid-column: 2;
+    grid-row: auto;
+  }
+}

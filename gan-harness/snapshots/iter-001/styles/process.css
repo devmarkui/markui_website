@@ -1,0 +1,179 @@
+/* ==========================================================================
+   Process — the signal path. A pulse travels Discover → Deliver once.
+   ========================================================================== */
+
+.process {
+  position: relative;
+  padding: var(--section-y) 0;
+  background: var(--soot);
+}
+
+.process-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.process-head {
+  display: grid;
+  gap: 28px;
+  margin-bottom: clamp(64px, 8vw, 112px);
+}
+
+.process-path {
+  position: relative;
+}
+
+.process-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+.process-pulse {
+  position: absolute;
+  top: -4px;
+  left: calc(75% + var(--gap) * 0.75 + 3px);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 0 6px rgba(255, 107, 0, 0.14), 0 0 22px 6px var(--signal-glow);
+}
+
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.process-step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding-top: 48px;
+}
+
+.process-node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--bone);
+  border-radius: 50%;
+  background: var(--bone);
+}
+
+.process-step:last-child .process-node {
+  border-color: var(--signal);
+  background: var(--signal);
+}
+
+.process-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ash);
+}
+
+.process-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4vw, 3.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.process-text {
+  max-width: 24ch;
+  color: var(--ash);
+}
+
+/* The pulse journey -------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .process-path .process-pulse {
+    left: 3px;
+  }
+
+  .js .process-path .process-node {
+    background: var(--soot);
+    border-color: var(--line-strong);
+  }
+
+  .js .process-path .process-name {
+    font-weight: var(--w-quiet);
+    color: var(--ash-dim);
+  }
+
+  .js .process-path.is-in .process-pulse {
+    animation: process-travel 2600ms var(--ease-inout) 200ms forwards;
+  }
+
+  .js .process-path.is-in .process-node {
+    animation: process-node 500ms var(--ease-out) forwards;
+  }
+
+  .js .process-path.is-in .process-step:last-child .process-node {
+    animation-name: process-node-last;
+  }
+
+  .js .process-path.is-in .process-name {
+    animation: process-name 900ms var(--ease-out) forwards;
+  }
+
+  .js .process-path.is-in .process-step:nth-child(1) :is(.process-node, .process-name) { animation-delay: 200ms; }
+  .js .process-path.is-in .process-step:nth-child(2) :is(.process-node, .process-name) { animation-delay: 1000ms; }
+  .js .process-path.is-in .process-step:nth-child(3) :is(.process-node, .process-name) { animation-delay: 1750ms; }
+  .js .process-path.is-in .process-step:nth-child(4) :is(.process-node, .process-name) { animation-delay: 2550ms; }
+}
+
+@keyframes process-travel {
+  from { left: 3px; }
+  to { left: calc(75% + var(--gap) * 0.75 + 3px); }
+}
+
+@keyframes process-node {
+  to { background: var(--bone); border-color: var(--bone); }
+}
+
+@keyframes process-node-last {
+  to { background: var(--signal); border-color: var(--signal); }
+}
+
+@keyframes process-name {
+  to { font-weight: 600; color: var(--bone); }
+}
+
+/* Mobile: the path runs down the page, segment by segment ------------------ */
+
+@media (max-width: 767px) {
+  .process-line {
+    display: none;
+  }
+
+  .process-steps {
+    grid-template-columns: 1fr;
+    gap: 44px;
+  }
+
+  .process-step {
+    padding: 0 0 0 44px;
+  }
+
+  .process-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 15px;
+    height: calc(100% + 44px - 15px);
+    width: 1px;
+    background: var(--line-strong);
+  }
+}

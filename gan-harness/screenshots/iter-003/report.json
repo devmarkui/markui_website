@@ -1,0 +1,183 @@
+{
+  "url": "http://localhost:4400/",
+  "at": "2026-09-29T16:08:23.075Z",
+  "viewports": {
+    "desktop": {
+      "errors": [],
+      "frames": [
+        "frame-00.png",
+        "frame-01.png",
+        "frame-02.png",
+        "frame-03.png",
+        "frame-04.png",
+        "frame-05.png",
+        "frame-06.png",
+        "frame-07.png",
+        "frame-08.png",
+        "frame-09.png",
+        "frame-10.png",
+        "frame-11.png",
+        "frame-12.png",
+        "frame-13.png",
+        "frame-14.png",
+        "frame-15.png",
+        "frame-16.png",
+        "frame-17.png",
+        "frame-18.png",
+        "frame-19.png",
+        "frame-20.png",
+        "frame-21.png"
+      ],
+      "framesTruncated": false,
+      "overflow": {
+        "viewport": 1440,
+        "scrollWidth": 1440,
+        "hasHorizontalScroll": false,
+        "offenders": []
+      },
+      "audit": {
+        "title": "Mark UI — Design the Future. Define the Experience. | Creative technology studio, Colombo",
+        "lang": "en",
+        "docHeight": 19227,
+        "headings": [
+          "H1: Design the Future. Define the Experience.",
+          "H2: Design that works. Results that last.",
+          "H2: Seven disciplines. One team.",
+          "H3: Digital Marketing",
+          "H3: Multimedia Production",
+          "H3: Graphic Designing",
+          "H3: Photography & Videography",
+          "H3: Web Design & Development",
+          "H3: Software & IT Solutions",
+          "H3: Event Organisation & Planning",
+          "H2: The work does the talking.",
+          "H3: ATLAS",
+          "H3: RIVET®",
+          "H3: FORGE",
+          "H3: KODEX",
+          "H3: PULSE",
+          "H3: NEXUS",
+          "H3: LUNAR",
+          "H3: VELA",
+          "H3: CREST",
+          "H3: ORBIT",
+          "H2: Twelve reviews. All five stars.",
+          "H2: Why teams choose Mark UI.",
+          "H3: Design + Dev, Under One Roof.",
+          "H3: Strategy to Execution.",
+          "H3: Creative Meets Technology.",
+          "H3: Results, Not Just Visuals.",
+          "H2: Four stages. One clean signal.",
+          "H3: Discover",
+          "H3: Plan",
+          "H3: Create",
+          "H3: Deliver",
+          "H2: Start something worth hearing."
+        ],
+        "h1Count": 1,
+        "imgsNoAlt": [],
+        "brokenImgs": [],
+        "unnamedControls": [],
+        "fontsLoaded": [
+          "Geist Mono",
+          "Inter",
+          "Clash Display"
+        ],
+        "formInputs": [
+          {
+            "name": "name",
+            "labelled": true
+          },
+          {
+            "name": "email",
+            "labelled": true
+          },
+          {
+            "name": "phone",
+            "labelled": true
+          },
+          {
+            "name": "message",
+            "labelled": true
+          }
+        ],
+        "linkCount": 62,
+        "deadLinks": 0
+      },
+      "focusWalk": [
+        "a \"Skip to content\" → outline 2px rgb(241, 236, 230)",
+        "a \"Mark UI home\" → outline 2px rgb(255, 107, 0)",
+        "a \"HOME\" → outline 2px rgb(255, 107, 0)",
+        "a \"PROJECTS\" → outline 2px rgb(255, 107, 0)",
+        "a \"PRODUCTS\" → outline 2px rgb(255, 107, 0)",
+        "a \"SERVICES\" → outline 2px rgb(255, 107, 0)",
+        "a \"ABOUT\" → outline 2px rgb(255, 107, 0)",
+        "a \"CONTACT\" → outline 2px rgb(255, 107, 0)"
+      ]
+    },
+    "tablet": {
+      "errors": [],
+      "frames": [
+        "frame-00.png",
+        "frame-01.png",
+        "frame-02.png",
+        "frame-03.png",
+        "frame-04.png",
+        "frame-05.png",
+        "frame-06.png",
+        "frame-07.png",
+        "frame-08.png",
+        "frame-09.png",
+        "frame-10.png",
+        "frame-11.png",
+        "frame-12.png",
+        "frame-13.png",
+        "frame-14.png",
+        "frame-15.png",
+        "frame-16.png",
+        "frame-17.png"
+      ],
+      "framesTruncated": false,
+      "overflow": {
+        "viewport": 768,
+        "scrollWidth": 768,
+        "hasHorizontalScroll": false,
+        "offenders": []
+      }
+    },
+    "mobile": {
+      "errors": [],
+      "frames": [
+        "frame-00.png",
+        "frame-01.png",
+        "frame-02.png",
+        "frame-03.png",
+        "frame-04.png",
+        "frame-05.png",
+        "frame-06.png",
+        "frame-07.png",
+        "frame-08.png",
+        "frame-09.png",
+        "frame-10.png",
+        "frame-11.png",
+        "frame-12.png",
+        "frame-13.png",
+        "frame-14.png",
+        "frame-15.png",
+        "frame-16.png",
+        "frame-17.png",
+        "frame-18.png",
+        "frame-19.png",
+        "frame-20.png",
+        "frame-21.png"
+      ],
+      "framesTruncated": false,
+      "overflow": {
+        "viewport": 390,
+        "scrollWidth": 390,
+        "hasHorizontalScroll": false,
+        "offenders": []
+      }
+    }
+  }
+}

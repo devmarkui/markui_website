@@ -1,0 +1,298 @@
+/* ==========================================================================
+   Proof — numbers that turn up, and a dial that tunes through clients
+   ========================================================================== */
+
+.proof {
+  position: relative;
+  padding: clamp(80px, 9vw, 140px) 0 var(--section-y);
+  background: var(--carbon);
+}
+
+.proof-inner {
+  display: grid;
+  gap: clamp(56px, 7vw, 112px);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.proof-head {
+  display: grid;
+  gap: 28px;
+}
+
+.proof-title {
+  max-width: 11ch;
+}
+
+/* Stats ------------------------------------------------------------------- */
+
+.proof-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--line-strong);
+}
+
+.proof-stat {
+  display: flex;
+  flex-direction: column;
+  padding: 22px clamp(16px, 2vw, 32px) 0;
+  border-left: 1px solid var(--line);
+}
+
+.proof-stat:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.proof-stat-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.proof-stat-value {
+  display: flex;
+  align-items: flex-start;
+  margin-top: clamp(28px, 4vw, 56px);
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 8.2vw, 8.25rem);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.proof-num {
+  font-weight: 500;
+  transition:
+    font-weight 1400ms var(--ease-out),
+    color 1000ms var(--ease-out);
+}
+
+.proof-unit {
+  margin: 0.06em 0 0 0.04em;
+  font-size: 0.4em;
+  font-weight: 300;
+  letter-spacing: 0;
+  color: var(--ash);
+}
+
+.proof-unit-pre {
+  margin: 0.06em 0.04em 0 0;
+}
+
+.proof-stat-note {
+  text-wrap: balance;
+  margin-top: 22px;
+  max-width: 24ch;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ash);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .proof-stats:not(.is-in) .proof-num {
+    font-weight: 200;
+    color: var(--ash-dim);
+  }
+
+  .proof-stat:nth-child(2) .proof-num { transition-delay: 140ms; }
+  .proof-stat:nth-child(3) .proof-num { transition-delay: 280ms; }
+  .proof-stat:nth-child(4) .proof-num { transition-delay: 420ms; }
+}
+
+/* Dial -------------------------------------------------------------------- */
+
+.proof-dial {
+  --dial-axis: x;
+  display: grid;
+  grid-template-columns: minmax(140px, 2fr) 10fr;
+  gap: var(--gap);
+  align-items: end;
+}
+
+.proof-dial-label {
+  display: grid;
+  gap: 6px;
+  padding-bottom: 36px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.proof-dial-freq {
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.proof-dial-body {
+  position: relative;
+  padding-bottom: 30px;
+}
+
+.proof-dial-list {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.proof-dial-name {
+  padding: 10px 0 14px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.3vw, 2.25rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 300;
+  color: var(--ash-dim);
+  transition:
+    font-weight 800ms var(--ease-out),
+    color 800ms var(--ease-out);
+}
+
+.proof-dial-name.is-on {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.proof-dial-scale {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22px;
+  border-bottom: 1px solid var(--line-strong);
+  background:
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px calc(100% / 70)) bottom / 100% 7px no-repeat,
+    repeating-linear-gradient(90deg, var(--ash) 0 1px, transparent 1px calc(100% / 14)) bottom / 100% 14px no-repeat;
+}
+
+.proof-dial-needle {
+  position: absolute;
+  left: -1px;
+  top: -6px;
+  bottom: 0;
+  width: 2px;
+  background: var(--signal);
+  box-shadow: 0 0 18px var(--signal-glow);
+  opacity: 0;
+  transition:
+    transform 1000ms var(--ease-inout),
+    opacity var(--t-mid) var(--ease-out);
+}
+
+.proof-dial.is-ready .proof-dial-needle {
+  opacity: 1;
+}
+
+.proof-dial-needle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  background: var(--signal);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proof-dial-name {
+    color: var(--ash);
+  }
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .proof-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .proof-stat:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .proof-stat:nth-child(n + 3) {
+    margin-top: 48px;
+    border-top: 1px solid var(--line);
+  }
+
+  .proof-dial {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-dial-label {
+    display: flex;
+    gap: 16px;
+    padding-bottom: 0;
+  }
+}
+
+/* Mobile: the dial turns vertical ------------------------------------------ */
+
+@media (max-width: 767px) {
+  .proof-stat {
+    padding: 18px 14px 0;
+  }
+
+  .proof-stat-value {
+    font-size: clamp(3.25rem, 17vw, 4.5rem);
+  }
+
+  .proof-stat-note {
+    font-size: 0.8125rem;
+  }
+
+  .proof-dial {
+    --dial-axis: y;
+  }
+
+  .proof-dial-body {
+    padding: 0 0 0 44px;
+  }
+
+  .proof-dial-list {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-dial-name {
+    padding: 9px 0;
+    text-align: left;
+    font-size: 1.875rem;
+  }
+
+  .proof-dial-scale {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    width: 24px;
+    height: auto;
+    border-bottom: 0;
+    border-left: 1px solid var(--line-strong);
+    background:
+      repeating-linear-gradient(180deg, var(--ash-dim) 0 1px, transparent 1px calc(100% / 35)) left / 7px 100% no-repeat,
+      repeating-linear-gradient(180deg, var(--ash) 0 1px, transparent 1px calc(100% / 7)) left / 14px 100% no-repeat;
+  }
+
+  .proof-dial-needle {
+    left: 0;
+    top: -1px;
+    bottom: auto;
+    width: 32px;
+    height: 2px;
+  }
+
+  .proof-dial-needle::after {
+    left: auto;
+    right: -5px;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%) rotate(45deg);
+  }
+}

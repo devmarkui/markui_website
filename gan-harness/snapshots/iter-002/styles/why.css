@@ -1,0 +1,282 @@
+/* ==========================================================================
+   Why — four reasons on a four-position knob. The orange "+" (from
+   "Design + Dev") is the knob: it stays pinned while the reasons scroll
+   past, and scrolling turns it from 01 to 04 (scripts/why.js writes
+   --turn). It has detents, so it rests on a clean "+" at each reason.
+   Each reason is only as loud as it is close to the centre line (--on).
+   ========================================================================== */
+
+.why {
+  --knob: min(30vw, 56svh, 440px);
+  position: relative;
+  padding: var(--section-y) 0 calc(var(--section-y) * 0.6);
+  background: var(--carbon);
+}
+
+.why-inner {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.why-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 24px;
+}
+
+.why-title {
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.8vw, 3.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  font-weight: 300;
+  color: var(--bone-2);
+}
+
+/* The knob ---------------------------------------------------------------- */
+
+.why-rail {
+  grid-column: 1 / span 5;
+  grid-row: 2;
+}
+
+.why-knob {
+  position: sticky;
+  top: calc(var(--nav-h) + (100svh - var(--nav-h) - var(--knob)) / 2 - 24px);
+  width: var(--knob);
+  aspect-ratio: 1;
+  margin: calc(var(--section-y) * 0.5) auto 0;
+}
+
+.why-knob-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+}
+
+.why-knob-tick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotate(var(--a));
+}
+
+.why-knob-tick::before {
+  content: "";
+  position: absolute;
+  left: -0.5px;
+  top: calc(var(--knob) / -2 - 14px);
+  width: 1px;
+  height: 14px;
+  background: var(--ash);
+}
+
+.why-knob-tick b {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--ash-dim);
+  transform: translate(-50%, calc(var(--knob) / -2 - 36px)) translateY(-50%) rotate(calc(var(--a) * -1));
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.why[data-active="1"] .why-knob-tick:nth-child(2) b,
+.why[data-active="2"] .why-knob-tick:nth-child(3) b,
+.why[data-active="3"] .why-knob-tick:nth-child(4) b,
+.why[data-active="4"] .why-knob-tick:nth-child(5) b {
+  color: var(--signal);
+}
+
+.why-knob-plus {
+  position: absolute;
+  inset: 15%;
+  background:
+    linear-gradient(var(--signal), var(--signal)) center / 100% 13% no-repeat,
+    linear-gradient(var(--signal), var(--signal)) center / 13% 100% no-repeat;
+  transform: rotate(var(--turn, -90deg));
+  transition: transform 180ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .why-knob-plus {
+    transition: none;
+  }
+}
+
+/* The pointer: a dark line cut into one arm, like the mark on a pot. */
+.why-knob-notch {
+  position: absolute;
+  left: 50%;
+  top: 3%;
+  width: 3px;
+  height: 17%;
+  background: var(--carbon);
+  transform: translateX(-50%);
+}
+
+.why-readout {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 68px);
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+  font-variant-numeric: tabular-nums;
+}
+
+.why-readout span:first-child {
+  color: var(--bone);
+}
+
+.why-readout-name {
+  color: var(--bone);
+}
+
+.why-readout-name::before {
+  content: "";
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  margin-right: 10px;
+  vertical-align: middle;
+  background: var(--line-strong);
+}
+
+/* The reasons ------------------------------------------------------------- */
+
+.why-list {
+  grid-column: 7 / span 6;
+  grid-row: 2;
+  padding: 2svh 0 4svh;
+}
+
+.why-item {
+  --on: 1;
+  --lift: max(var(--on), var(--noise));
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  min-height: 60svh;
+}
+
+.why-label {
+  display: flex;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.why-label span {
+  color: var(--bone);
+}
+
+.why-name {
+  max-width: 12ch;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4.6vw, 4.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: calc(200 + var(--lift) * 460);
+  color: color-mix(in oklab, var(--bone) calc(var(--lift) * 100%), var(--ash-dim));
+}
+
+.why-plus {
+  color: var(--signal);
+}
+
+.why-text {
+  max-width: 40ch;
+  color: var(--ash);
+}
+
+/* Tablet: the knob keeps its left column but can't crowd its labels ----- */
+
+@media (max-width: 1099px) and (min-width: 768px) {
+  .why {
+    --knob: min(26vw, 40svh, 300px);
+  }
+
+  .why-rail {
+    grid-column: 1 / span 5;
+  }
+
+  .why-list {
+    grid-column: 6 / span 7;
+  }
+
+  .why-item {
+    min-height: 52svh;
+  }
+}
+
+/* Phones: the knob shrinks to a small pinned control beside the reasons --- */
+
+@media (max-width: 767px) {
+  .why {
+    --knob: 56px;
+  }
+
+  .why-inner {
+    grid-template-columns: minmax(0, 1fr) 64px;
+    column-gap: 16px;
+  }
+
+  .why-rail {
+    grid-column: 2;
+  }
+
+  .why-knob {
+    top: calc(var(--nav-h) + 28px);
+    margin: 40px 0 0 auto;
+  }
+
+  .why-knob-tick b,
+  .why-readout {
+    display: none;
+  }
+
+  .why-knob-tick::before {
+    top: calc(var(--knob) / -2 - 7px);
+    height: 6px;
+  }
+
+  .why-knob-notch {
+    width: 2px;
+  }
+
+  .why-list {
+    grid-column: 1;
+    padding: 24px 0 0;
+  }
+
+  .why-item {
+    min-height: 0;
+    padding: 24px 0 28px;
+    border-top: 1px solid var(--line);
+  }
+
+  .why-name {
+    font-size: clamp(2rem, 9.4vw, 2.5rem);
+  }
+}

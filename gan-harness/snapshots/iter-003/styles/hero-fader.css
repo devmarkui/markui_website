@@ -1,0 +1,166 @@
+/* ==========================================================================
+   Hero fader — the page's Noise control (a console fader, ARIA slider).
+   It writes the desk level (--noise on :root): ring turbulence, grain,
+   hairlines and every turned-down element follow it. Vertical on the right
+   edge on desktop; a horizontal strip in the flow on tablet and phone
+   (scripts/hero.js flips aria-orientation to match).
+   ========================================================================== */
+
+.hero-fader {
+  --level: 0.08;
+  position: absolute;
+  z-index: 3;
+  right: calc(var(--pad) - 10px);
+  top: calc(var(--disc-y) - clamp(120px, 17vh, 160px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-fader-label {
+  color: var(--ash);
+}
+
+.hero-fader-track {
+  position: relative;
+  width: 44px;
+  height: clamp(150px, 24vh, 230px);
+  cursor: grab;
+  touch-action: none;
+  outline-offset: 6px;
+}
+
+.hero-fader-track:active {
+  cursor: grabbing;
+}
+
+.hero-fader-rail {
+  position: absolute;
+  inset: 7px 0;
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) center / 1px 100% no-repeat,
+    repeating-linear-gradient(to bottom, var(--ash-dim) 0 1px, transparent 1px 10%) left / 8px 100% no-repeat,
+    repeating-linear-gradient(to bottom, var(--ash-dim) 0 1px, transparent 1px 10%) right / 8px 100% no-repeat;
+}
+
+.hero-fader-fill {
+  position: absolute;
+  left: calc(50% - 1px);
+  bottom: 7px;
+  width: 2px;
+  height: calc((100% - 14px) * var(--level));
+  background: var(--signal);
+}
+
+.hero-fader-cap {
+  position: absolute;
+  left: 50%;
+  bottom: calc((100% - 14px) * var(--level));
+  width: 30px;
+  height: 14px;
+  transform: translateX(-50%);
+  background: var(--bone);
+  border-radius: 1px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.hero-fader-cap::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 6px;
+  height: 2px;
+  background: var(--carbon);
+}
+
+.hero-fader-track:hover .hero-fader-cap,
+.hero-fader-track:focus-visible .hero-fader-cap {
+  transform: translateX(-50%) scale(1.12);
+}
+
+.hero-fader-value {
+  min-width: 3ch;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tablet and phone: horizontal, in the flow beside the scroll cue. ------ */
+
+@media (max-width: 1099px) {
+  .hero-fader {
+    position: relative;
+    right: auto;
+    top: auto;
+    grid-column: 1 / span 6;
+    grid-row: 3;
+    flex-direction: row;
+    justify-self: start;
+    margin-top: 28px;
+  }
+
+  .hero-fader-track {
+    width: clamp(120px, 26vw, 200px);
+    height: 44px;
+  }
+
+  .hero-fader-rail {
+    inset: calc(50% - 5px) 7px auto;
+    height: 11px;
+    background:
+      linear-gradient(var(--line-strong), var(--line-strong)) center / 100% 1px no-repeat,
+      repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 10%) top / 100% 3px no-repeat,
+      repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 10%) bottom / 100% 3px no-repeat;
+  }
+
+  .hero-fader-fill {
+    left: 7px;
+    top: calc(50% - 1px);
+    bottom: auto;
+    width: calc((100% - 14px) * var(--level));
+    height: 2px;
+  }
+
+  .hero-fader-cap {
+    left: calc(7px + (100% - 14px) * var(--level));
+    top: 50%;
+    bottom: auto;
+    width: 12px;
+    height: 24px;
+    transform: translate(-50%, -50%);
+  }
+
+  .hero-fader-cap::after {
+    left: 5px;
+    right: auto;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    height: auto;
+  }
+
+  .hero-fader-track:hover .hero-fader-cap,
+  .hero-fader-track:focus-visible .hero-fader-cap {
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-fader {
+    grid-column: 1 / span 5;
+    margin-top: 24px;
+    gap: 10px;
+  }
+
+  .hero-fader-track {
+    width: 108px;
+  }
+}

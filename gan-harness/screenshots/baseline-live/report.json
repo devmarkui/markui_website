@@ -1,0 +1,177 @@
+{
+  "url": "https://markui.lk/",
+  "at": "2026-09-29T12:07:11.244Z",
+  "viewports": {
+    "desktop": {
+      "errors": [
+        "requestfailed: https://markui.lk/projects/kodex?_rsc=5CB68i4pnAekjehf net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/nexus?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/kodex?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/aura?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/sync?_rsc=5CB68i4pnAekjehf net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/test?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/sync?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects?category=web&_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/admin/login?_rsc=5CB68i4pnAekjehf net::ERR_ABORTED",
+        "http 404: https://markui.lk/terms?_rsc=5CB68i4pnAekjehf",
+        "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "http 404: https://markui.lk/privacy?_rsc=5CB68i4pnAekjehf",
+        "console: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "frames": [
+        "frame-00.png",
+        "frame-01.png",
+        "frame-02.png",
+        "frame-03.png",
+        "frame-04.png",
+        "frame-05.png",
+        "frame-06.png",
+        "frame-07.png",
+        "frame-08.png",
+        "frame-09.png"
+      ],
+      "framesTruncated": false,
+      "overflow": {
+        "viewport": 1440,
+        "scrollWidth": 1440,
+        "hasHorizontalScroll": false,
+        "offenders": []
+      },
+      "audit": {
+        "title": "",
+        "lang": "en",
+        "docHeight": 8819,
+        "headings": [
+          "H1: LESS NOISE MORE IMPACT",
+          "H2: DESIGN SERVICES THAT DRIVE RESULTS",
+          "H2: OUR PROJECTS",
+          "H3: 05 NEXUS",
+          "H3: 07 KODEX",
+          "H3: 11 AURA",
+          "H3: 12 SYNC",
+          "H3: 21 TEST",
+          "H2: REAL CLIENTS REAL RESULTS",
+          "H2: WHY CHOOSE MARK UI",
+          "H3: DESIGN + DEV, UNDER ONE ROOF",
+          "H3: STRATEGY TO EXECUTION",
+          "H3: CREATIVE MEETS TECHNOLOGY",
+          "H3: RESULTS, NOT JUST VISUALS",
+          "H2: LATEST FROM OUR STUDIO.",
+          "H2: READY TO START YOUR NEXT PROJECT?"
+        ],
+        "h1Count": 1,
+        "imgsNoAlt": [],
+        "brokenImgs": [],
+        "unnamedControls": [],
+        "fontsLoaded": [
+          "Barlow",
+          "Barlow Condensed"
+        ],
+        "formInputs": [
+          {
+            "name": "c-name",
+            "labelled": true
+          },
+          {
+            "name": "c-email",
+            "labelled": true
+          },
+          {
+            "name": "c-msg",
+            "labelled": true
+          },
+          {
+            "name": "website",
+            "labelled": true
+          }
+        ],
+        "linkCount": 49,
+        "deadLinks": 0
+      },
+      "focusWalk": [
+        "a \"Mark UI — home\" → outline 2px rgb(255, 255, 255)",
+        "a \"HOME\" → outline 1px rgb(16, 16, 16)",
+        "a \"PROJECTS\" → outline 1px rgb(16, 16, 16)",
+        "a \"PRODUCTS\" → outline 1px rgb(16, 16, 16)",
+        "a \"SERVICES\" → outline 1px rgb(16, 16, 16)",
+        "a \"ABOUT\" → outline 1px rgb(16, 16, 16)",
+        "a \"CONTACT\" → outline 1px rgb(16, 16, 16)",
+        "button \"Open menu\" → NO VISIBLE RING"
+      ]
+    },
+    "tablet": {
+      "errors": [
+        "requestfailed: https://markui.lk/projects?_rsc=H5UFO8CFYyA-t7uZ net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/nexus?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/kodex?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "http 404: https://markui.lk/terms?_rsc=5CB68i4pnAekjehf",
+        "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "http 404: https://markui.lk/privacy?_rsc=5CB68i4pnAekjehf",
+        "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "requestfailed: https://markui.lk/admin/login?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED"
+      ],
+      "frames": [
+        "frame-00.png",
+        "frame-01.png",
+        "frame-02.png",
+        "frame-03.png",
+        "frame-04.png",
+        "frame-05.png",
+        "frame-06.png",
+        "frame-07.png",
+        "frame-08.png",
+        "frame-09.png",
+        "frame-10.png"
+      ],
+      "framesTruncated": false,
+      "overflow": {
+        "viewport": 768,
+        "scrollWidth": 768,
+        "hasHorizontalScroll": false,
+        "offenders": []
+      }
+    },
+    "mobile": {
+      "errors": [
+        "requestfailed: https://markui.lk/projects?_rsc=5CB68i4pnAekjehf net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects?_rsc=H5UFO8CFYyA-t7uZ net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/nexus?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/aura?_rsc=5CB68i4pnAekjehf net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/projects/sync?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "http 404: https://markui.lk/privacy?_rsc=5CB68i4pnAekjehf",
+        "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "http 404: https://markui.lk/terms?_rsc=5CB68i4pnAekjehf",
+        "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "requestfailed: https://markui.lk/admin/login?_rsc=5CB68i4pnAekjehf net::ERR_ABORTED",
+        "requestfailed: https://markui.lk/admin/login?_rsc=tXyZJ52UQVBCVsD3 net::ERR_ABORTED",
+        "http 404: https://markui.lk/privacy?_rsc=5CB68i4pnAekjehf",
+        "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "http 404: https://markui.lk/terms?_rsc=5CB68i4pnAekjehf",
+        "console: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "frames": [
+        "frame-00.png",
+        "frame-01.png",
+        "frame-02.png",
+        "frame-03.png",
+        "frame-04.png",
+        "frame-05.png",
+        "frame-06.png",
+        "frame-07.png",
+        "frame-08.png",
+        "frame-09.png",
+        "frame-10.png",
+        "frame-11.png",
+        "frame-12.png",
+        "frame-13.png"
+      ],
+      "framesTruncated": false,
+      "overflow": {
+        "viewport": 390,
+        "scrollWidth": 390,
+        "hasHorizontalScroll": false,
+        "offenders": []
+      }
+    }
+  }
+}

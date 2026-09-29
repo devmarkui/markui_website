@@ -1,0 +1,172 @@
+/* ==========================================================================
+   Desk — the page-wide Noise channel.
+   --noise (0–1) lives on :root and is written by scripts/desk.js whenever
+   either fader moves (the big one in the hero, the small one docked in the
+   nav). Everything below reads it, so turning the noise up anywhere makes
+   the whole page grainier, louder and less focused; turning it down leaves
+   one clean signal per frame.
+   ========================================================================== */
+
+/* Grain: one fixed layer over the whole page. Barely there at 08, film
+   stock at 100. Static at rest; it only crawls while the page is noisy. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  opacity: calc(0.025 + var(--noise) * 0.3);
+  transition: opacity 400ms var(--ease-out);
+}
+
+/* Before scripts take over the page opens at full noise (the hero intro
+   turns it down); if scripts never run it settles after four seconds. */
+.intro {
+  --noise: 1;
+}
+
+.intro.intro-done {
+  --noise: 0.08;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .is-noisy .grain,
+  .intro:not(.intro-done) .grain {
+    animation: desk-grain 0.5s steps(1) infinite;
+  }
+
+  .is-noisy :is(.proof-lead-value, .services-title, .work-title, .voices-item-xxl .voices-text, .why-title, .process-big, .contact-title, .footer-line) {
+    animation: desk-jitter 0.21s steps(1) infinite;
+  }
+}
+
+@keyframes desk-grain {
+  0% { background-position: 0 0; }
+  20% { background-position: -61px 37px; }
+  40% { background-position: 83px -29px; }
+  60% { background-position: -17px -91px; }
+  80% { background-position: 47px 71px; }
+}
+
+@keyframes desk-jitter {
+  0% { transform: translate(calc(var(--noise) * 3px), 0); }
+  33% { transform: translate(calc(var(--noise) * -2px), calc(var(--noise) * 2px)); }
+  66% { transform: translate(calc(var(--noise) * 1px), calc(var(--noise) * -2px)); }
+}
+
+/* --------------------------------------------------------------------------
+   Nav desk: the fader docks into the nav once the hero has scrolled away
+   -------------------------------------------------------------------------- */
+
+.nav-desk {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .nav-desk {
+    --level: 0.08;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding-left: 18px;
+    border-left: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition:
+      opacity var(--t-mid) var(--ease-out),
+      transform var(--t-mid) var(--ease-out),
+      visibility 0s linear var(--t-mid);
+  }
+
+  .is-past-hero .nav-desk {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity var(--t-mid) var(--ease-out),
+      transform var(--t-mid) var(--ease-out),
+      visibility 0s linear 0s;
+  }
+}
+
+.nav-desk-label {
+  color: var(--ash);
+}
+
+.nav-desk-track {
+  position: relative;
+  width: 104px;
+  height: 44px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.nav-desk-track:active {
+  cursor: grabbing;
+}
+
+.nav-desk-track:focus-visible {
+  outline-offset: 2px;
+}
+
+.nav-desk-rail {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: calc(50% - 5px);
+  height: 11px;
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) center / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 10%) top / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 10%) bottom / 100% 3px no-repeat;
+}
+
+.nav-desk-fill {
+  position: absolute;
+  left: 6px;
+  top: calc(50% - 1px);
+  width: calc((100% - 12px) * var(--level));
+  height: 2px;
+  background: var(--signal);
+}
+
+.nav-desk-cap {
+  position: absolute;
+  left: calc(6px + (100% - 12px) * var(--level));
+  top: 50%;
+  width: 10px;
+  height: 20px;
+  background: var(--bone);
+  border-radius: 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  transform: translate(-50%, -50%);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.nav-desk-cap::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 4px;
+  width: 2px;
+  background: var(--carbon);
+}
+
+.nav-desk-track:hover .nav-desk-cap,
+.nav-desk-track:focus-visible .nav-desk-cap {
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+.nav-desk-value {
+  min-width: 2ch;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}

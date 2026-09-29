@@ -1,0 +1,32 @@
+loader natural: action at 43ms, overlay removed at 3859ms
+  after natural: focus = A.skip-link# Skip to content
+  scroll works: 300
+loader click: action at 741ms, overlay removed at 1306ms
+  after click: focus = A.skip-link# Skip to content
+  scroll works: 300
+loader key: action at 770ms, overlay removed at 1329ms
+  after key: focus = A.skip-link# Skip to content
+  scroll works: 300
+reduced loader: none/visible/1
+fader after 3x ArrowUp: 23
+fader after PageUp: 43
+fader End: 100
+fader Home: 0
+fader after drag up: 82
+d: doc height 19227, hscroll = false
+frame deltas (scrollBy 100x): {"n":258,"p50":6.900000000001455,"p95":8.100000000002183,"max":13.900000000001455}
+m: doc height 18386, hscroll = false
+menu expanded: true
+focus after open: A.nav-menu-link# 01Home
+after 2 tabs: A.nav-menu-link# 03Products
+menu expanded after Esc: false
+focus after Esc: BUTTON.nav-toggle# Open menu
+toggle size: {"x":326,"y":9.5,"width":44,"height":44}
+kbd filter pressed: all:false,web:false,marketing:false,branding:false,multimedia:true
+errors empty: Tell us your name so we know who we're talking to. | A line or two about the project is enough to get started.
+focus after empty submit: INPUT.contact-input#c-name 
+errors bad email: This needs an @, for example name@company.lk. | Could you add a little more? One sentence helps us prepare.
+errors neither: Could you add a little more? One sentence helps us prepare.
+submit disabled while sending: true/null
+success visible: true; focus: DIV.contact-success# Message sent
+              Signal receiv

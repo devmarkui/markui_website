@@ -1,0 +1,128 @@
+/* ==========================================================================
+   Cursor — the signal as the pointer (scripts/cursor.js). A dot that
+   follows exactly and a ring that trails on a spring; it swells on links,
+   becomes a "View" disc on prints and says "Drag" on the faders. Magnetic
+   buttons lean towards it. Desktop mouse only; the native cursor is hidden
+   only once this one is running (html.has-cursor), and text fields keep
+   their caret.
+   ========================================================================== */
+
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 95;
+  pointer-events: none;
+}
+
+/* Until the first mouse move there is no position to show; without this the
+   dot and ring sit parked in the top-left corner. */
+html:not(.has-cursor) .cursor {
+  visibility: hidden;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.cursor-dot::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal);
+  transition: transform 260ms var(--ease-out), opacity 200ms var(--ease-out);
+}
+
+.cursor-ring::before {
+  content: "";
+  position: absolute;
+  left: -19px;
+  top: -19px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 107, 0, 0.7);
+  transition:
+    transform 420ms var(--ease-out),
+    background-color 300ms var(--ease-out),
+    border-color 300ms var(--ease-out),
+    opacity 300ms var(--ease-out);
+}
+
+.cursor-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.cursor[data-mode="hover"] .cursor-ring::before {
+  transform: scale(1.7);
+  background: rgba(255, 107, 0, 0.12);
+}
+
+.cursor[data-mode="hover"] .cursor-dot::before {
+  transform: scale(0.6);
+}
+
+.cursor[data-mode="view"] .cursor-ring::before,
+.cursor[data-mode="drag"] .cursor-ring::before {
+  transform: scale(2.4);
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.cursor[data-mode="view"] .cursor-label,
+.cursor[data-mode="drag"] .cursor-label {
+  opacity: 1;
+}
+
+.cursor[data-mode="view"] .cursor-dot::before,
+.cursor[data-mode="drag"] .cursor-dot::before,
+.cursor[data-mode="text"] .cursor-dot::before,
+.cursor[data-mode="text"] .cursor-ring::before,
+.cursor.is-out .cursor-dot::before,
+.cursor.is-out .cursor-ring::before {
+  opacity: 0;
+}
+
+.cursor.is-down .cursor-ring::before {
+  transform: scale(0.8);
+}
+
+.cursor.is-down[data-mode="view"] .cursor-ring::before {
+  transform: scale(2.1);
+}
+
+/* Hidden native cursor, only while the custom one runs. Text fields keep
+   their caret; the view disc replaces the pointer on prints. */
+html.has-cursor,
+html.has-cursor * {
+  cursor: none !important;
+}
+
+html.has-cursor :is(input, textarea, select) {
+  cursor: text !important;
+}
+
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor {
+    display: none;
+  }
+}

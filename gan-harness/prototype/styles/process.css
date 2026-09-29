@@ -1,0 +1,203 @@
+/* ==========================================================================
+   Process — the page's one bone-white inversion. Four stages, one line:
+   it starts as pure noise at Discover and resolves, stage by stage, into
+   one clean orange sine at Deliver. "One clean signal." runs the full
+   width of the page. Scrolling draws the line (--p) and turns each stage
+   up as the line reaches it (--s, scripts/process.js).
+   ========================================================================== */
+
+.process {
+  --focus: var(--ink);
+  --chan-color: var(--ink-soft);
+  --chan-num: var(--ink);
+  --chan-led-off: rgba(21, 17, 14, 0.28);
+  --chan-led-on: var(--signal);
+  --chan-led-glow: transparent;
+  position: relative;
+  padding: var(--section-y) 0 clamp(96px, 10vw, 150px);
+  background: var(--bone);
+  color: var(--ink);
+  overflow: clip;
+}
+
+.process ::selection {
+  background: var(--ink);
+  color: var(--bone);
+}
+
+.process-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.process-title {
+  margin-top: clamp(28px, 3vw, 44px);
+  font-family: var(--font-display);
+}
+
+.process-kicker {
+  display: block;
+  margin-bottom: 0.5em;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.process-big {
+  display: block;
+  margin-left: -0.04em;
+  font-size: min(12.65vw, 12.05rem);
+  line-height: 0.84;
+  letter-spacing: -0.055em;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+/* The scope --------------------------------------------------------------- */
+
+.process-scope {
+  position: relative;
+  margin-top: clamp(48px, 6vw, 96px);
+}
+
+.process-wave {
+  display: block;
+  width: 100%;
+  height: clamp(150px, 15vw, 230px);
+  overflow: visible;
+}
+
+.process-wave-ghost {
+  fill: none;
+  stroke: rgba(21, 17, 14, 0.1);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+}
+
+.process-wave-path {
+  fill: none;
+  stroke-width: 2.25;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 1 1;
+}
+
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--gap);
+  margin-top: 32px;
+  border-top: 1px solid var(--line-ink);
+}
+
+.process-step {
+  --s: 1;
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding-top: 24px;
+}
+
+/* A tick where each stage begins on the line above. */
+.process-step::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -15px;
+  width: 1px;
+  height: 14px;
+  background: var(--ink);
+}
+
+.process-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.process-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.125rem, 3.8vw, 3.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-weight: calc(200 + var(--s) * 400);
+  color: color-mix(in oklab, var(--ink) calc(var(--s) * 100%), var(--ink-soft));
+}
+
+.process-text {
+  max-width: 26ch;
+  color: var(--ink-soft);
+}
+
+.process-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.process-tag::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--ink-soft);
+}
+
+.process-step:last-child .process-tag {
+  color: var(--ink);
+}
+
+.process-step:last-child .process-tag::before {
+  background: var(--signal);
+}
+
+/* Phones: the line runs down the page beside the stages ------------------- */
+
+@media (max-width: 767px) {
+  .process-big {
+    font-size: 19vw;
+    line-height: 0.86;
+    white-space: normal;
+  }
+
+  .process-scope {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    column-gap: 20px;
+  }
+
+  .process-wave {
+    grid-column: 1;
+    grid-row: 1;
+    width: 52px;
+    height: 100%;
+  }
+
+  .process-steps {
+    grid-column: 2;
+    grid-row: 1;
+    grid-template-columns: 1fr;
+    row-gap: 40px;
+    margin-top: 0;
+    border-top: 0;
+  }
+
+  .process-step {
+    padding-top: 0;
+  }
+
+  .process-step::before {
+    display: none;
+  }
+}

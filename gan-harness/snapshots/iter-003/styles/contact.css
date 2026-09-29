@@ -1,0 +1,238 @@
+/* ==========================================================================
+   Contact — the line is open.
+   A full-width input scope sits between the heading and the form: one flat
+   hairline at rest, it jumps with every keystroke and settles back
+   (scripts/contact-scope.js). When the form is complete the line turns
+   orange; once sent it holds one clean sine. The form's fields are
+   channels with "signal present" LEDs (styles/contact-form.css).
+   ========================================================================== */
+
+.contact {
+  --error: #ffa36b;
+  position: relative;
+  padding: var(--section-y) 0;
+  background: var(--carbon);
+}
+
+.contact-inner {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.contact-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 28px;
+}
+
+.contact-title {
+  max-width: 13ch;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7.6vw, 7.75rem);
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+  color: var(--bone);
+  text-wrap: balance;
+}
+
+.contact-title-dot {
+  color: var(--signal);
+}
+
+/* The scope --------------------------------------------------------------- */
+
+.contact-scope {
+  grid-column: 1 / -1;
+  position: relative;
+  height: clamp(104px, 10vw, 150px);
+  margin: clamp(40px, 5vw, 72px) calc(var(--pad) * -1) clamp(48px, 6vw, 88px);
+  border-block: 1px solid var(--line);
+  background:
+    repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 64px) left top / 100% 6px no-repeat,
+    repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 64px) left bottom / 100% 6px no-repeat;
+}
+
+.contact-scope-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.contact-scope-meta {
+  position: absolute;
+  left: var(--pad);
+  top: 14px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.contact-scope-led {
+  width: 7px;
+  height: 7px;
+  background: var(--ash-dim);
+  transition:
+    background-color var(--t-mid) var(--ease-out),
+    box-shadow var(--t-mid) var(--ease-out);
+}
+
+.contact-scope-state {
+  color: var(--bone-2);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.contact-scope[data-state="live"] .contact-scope-led {
+  background: var(--bone);
+}
+
+.contact-scope:is([data-state="ready"], [data-state="sent"]) .contact-scope-led {
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+/* Direct lines ------------------------------------------------------------ */
+
+.contact-intro {
+  grid-column: 1 / span 5;
+  display: grid;
+  align-content: start;
+  gap: 28px;
+}
+
+.contact-lede {
+  max-width: 36ch;
+  font-size: var(--fs-body-l);
+  line-height: 1.55;
+  color: var(--bone-2);
+}
+
+.contact-lines {
+  border-top: 1px solid var(--line);
+}
+
+.contact-lines li {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  min-height: 64px;
+  border-bottom: 1px solid var(--line);
+}
+
+.contact-lines-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.contact-lines-link,
+.contact-lines-plain {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.9vw, 1.75rem);
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--bone);
+  transition: font-weight var(--t-mid) var(--ease-out);
+}
+
+.contact-lines-plain {
+  font-weight: 300;
+  color: var(--bone-2);
+}
+
+.contact-lines-link:hover,
+.contact-lines-link:focus-visible {
+  font-weight: var(--w-loud);
+}
+
+/* Success ----------------------------------------------------------------- */
+
+.contact-success {
+  display: grid;
+  gap: 18px;
+  padding-top: 32px;
+  border-top: 2px solid var(--signal);
+}
+
+.contact-success:focus {
+  outline: none;
+}
+
+.contact-success:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 8px;
+}
+
+.contact-success-kicker {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.contact-success-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6.4vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.contact-success-title span {
+  color: var(--signal);
+}
+
+.contact-success-text {
+  max-width: 44ch;
+  font-size: var(--fs-body-l);
+  color: var(--bone-2);
+}
+
+.contact-again {
+  justify-self: start;
+  margin-top: 8px;
+}
+
+/* Tablet and mobile -------------------------------------------------------- */
+
+@media (max-width: 1099px) {
+  .contact-intro,
+  .contact-panel {
+    grid-column: 1 / -1;
+  }
+
+  .contact-intro {
+    max-width: 640px;
+    margin-bottom: 64px;
+  }
+}
+
+@media (max-width: 767px) {
+  .contact-title {
+    font-size: clamp(2.75rem, 14vw, 3.75rem);
+  }
+
+  .contact-scope-state {
+    display: none;
+  }
+}

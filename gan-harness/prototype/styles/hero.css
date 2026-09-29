@@ -1,0 +1,332 @@
+/* ==========================================================================
+   Hero — the signal source.
+   One orange disc, a field of noisy rings flowing out of it (canvas,
+   scripts/hero-field.js) and the headline crossing it: where the type
+   crosses the disc it turns ink (a clipped duplicate, scripts/hero-type.js).
+   On scroll the disc pins (desktop) or shrinks where it is (tablet, phone),
+   becomes a 10px dot and runs the dotted route out of the hero: down to the
+   channel desk, along it, and into the page margin (scripts/signal.js).
+   Geometry lives in custom properties so CSS and JS agree on it.
+   ========================================================================== */
+
+.hero {
+  --stage-h: max(100svh, 640px);
+  --desk-h: clamp(136px, 17svh, 164px);
+  --disc-d: min(38vw, 60svh, 720px);
+  --disc-x: 72%;
+  --disc-y: calc(var(--nav-h) + (var(--stage-h) - var(--nav-h) - var(--desk-h)) * 0.47);
+  --title-fs: clamp(3.25rem, min(7.2vw, 12.4svh), 9rem);
+  --pin: 0px;
+  position: relative;
+  height: calc(var(--stage-h) + var(--pin));
+  background: var(--carbon);
+}
+
+.hero-stage {
+  position: relative;
+  /* Above the page grain (z-index 1), which only textures the ground. */
+  z-index: 2;
+  height: var(--stage-h);
+  overflow: clip;
+}
+
+/* Desktop with motion: the stage holds while the disc turns into the dot. */
+@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
+  .hero {
+    --pin: 90svh;
+  }
+
+  .hero-stage {
+    position: sticky;
+    top: 0;
+  }
+}
+
+.hero-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  pointer-events: none;
+}
+
+.hero-disc {
+  position: absolute;
+  left: var(--disc-x);
+  top: var(--disc-y);
+  z-index: 1;
+  width: var(--disc-d);
+  aspect-ratio: 1;
+  margin: calc(var(--disc-d) / -2) 0 0 calc(var(--disc-d) / -2);
+  border-radius: 50%;
+  background: var(--signal);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.hero-route {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Content --------------------------------------------------------------- */
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  column-gap: var(--gap);
+  height: 100%;
+  padding: calc(var(--nav-h) + clamp(20px, 4.2vh, 44px)) var(--pad) 0;
+}
+
+.hero-eyebrow {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  align-self: start;
+  --chan-color: var(--ash);
+}
+
+.hero-eyebrow .chan-led {
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+.hero-eyebrow [data-decode] {
+  white-space: pre;
+}
+
+/* Headline: two lines on the disc's centre line. The Noise fader moves the
+   weight between them (scripts/hero-type.js): clean, "Define the
+   Experience." is bold; noisy, "Design the Future." is. Weight only, so the
+   layout never moves. --w on each character is its live weight. */
+.hero-title {
+  position: absolute;
+  left: var(--pad);
+  top: calc(var(--disc-y) - var(--title-fs) * 0.9);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--title-fs);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  font-weight: 400;
+}
+
+.hero-lines {
+  display: block;
+  -webkit-mask-image: radial-gradient(circle at var(--cx, -999px) var(--cy, -999px), transparent var(--cr, 0px), #000 calc(var(--cr, 0px) + 0.75px));
+  mask-image: radial-gradient(circle at var(--cx, -999px) var(--cy, -999px), transparent var(--cr, 0px), #000 calc(var(--cr, 0px) + 0.75px));
+}
+
+/* The ink copy: same box as the h1, clipped to the disc. */
+.hero-title-ink {
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-lines.hero-lines-ink {
+  -webkit-mask-image: none;
+  mask-image: none;
+  clip-path: circle(var(--cr, 0px) at var(--cx, -999px) var(--cy, -999px));
+}
+
+.hero-line {
+  display: block;
+  white-space: nowrap;
+}
+
+
+.hero-seg,
+.hero-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.hero-char {
+  display: inline-block;
+  font-weight: var(--w, 400);
+}
+
+.hero-line-q .hero-char {
+  --w: 220;
+  color: var(--bone);
+}
+
+.hero-line-l .hero-char {
+  --w: 640;
+  color: var(--bone);
+}
+
+/* A thin full stop reads as a comma: stops never go below 600, and they
+   carry the signal colour (ink where they cross the disc). */
+.hero-char.is-stop {
+  font-weight: max(600, var(--w, 600));
+  color: var(--signal);
+}
+
+.hero-lines-ink .hero-char {
+  color: var(--ink) !important;
+}
+
+.hero-copy {
+  grid-column: 1 / span 5;
+  grid-row: 3;
+  display: grid;
+  gap: clamp(16px, 2.6vh, 26px);
+  max-width: 470px;
+  padding-bottom: clamp(22px, 3.6vh, 38px);
+}
+
+.hero-desc {
+  font-size: var(--fs-body-l);
+  line-height: 1.55;
+  color: var(--bone-2);
+  max-width: 42ch;
+}
+
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+}
+
+/* Entrance, overlapped with the intro's exit. hero-go (the intro's dot
+   takes off): the copy, CTAs, desk and fader rise. hero-type-in: the
+   headline's letters spring up one by one. hero-in (the dot lands): the
+   disc. Only while the intro is in charge. */
+.has-loader:not(.hero-go) :is(.hero-eyebrow, .hero-copy, .hero-fader, .hero-route, .hero-channel-item) {
+  opacity: 0;
+}
+
+.has-loader:not(.hero-go) :is(.hero-copy, .hero-channel-item, .hero-fader) {
+  transform: translateY(22px);
+}
+
+.has-loader:not(.hero-in) .hero-disc {
+  opacity: 0;
+}
+
+.has-loader:not(.hero-type-in) .hero-char {
+  opacity: 0;
+  transform: translateY(0.34em) scaleY(1.2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .has-loader .hero-char {
+    transform-origin: 50% 100%;
+    transition:
+      opacity 360ms var(--ease-out) calc(var(--ci, 0) * 15ms),
+      transform 760ms cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--ci, 0) * 15ms);
+  }
+
+  .has-loader :is(.hero-eyebrow, .hero-copy, .hero-fader, .hero-route, .hero-channel-item) {
+    transition:
+      opacity 700ms var(--ease-out) var(--in-delay, 0ms),
+      transform 900ms var(--ease-out) var(--in-delay, 0ms);
+  }
+
+  .has-loader:not(.hero-settled) .hero-copy { --in-delay: 160ms; }
+  .has-loader:not(.hero-settled) .hero-channel-item:nth-child(1) { --in-delay: 260ms; }
+  .has-loader:not(.hero-settled) .hero-channel-item:nth-child(2) { --in-delay: 320ms; }
+  .has-loader:not(.hero-settled) .hero-channel-item:nth-child(3) { --in-delay: 380ms; }
+  .has-loader:not(.hero-settled) .hero-fader { --in-delay: 300ms; }
+  .has-loader:not(.hero-settled) .hero-route { --in-delay: 420ms; }
+}
+
+/* Tablet and phone: a poster. Disc top right, the headline crossing its
+   lower half, everything else in flow. The route leaves along the right
+   margin instead of dropping through the copy. ------------------------- */
+
+@media (max-width: 1099px) {
+  .hero {
+    --stage-h: auto;
+    --disc-d: 58vw;
+    --disc-x: 62%;
+    --disc-y: calc(var(--nav-h) + 64px + var(--disc-d) / 2);
+    --title-fs: 11.4vw;
+    height: auto;
+  }
+
+  .hero-stage {
+    height: auto;
+  }
+
+  .hero-inner {
+    grid-template-rows: none;
+    align-content: start;
+    height: auto;
+    padding-top: calc(var(--disc-y) + var(--disc-d) * 0.06);
+    padding-bottom: 44px;
+  }
+
+  /* Out of the grid (an absolutely placed grid item with a grid area would
+     be positioned inside that area). */
+  .hero-eyebrow {
+    position: absolute;
+    left: var(--pad);
+    top: calc(var(--nav-h) + 22px);
+    grid-area: auto;
+  }
+
+  .hero-title {
+    position: relative;
+    left: auto;
+    top: auto;
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .hero-seg {
+    display: block;
+  }
+
+  .hero-copy {
+    grid-column: 1 / span 8;
+    grid-row: 2;
+    max-width: 540px;
+    margin-top: 36px;
+    padding-bottom: 0;
+  }
+
+}
+
+@media (max-width: 767px) {
+  .hero {
+    --disc-d: 84vw;
+    --disc-x: 58%;
+    --disc-y: calc(var(--nav-h) + 56px + var(--disc-d) / 2);
+    --title-fs: 13.2vw;
+  }
+
+  .hero-eyebrow .chan-sep,
+  .hero-eyebrow-place {
+    display: none;
+  }
+
+  .hero-copy {
+    grid-column: 1 / -1;
+    gap: 22px;
+    margin-top: 30px;
+  }
+
+  .hero-ctas {
+    padding-right: 12px;
+  }
+
+  .hero-ctas .btn-signal {
+    flex: 1 1 auto;
+  }
+
+}
+

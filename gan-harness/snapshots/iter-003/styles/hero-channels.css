@@ -1,0 +1,255 @@
+/* ==========================================================================
+   Hero channels — the three pillars as a mixing-desk strip.
+   Each channel has a small level meter. At rest it flickers like a channel
+   picking up room noise; when the signal runs along the desk and passes it
+   (scripts/signal.js adds .is-fed), the meter jumps to full and settles into
+   one clean orange level, and the channel's title turns up.
+   ========================================================================== */
+
+.hero-channels {
+  position: relative;
+  grid-column: 1 / -1;
+  grid-row: 4;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: var(--desk-h);
+}
+
+/* The desk's top edge: the route runs along it. */
+.hero-channels::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--line-strong);
+  transform-origin: left;
+  transition: transform 1200ms var(--ease-out) 700ms;
+}
+
+.has-loader:not(.hero-in) .hero-channels::before {
+  transform: scaleX(0);
+}
+
+.hero-channel-item + .hero-channel-item {
+  border-left: 1px solid var(--line);
+}
+
+.hero-channel {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  height: 100%;
+  padding: 16px 24px 20px;
+}
+
+.hero-channel-item:first-child .hero-channel {
+  padding-left: 0;
+}
+
+.hero-channel-item:last-child .hero-channel {
+  padding-right: 0;
+}
+
+.hero-channel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms var(--ease-out);
+}
+
+.hero-channel:hover::before,
+.hero-channel:focus-visible::before {
+  transform: scaleX(1);
+}
+
+.hero-channel:focus-visible {
+  outline-offset: -2px;
+}
+
+.hero-channel-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 16px;
+}
+
+.hero-channel-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ash);
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.hero-channel-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--bone-2);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.hero-channel-text {
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ash);
+  max-width: 46ch;
+}
+
+.hero-channel:hover .hero-channel-title,
+.hero-channel:focus-visible .hero-channel-title,
+.is-fed > .hero-channel .hero-channel-title {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.hero-channel:hover .hero-channel-num,
+.hero-channel:focus-visible .hero-channel-num,
+.is-fed > .hero-channel .hero-channel-num {
+  color: var(--bone);
+}
+
+/* Meter ------------------------------------------------------------------ */
+
+.hero-meter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.hero-meter i {
+  width: 3px;
+  height: 100%;
+  background: var(--ash-dim);
+  transform-origin: 50% 100%;
+  transform: scaleY(0.3);
+  transition:
+    transform 420ms var(--ease-out),
+    background-color 420ms var(--ease-out);
+}
+
+.hero-meter i:nth-child(n + 6) {
+  background: color-mix(in oklab, var(--signal) 55%, var(--ash-dim));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-meter i {
+    animation: meter-a 1.3s steps(5, jump-none) infinite;
+  }
+
+  .hero-meter i:nth-child(2n) { animation-name: meter-b; animation-duration: 1.05s; }
+  .hero-meter i:nth-child(3n) { animation-name: meter-c; animation-duration: 1.55s; }
+  .hero-meter i:nth-child(2) { animation-delay: -0.3s; }
+  .hero-meter i:nth-child(4) { animation-delay: -0.7s; }
+  .hero-meter i:nth-child(5) { animation-delay: -0.2s; }
+  .hero-meter i:nth-child(7) { animation-delay: -0.9s; }
+  .hero-channel-item:nth-child(2) .hero-meter i { animation-duration: 1.2s; }
+  .hero-channel-item:nth-child(3) .hero-meter i { animation-duration: 0.95s; }
+}
+
+@keyframes meter-a {
+  0%, 100% { transform: scaleY(0.25); }
+  25% { transform: scaleY(0.7); }
+  50% { transform: scaleY(0.4); }
+  75% { transform: scaleY(0.9); }
+}
+
+@keyframes meter-b {
+  0%, 100% { transform: scaleY(0.55); }
+  30% { transform: scaleY(0.2); }
+  60% { transform: scaleY(0.8); }
+}
+
+@keyframes meter-c {
+  0%, 100% { transform: scaleY(0.35); }
+  40% { transform: scaleY(0.95); }
+  70% { transform: scaleY(0.15); }
+}
+
+/* Fed: one clean, steady level. */
+.is-fed .hero-meter i {
+  animation: none;
+  background: var(--signal);
+  transform: scaleY(0.72);
+}
+
+.is-fed .hero-meter i:nth-child(n + 6) {
+  background: var(--signal);
+  transform: scaleY(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .is-fed .hero-meter i {
+    animation: meter-surge 700ms var(--ease-out) calc(var(--mi, 0) * 40ms) both;
+  }
+
+  .hero-meter i:nth-child(2) { --mi: 1; }
+  .hero-meter i:nth-child(3) { --mi: 2; }
+  .hero-meter i:nth-child(4) { --mi: 3; }
+  .hero-meter i:nth-child(5) { --mi: 4; }
+  .hero-meter i:nth-child(6) { --mi: 5; }
+  .hero-meter i:nth-child(7) { --mi: 6; }
+}
+
+@keyframes meter-surge {
+  0% { transform: scaleY(0.2); }
+  45% { transform: scaleY(1); }
+}
+
+/* Tablet ------------------------------------------------------------------ */
+
+@media (max-width: 1099px) {
+  .hero-channels {
+    grid-row: 4;
+    height: auto;
+    margin-top: 44px;
+  }
+
+  .hero-channel {
+    padding-bottom: 8px;
+  }
+}
+
+/* Phone: stacked rows, the meter sits under the channel number so the
+   signal (in the left margin) can reach it. */
+@media (max-width: 767px) {
+  .hero-channels {
+    grid-template-columns: 1fr;
+    margin-top: 36px;
+  }
+
+  .hero-channel-item + .hero-channel-item {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .hero-channel,
+  .hero-channel-item:last-child .hero-channel {
+    grid-template-columns: 56px 1fr;
+    column-gap: 12px;
+    padding: 18px 0;
+  }
+
+  .hero-channel-head {
+    grid-row: span 2;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 12px;
+    padding-top: 4px;
+  }
+}

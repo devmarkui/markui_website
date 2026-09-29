@@ -1,0 +1,250 @@
+/* ==========================================================================
+   Loader — static tunes in to the brand line.
+   About 2.6 s: a field of static (canvas particles) converges on
+   "Less Noise. / More Impact●", the words drop away (their weight falls to
+   nothing) and the orange full stop flies into the hero, where it becomes
+   the disc. Click or any key skips straight to the hand-off.
+   It only exists when html.has-loader is set (scripts + motion allowed); a
+   CSS failsafe lifts it after 6 s if the script never finishes.
+   ========================================================================== */
+
+.loader {
+  display: none;
+}
+
+.has-loader .loader {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: var(--carbon);
+  transition: background-color 560ms var(--ease-inout);
+  animation: loader-failsafe 400ms var(--ease-out) 6s forwards;
+}
+
+@keyframes loader-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* CSS static, so the screen is already "on" before the script arrives. */
+.loader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.07;
+  transition: opacity 500ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loader::before {
+    animation: desk-grain 0.4s steps(1) infinite;
+  }
+}
+
+.loader.is-text::before,
+.loader.is-drop::before {
+  opacity: 0;
+}
+
+.loader.is-fading {
+  background-color: rgba(13, 11, 10, 0);
+  pointer-events: none;
+}
+
+.loader-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  transition: opacity 260ms var(--ease-out);
+}
+
+.loader.is-text .loader-canvas {
+  opacity: 0;
+}
+
+/* The brand line. The particles draw it first; the real type fades in
+   under them once they have converged. */
+.loader-line {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 9vw, 10.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  word-spacing: 0.09em;
+  opacity: 0;
+  transition: opacity 180ms var(--ease-out);
+}
+
+.loader.is-text .loader-line {
+  opacity: 1;
+}
+
+.loader-q,
+.loader-l {
+  display: block;
+  white-space: nowrap;
+  transition:
+    font-weight 560ms var(--ease-inout),
+    color 420ms var(--ease-out),
+    transform 560ms var(--ease-inout);
+}
+
+.loader-q {
+  font-weight: 250;
+  color: var(--ash);
+}
+
+.loader-l {
+  font-weight: 600;
+  color: var(--bone);
+}
+
+.loader-dot {
+  display: inline-block;
+  width: 0.17em;
+  height: 0.17em;
+  margin-left: 0.04em;
+  border-radius: 50%;
+  background: var(--signal);
+}
+
+/* The words drop away: weight falls, colour goes, the line sinks a little.
+   The full stop stays (it is handed to the flyer before this starts). */
+.loader.is-drop .loader-q,
+.loader.is-drop .loader-l {
+  font-weight: 200;
+  color: rgba(241, 236, 230, 0);
+  transform: translateY(0.12em);
+}
+
+.loader.is-drop .loader-l {
+  transition-delay: 70ms;
+}
+
+.loader.is-drop .loader-dot {
+  visibility: hidden;
+}
+
+/* The flying full stop: rendered at the disc's final size and scaled down,
+   so it stays sharp all the way into the hero. */
+.loader-flyer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 91;
+  border-radius: 50%;
+  background: var(--signal);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Readouts ------------------------------------------------------------------ */
+
+.loader-meta,
+.loader-skip {
+  position: absolute;
+  bottom: calc(var(--pad) + 4px);
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+  transition: opacity 300ms var(--ease-out);
+}
+
+.loader-meta {
+  left: var(--pad);
+}
+
+.loader-skip {
+  right: var(--pad);
+}
+
+.loader-count {
+  min-width: 3ch;
+  font-size: 0.875rem;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.loader-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loader-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--ash-dim);
+}
+
+.loader.is-found .loader-status {
+  color: var(--bone);
+}
+
+.loader.is-found .loader-status::before {
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal-glow);
+}
+
+.loader.is-drop :is(.loader-meta, .loader-skip) {
+  opacity: 0;
+}
+
+/* The tuning scale along the bottom: its needle follows the counter. */
+.loader::after {
+  content: "";
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: calc(var(--pad) + 40px);
+  height: 9px;
+  background:
+    linear-gradient(var(--signal), var(--signal)) calc(var(--tune, 0) * 100%) 0 / 1px 100% no-repeat,
+    repeating-linear-gradient(90deg, var(--ash-dim) 0 1px, transparent 1px 2.5%) bottom / 100% 4px no-repeat,
+    linear-gradient(var(--line-strong), var(--line-strong)) bottom / 100% 1px no-repeat;
+  transition: opacity 300ms var(--ease-out);
+}
+
+.loader.is-drop::after {
+  opacity: 0;
+}
+
+.loader-skip-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .loader-skip-fine {
+    display: none;
+  }
+
+  .loader-skip-touch {
+    display: inline;
+  }
+}
+
+@media (max-width: 767px) {
+  .loader-line {
+    font-size: 13.4vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    display: none !important;
+  }
+}
