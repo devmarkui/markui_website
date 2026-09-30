@@ -45,15 +45,13 @@ export default async function ServiceDetailPage(
   ]);
 
   return (
-    <main className="overflow-x-hidden">
-      <ServiceDetail
-        service={service}
-        topWork={topWork}
-        portfolioUrl={settings.portfolioUrl}
-        otherServices={allServices
-          .filter((s) => s.id !== service.id)
-          .map(({ id, slug: s, name }) => ({ id, slug: s, name }))}
-      />
-    </main>
+    <ServiceDetail
+      service={service}
+      topWork={topWork}
+      portfolioUrl={settings.portfolioUrl}
+      otherServices={allServices
+        .filter((s) => s.id !== service.id)
+        .map(({ id, slug: s, name }) => ({ id, slug: s, name }))}
+    />
   );
 }

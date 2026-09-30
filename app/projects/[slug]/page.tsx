@@ -55,23 +55,21 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   );
 
   return (
-    <main className="overflow-x-hidden">
-      <ProjectDetail
-        project={project}
-        cover={cover}
-        gallery={gallery}
-        services={linkedServices.map((s) => ({ name: s.name, slug: s.slug }))}
-        next={
-          next && next.id !== project.id
-            ? {
-                slug: next.slug,
-                title: next.title,
-                category: next.category,
-                image: next.image,
-              }
-            : null
-        }
-      />
-    </main>
+    <ProjectDetail
+      project={project}
+      cover={cover}
+      gallery={gallery}
+      services={linkedServices.map((s) => ({ name: s.name, slug: s.slug }))}
+      next={
+        next && next.id !== project.id
+          ? {
+              slug: next.slug,
+              title: next.title,
+              category: next.category,
+              image: next.image,
+            }
+          : null
+      }
+    />
   );
 }

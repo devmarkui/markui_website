@@ -1,0 +1,288 @@
+/* ==========================================================================
+   Products — spec sheets on bone. Each product is a channel: its status on
+   an LED (lit: available; ring: coming soon; pulsing: in development), the
+   sheet on the left and its screens and demos hung on the right. The name
+   turns up as you reach it.
+   ========================================================================== */
+
+.pl-list {
+  padding: clamp(24px, 3vw, 40px) 0 0;
+}
+
+.pl-row {
+  padding: clamp(64px, 8vw, 128px) 0;
+  border-top: 1px solid var(--line-ink);
+}
+
+.pl-row:first-child {
+  border-top: 0;
+}
+
+.pl-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 48px;
+  align-items: start;
+}
+
+.pl-sheet {
+  grid-column: 1 / span 5;
+  position: sticky;
+  top: calc(var(--nav-h) + 32px);
+  display: grid;
+  justify-items: start;
+  gap: 22px;
+}
+
+.pl-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.pl-index {
+  color: var(--ink);
+}
+
+.pl-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+}
+
+.pl-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--signal);
+  background: transparent;
+}
+
+.pl-status[data-status="available"]::before {
+  background: var(--signal);
+  box-shadow: 0 0 10px var(--signal-glow);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pl-status[data-status="in-development"]::before {
+    animation: pl-pulse 1.6s var(--ease-inout) infinite;
+  }
+}
+
+@keyframes pl-pulse {
+  50% {
+    background: var(--signal);
+  }
+}
+
+.pl-logo {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid var(--line-ink);
+  background: #fff;
+}
+
+.pl-logo img {
+  object-fit: contain;
+  padding: 4px;
+}
+
+.pl-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-l);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: 300;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+  word-spacing: 0.09em;
+  transition:
+    font-weight 900ms var(--ease-out),
+    color 600ms var(--ease-out);
+}
+
+.pl-row.is-live .pl-name {
+  font-weight: var(--w-loud);
+  color: var(--ink);
+}
+
+.pl-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+}
+
+.pl-short {
+  max-width: 44ch;
+  font-size: var(--fs-body-l);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.pl-full {
+  max-width: 54ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  white-space: pre-line;
+}
+
+.pl-block {
+  width: 100%;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-ink);
+}
+
+.pl-row.is-live .ticks li::before {
+  background: var(--signal);
+}
+
+/* Preview ----------------------------------------------------------------- */
+
+.pl-preview {
+  grid-column: 7 / -1;
+}
+
+.pl-preview-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pl-preview-head .label {
+  margin-bottom: 0;
+}
+
+.pl-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px var(--gap);
+}
+
+.pl-item {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+}
+
+.pl-item[data-feature="true"] {
+  grid-column: 1 / -1;
+}
+
+.pl-item .print {
+  --ar: 4 / 3;
+  background: var(--paper-2);
+}
+
+.pl-item[data-feature="true"] .print {
+  --ar: 16 / 10;
+}
+
+.pl-video {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.pl-video:focus-visible {
+  outline: none;
+}
+
+.pl-video:focus-visible .print {
+  outline: 2px solid var(--ink);
+  outline-offset: 5px;
+}
+
+.pl-caption {
+  display: flex;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pl-caption b {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+@media (hover: hover) {
+  .pl-item:hover .print > img,
+  .pl-item:hover .print > video {
+    transform: scale(1.035);
+  }
+}
+
+.pl-empty-preview {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  border: 1px dashed var(--line-ink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.pl-none {
+  padding: var(--section-y) 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-m);
+  font-weight: 300;
+  color: var(--ink-soft);
+}
+
+/* Responsive -------------------------------------------------------------- */
+
+@media (max-width: 1099px) {
+  .pl-sheet,
+  .pl-preview {
+    grid-column: 1 / -1;
+  }
+
+  .pl-sheet {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .pl-preview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pl-item[data-feature="true"] .print {
+    --ar: 4 / 3;
+  }
+
+  .pl-sheet .btn-signal {
+    width: 100%;
+  }
+}

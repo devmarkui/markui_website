@@ -1,0 +1,356 @@
+/* ==========================================================================
+   Services — one channel per service. Each band sits quiet (weight 300,
+   ash) until you reach it, then turns up: the name swells to 600, the LED
+   and the feature ticks light. A sticky channel bar follows you down the
+   page and jumps to any band.
+   ========================================================================== */
+
+/* Channel bar -------------------------------------------------------------- */
+
+/* (.ground > * would make it relative; this outranks it.) */
+.ground > .sv-bar {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 5;
+  background: rgba(13, 11, 10, 0.96);
+  border-block: 1px solid var(--line);
+}
+
+.sv-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px 20px;
+  min-height: 56px;
+}
+
+.sv-bar-label {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.sv-bar-scroll {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.sv-bar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.sv-bar-list {
+  display: flex;
+  width: max-content;
+  /* Room to scroll the last channel clear of the fade. */
+  padding-right: 48px;
+}
+
+/* A fade at the right edge says the row goes on. */
+.sv-bar-scroll {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent);
+}
+
+.sv-bar-link {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 52px;
+  padding: 16px 12px 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--ash);
+  scroll-snap-align: start;
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.sv-bar-link b {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--ash-dim);
+}
+
+.sv-bar-link::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-mid) var(--ease-out);
+}
+
+.sv-bar-link:hover,
+.sv-bar-link[aria-current="true"] {
+  color: var(--bone);
+}
+
+.sv-bar-link[aria-current="true"] b {
+  color: var(--signal);
+}
+
+.sv-bar-link[aria-current="true"]::after {
+  transform: scaleX(1);
+}
+
+.sv-bar-link:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Bands ------------------------------------------------------------------- */
+
+.sv-band {
+  padding: clamp(64px, 8vw, 128px) 0;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: calc(var(--nav-h) + 56px);
+}
+
+.sv-band:first-of-type {
+  border-top: 0;
+}
+
+.sv-band-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 48px;
+  align-items: start;
+}
+
+.sv-band-head {
+  grid-column: 1 / span 5;
+  position: sticky;
+  top: calc(var(--nav-h) + 56px + 32px);
+  display: grid;
+  justify-items: start;
+  gap: 22px;
+}
+
+.sv-band-head .chan {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+.sv-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-l);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: 300;
+  color: var(--ash);
+  overflow-wrap: anywhere;
+  word-spacing: 0.09em;
+  transition:
+    font-weight 900ms var(--ease-out),
+    color 600ms var(--ease-out);
+}
+
+.sv-band.is-live .sv-name {
+  font-weight: var(--w-loud);
+  color: var(--bone);
+}
+
+.sv-short {
+  max-width: 44ch;
+  font-size: var(--fs-body-l);
+  line-height: 1.5;
+  color: var(--bone-2);
+}
+
+.sv-full {
+  max-width: 52ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--ash);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sv-offer {
+  width: 100%;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.sv-band-head .btn-row {
+  margin-top: 6px;
+}
+
+/* Top work ---------------------------------------------------------------- */
+
+.sv-work {
+  grid-column: 7 / -1;
+}
+
+.sv-work-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.sv-work-head .label {
+  margin-bottom: 0;
+}
+
+.sv-work-count {
+  color: var(--ash);
+}
+
+.sv-work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px var(--gap);
+}
+
+.sv-item {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  color: var(--bone);
+}
+
+.sv-item[data-feature="true"] {
+  grid-column: 1 / -1;
+}
+
+.sv-item .print {
+  --ar: 4 / 3;
+}
+
+.sv-item[data-feature="true"] .print {
+  --ar: 16 / 9;
+}
+
+.sv-item-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+
+.sv-item-title span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sv-item-title .btn-arrow {
+  color: var(--signal);
+}
+
+.sv-item-cat {
+  margin-top: -8px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+a.sv-item:focus-visible {
+  outline: none;
+}
+
+a.sv-item:focus-visible .print {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  a.sv-item:hover .print > img,
+  a.sv-item:hover .print > video {
+    transform: scale(1.04);
+  }
+
+  a.sv-item:hover .btn-arrow {
+    transform: translate(3px, -3px);
+  }
+
+  .sv-work-grid:has(a.sv-item:hover) .sv-item:not(:hover) .print {
+    opacity: 0.55;
+  }
+}
+
+.sv-empty {
+  padding: 40px 0;
+  border-block: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.sv-none {
+  padding: var(--section-y) 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-m);
+  font-weight: 300;
+  color: var(--ash);
+}
+
+/* Responsive -------------------------------------------------------------- */
+
+@media (max-width: 1099px) {
+  .sv-band-head,
+  .sv-work {
+    grid-column: 1 / -1;
+  }
+
+  .sv-band-head {
+    position: static;
+  }
+
+  .sv-bar-label {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  /* The row runs edge to edge; the list keeps the first channel on the grid. */
+  .sv-bar-inner {
+    padding-inline: 0;
+  }
+
+  .sv-bar-list {
+    padding-inline: calc(var(--pad) - 12px);
+  }
+
+  .sv-work-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sv-item[data-feature="true"] .print {
+    --ar: 4 / 3;
+  }
+
+  .sv-band-head .btn-row {
+    justify-self: stretch;
+  }
+
+  .sv-band-head .btn-signal {
+    width: 100%;
+  }
+}

@@ -205,28 +205,3 @@ select:focus {
     0 0 30px rgba(255, 107, 0, 0.25),
     0 0 60px rgba(255, 107, 0, 0.15);
 }
-
-.nav-link {
-  position: relative;
-  transition: 0.3s;
-}
-
-.nav-link::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  bottom: -6px;
-
-  width: 0%;
-  height: 1px;
-
-  background: white;
-
-  transition: width .3s;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}

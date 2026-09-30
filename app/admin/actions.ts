@@ -129,6 +129,9 @@ const ADMIN_PATHS = [
 ];
 
 function revalidatePublicSite() {
+  // The footer lists every active service, so a service change reaches every
+  // public page; the paths below are refreshed with it.
+  revalidatePath("/", "layout");
   for (const path of PUBLIC_PATHS) revalidatePath(path);
   // Every service detail page at once.
   revalidatePath("/services/[slug]", "page");
@@ -1694,6 +1697,8 @@ export async function saveTrustSettings(
 
   await updateSettings({ trust: { headingDark, headingMuted, stats, logos } });
   revalidatePath("/");
+  // The About page shows the same stats.
+  revalidatePath("/about");
   revalidatePath("/admin/trust");
 
   return { ok: true, message: "Trust strip saved — the Home page has been updated." };

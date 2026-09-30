@@ -15,9 +15,5 @@ export default async function ServicesPage() {
     getSettings(),
   ]);
 
-  return (
-    <main className="overflow-x-hidden">
-      <ServicesList services={services} portfolioUrl={settings.portfolioUrl} />
-    </main>
-  );
+  return <ServicesList services={services} portfolioUrl={settings.portfolioUrl} />;
 }

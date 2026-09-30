@@ -1,0 +1,389 @@
+/* ==========================================================================
+   Service detail — one channel, all the way up: the overview read on bone,
+   what's included as a numbered patch bay, why us, the top work on the
+   gallery wall, the portfolio on orange, and the other channels.
+   ========================================================================== */
+
+/* Overview ---------------------------------------------------------------- */
+
+.sd-overview {
+  padding: var(--section-y) 0;
+}
+
+.sd-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 32px;
+}
+
+.sd-overview-grid > .chan {
+  grid-column: 1 / span 3;
+  align-self: start;
+  margin-top: 0.6em;
+}
+
+.sd-overview-text {
+  grid-column: 4 / -1;
+  display: grid;
+  gap: 24px;
+}
+
+.sd-overview-text p {
+  max-width: 34ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.625rem, 3vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+  color: var(--ink);
+  word-spacing: 0.06em;
+}
+
+.sd-overview-text p + p {
+  max-width: 60ch;
+  font-family: var(--font-body);
+  font-size: var(--fs-body-l);
+  line-height: 1.65;
+  letter-spacing: 0;
+  color: var(--ink-soft);
+}
+
+/* What we offer: a patch bay ---------------------------------------------- */
+
+.sd-offer {
+  padding: 0 0 var(--section-y);
+}
+
+.sd-offer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  border-top: 1px solid var(--line-ink);
+  border-left: 1px solid var(--line-ink);
+}
+
+.sd-offer-item {
+  display: grid;
+  align-content: space-between;
+  gap: 40px;
+  min-height: 168px;
+  padding: 22px 24px 26px;
+  border-right: 1px solid var(--line-ink);
+  border-bottom: 1px solid var(--line-ink);
+  transition: background-color var(--t-mid) var(--ease-out);
+}
+
+.sd-offer-num {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.sd-offer-num::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: rgba(21, 17, 14, 0.28);
+  transition: background-color var(--t-mid) var(--ease-out);
+}
+
+.sd-offer-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 1.9vw, 1.875rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 350;
+  color: var(--ink);
+  transition: font-weight var(--t-mid) var(--ease-out);
+}
+
+.sd-offer-item:hover {
+  background: var(--paper);
+}
+
+.sd-offer-item:hover .sd-offer-name {
+  font-weight: 600;
+}
+
+.sd-offer-item:hover .sd-offer-num::before,
+.sd-offer.is-live .sd-offer-num::before {
+  background: var(--signal);
+}
+
+/* Why --------------------------------------------------------------------- */
+
+.sd-why {
+  padding: var(--section-y) 0;
+}
+
+.sd-why-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 48px;
+  align-items: start;
+}
+
+.sd-why-head {
+  grid-column: 1 / span 5;
+  display: grid;
+  gap: 24px;
+}
+
+.sd-why-head .sec-title {
+  font-size: clamp(2.25rem, 4vw, 4rem);
+}
+
+.sd-why-list {
+  grid-column: 7 / -1;
+  border-top: 1px solid var(--line);
+}
+
+.sd-why-item {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sd-why-num {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 1.5em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ash-dim);
+}
+
+.sd-why-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.7vw, 1.625rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 300;
+  color: var(--bone-2);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+.sd-why-item:hover .sd-why-text {
+  font-weight: 500;
+  color: var(--bone);
+}
+
+.sd-why-item:hover .sd-why-num {
+  color: var(--signal);
+}
+
+/* Top work ---------------------------------------------------------------- */
+
+.sd-work {
+  padding: var(--section-y) 0;
+}
+
+.sd-work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: clamp(40px, 5vw, 64px) var(--gap);
+}
+
+.sd-card {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  color: var(--ink);
+}
+
+.sd-card .print {
+  --ar: 4 / 3;
+}
+
+.sd-card-badge {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 2;
+  padding: 6px 9px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sd-card-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(241, 236, 230, 0.12);
+}
+
+.sd-card-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 1.9vw, 1.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.sd-card-desc {
+  max-width: 48ch;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sd-card-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.sd-card-go .btn-arrow {
+  width: 12px;
+  height: 12px;
+  color: var(--signal);
+}
+
+a.sd-card:focus-visible {
+  outline: none;
+}
+
+a.sd-card:focus-visible .print {
+  outline: 2px solid var(--ink);
+  outline-offset: 6px;
+}
+
+@media (hover: hover) {
+  a.sd-card:hover .print > img,
+  a.sd-card:hover .print > video {
+    transform: scale(1.04);
+  }
+
+  a.sd-card:hover .sd-card-go .btn-arrow {
+    transform: translate(3px, -3px);
+  }
+}
+
+/* Portfolio on orange ----------------------------------------------------- */
+
+.sd-portfolio {
+  padding: clamp(72px, 9vw, 136px) 0;
+}
+
+.sd-portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 32px;
+  align-items: end;
+}
+
+.sd-portfolio-grid > .chan {
+  grid-column: 1 / -1;
+}
+
+.sd-portfolio-title {
+  grid-column: 1 / span 7;
+  font-family: var(--font-display);
+  font-size: var(--fs-l);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  color: var(--ink);
+  word-spacing: 0.09em;
+}
+
+.sd-portfolio-title .q {
+  font-weight: 300;
+}
+
+.sd-portfolio-side {
+  grid-column: 9 / -1;
+  display: grid;
+  justify-items: start;
+  gap: 24px;
+}
+
+.sd-portfolio-side p {
+  max-width: 40ch;
+  color: var(--fg-2);
+}
+
+/* Other channels ---------------------------------------------------------- */
+
+.sd-others {
+  padding: clamp(72px, 8vw, 120px) 0;
+}
+
+/* Masthead extras --------------------------------------------------------- */
+
+.mast-backdrop {
+  position: absolute !important;
+  inset: 0;
+  z-index: 1 !important;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+}
+
+.mast-backdrop img {
+  object-fit: cover;
+  opacity: 0.22;
+  filter: saturate(0.6);
+}
+
+.sd-mast-extra {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px 40px;
+}
+
+/* Responsive -------------------------------------------------------------- */
+
+@media (max-width: 1099px) {
+  .sd-overview-grid > .chan,
+  .sd-overview-text,
+  .sd-why-head,
+  .sd-why-list,
+  .sd-portfolio-title,
+  .sd-portfolio-side {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .sd-offer-item {
+    min-height: 0;
+    gap: 20px;
+  }
+
+  .sd-portfolio-side .btn-signal {
+    width: 100%;
+  }
+}

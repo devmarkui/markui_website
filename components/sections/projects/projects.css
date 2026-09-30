@@ -1,0 +1,458 @@
+/* ==========================================================================
+   Projects — the gallery wall (the homepage's work section, for all of it).
+   Prints hung on warm paper in a repeating five-slot hang, so any number of
+   projects lands without holes. A sticky tuner picks the channel; tuning
+   re-hangs the wall and each print develops out of the dark again.
+   ========================================================================== */
+
+.wall {
+  padding: clamp(56px, 7vw, 104px) 0 clamp(96px, 10vw, 160px);
+}
+
+/* Tuner ------------------------------------------------------------------- */
+
+.tuner {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 20px;
+  margin: 0 calc(var(--pad) * -1) clamp(48px, 6vw, 80px);
+  padding: 6px var(--pad);
+  background: var(--paper);
+  border-block: 1px solid var(--line-ink);
+}
+
+.tuner-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.tuner-options {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tuner-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 48px;
+  padding: 12px 12px 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-weight: 300;
+  color: var(--ink-soft);
+  transition:
+    font-weight var(--t-mid) var(--ease-out),
+    color var(--t-mid) var(--ease-out);
+}
+
+/* Reserve the bold width so the bar never shifts when weight changes. */
+.tuner-name {
+  display: inline-grid;
+}
+
+.tuner-name::after {
+  content: attr(data-label);
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 600;
+}
+
+.tuner-count {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.tuner-btn::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 7px;
+  height: 3px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-mid) var(--ease-out);
+}
+
+.tuner-btn:hover {
+  color: var(--ink);
+}
+
+.tuner-btn[aria-pressed="true"] {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tuner-btn[aria-pressed="true"]::after {
+  transform: scaleX(1);
+}
+
+.tuner-btn:focus-visible {
+  outline-offset: -2px;
+}
+
+.tuner-status {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+/* The hang ---------------------------------------------------------------- */
+
+.wall-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: clamp(56px, 6vw, 96px);
+  align-items: start;
+}
+
+.wall-item:nth-child(5n + 1) { grid-column: 1 / span 7; }
+/* Covers often carry their title in the left third (as the homepage's do),
+   so crops narrower than 3:2 hold the left edge. */
+.wall-item:nth-child(5n + 2) { grid-column: 9 / span 4; --ar: 4 / 5; --pos: 0% 50%; }
+.wall-item:nth-child(5n + 3) { grid-column: 1 / span 4; --ar: 4 / 5; --pos: 0% 50%; }
+.wall-item:nth-child(5n + 4) { grid-column: 6 / span 7; margin-top: clamp(24px, 3vw, 48px); }
+.wall-item:nth-child(5n + 5) { grid-column: 1 / -1; --ar: 21 / 9; }
+
+.wall-card {
+  position: relative;
+  display: block;
+  color: var(--ink);
+}
+
+.wall-card:focus-visible {
+  outline: none;
+}
+
+.wall-card:focus-visible .print {
+  outline: 2px solid var(--ink);
+  outline-offset: 6px;
+}
+
+.wall-card .print {
+  transition: opacity 700ms var(--ease-out);
+}
+
+.wall-caption {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 8px;
+  padding-top: 20px;
+}
+
+.wall-index {
+  grid-row: 1 / span 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: start;
+  padding-top: 0.55em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.wall-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.625rem, 2.5vw, 2.375rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: var(--w-loud);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.wall-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.71875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.wall-meta .tag {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.wall-desc {
+  max-width: 44ch;
+  margin-top: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wall-flag {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  background: var(--signal);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The wide slot gets a horizontal museum label. */
+.wall-item:nth-child(5n + 5) .wall-caption {
+  grid-template-columns: 40px minmax(0, 3fr) minmax(0, 4fr);
+}
+
+.wall-item:nth-child(5n + 5) .wall-index {
+  grid-row: 1 / span 2;
+}
+
+.wall-item:nth-child(5n + 5) .wall-desc {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  margin-top: 0;
+  justify-self: end;
+}
+
+/* Hover: the print you point at is the only one turned up. */
+@media (hover: hover) {
+  .wall-card:hover .print > img,
+  .wall-card:hover .print > video {
+    transform: scale(1.045);
+  }
+
+  .wall-card:hover .print-view,
+  .wall-card:focus-visible .print-view {
+    transform: none;
+  }
+
+  .wall-grid:has(.wall-card:hover) .wall-card:not(:hover) .print {
+    opacity: 0.5;
+  }
+
+  .wall-card:hover .wall-index {
+    color: var(--ink);
+  }
+
+  .wall-card:hover .wall-index::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--signal);
+  }
+}
+
+@media (hover: none) {
+  .print-view {
+    display: none;
+  }
+}
+
+/* Re-hang: after tuning, each print comes back up in its slot, front to back. */
+@media (prefers-reduced-motion: no-preference) {
+  .wall-grid .wall-item {
+    animation: wall-rehang 900ms var(--ease-out) both;
+    animation-delay: calc(min(var(--slot, 0), 8) * 70ms);
+  }
+}
+
+@keyframes wall-rehang {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+/* Foot: the closing wall text, beside the last print ----------------------- */
+
+.wall-foot {
+  grid-column: 10 / span 3;
+  align-self: end;
+  display: grid;
+  justify-items: start;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-ink);
+}
+
+.wall-foot-note {
+  font-family: var(--font-display);
+  font-size: var(--fs-s);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 400;
+  color: var(--ink);
+  word-spacing: 0.09em;
+}
+
+.wall-empty {
+  grid-column: 1 / -1;
+  padding: 96px 0;
+  border-block: 1px solid var(--line-ink);
+  font-family: var(--font-display);
+  font-size: var(--fs-m);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* Tablet: pairs of equal prints, every third one full width ---------------- */
+
+@media (max-width: 1099px) {
+  .wall-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .wall-grid > .wall-item {
+    margin-top: 0;
+  }
+
+  .wall-item:nth-child(3n + 1) { grid-column: 1 / -1; --ar: 3 / 2; }
+  .wall-item:nth-child(3n + 2) { grid-column: 1 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
+  .wall-item:nth-child(3n + 3) { grid-column: 4 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
+
+  .wall-item:nth-child(n) .wall-caption {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .wall-item:nth-child(n) .wall-index {
+    grid-row: 1 / span 3;
+  }
+
+  .wall-item:nth-child(n) .wall-desc {
+    grid-column: 2;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 4px;
+  }
+
+  .wall-foot {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .tuner-status {
+    flex-basis: 100%;
+    margin-left: 0;
+    padding-bottom: 6px;
+  }
+}
+
+/* Mobile: one print at a time, the row of channels scrolls sideways -------- */
+
+@media (max-width: 767px) {
+  .wall-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 40px;
+  }
+
+  .wall-grid > .wall-item {
+    grid-column: 1;
+    --ar: 3 / 2;
+    --pos: 50% 50%;
+  }
+
+  .wall-grid > .wall-item:nth-child(3n + 1) {
+    margin-inline: calc(var(--pad) * -1);
+  }
+
+  .wall-grid > .wall-item:nth-child(3n + 1) .wall-caption {
+    padding-inline: var(--pad);
+  }
+
+  .wall-grid > .wall-item:nth-child(3n + 2) {
+    width: 88%;
+    margin-left: auto;
+  }
+
+  .wall-grid > .wall-item:nth-child(3n) {
+    width: 88%;
+  }
+
+  .wall-caption,
+  .wall-item:nth-child(n) .wall-caption {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .wall-foot {
+    grid-column: 1;
+    grid-template-columns: 1fr;
+  }
+
+  .tuner {
+    gap: 0;
+    padding-block: 4px;
+  }
+
+  .tuner-label {
+    display: none;
+  }
+
+  .tuner-scroll {
+    width: calc(100% + var(--pad) * 2);
+    margin-inline: calc(var(--pad) * -1);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--pad);
+    scrollbar-width: none;
+  }
+
+  .tuner-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tuner-options {
+    flex-wrap: nowrap;
+    width: max-content;
+    padding-inline: calc(var(--pad) - 12px);
+  }
+
+  .tuner-btn {
+    flex: none;
+    font-size: 1.125rem;
+    scroll-snap-align: start;
+  }
+
+  .tuner-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

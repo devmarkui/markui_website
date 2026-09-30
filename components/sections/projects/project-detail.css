@@ -1,0 +1,446 @@
+/* ==========================================================================
+   Project detail — one print, its story, its gallery, the outcome turned
+   all the way up, and the way on to the next project.
+   ========================================================================== */
+
+/* Cover ------------------------------------------------------------------- */
+
+.pd-cover {
+  padding: clamp(40px, 5vw, 72px) 0 clamp(72px, 8vw, 120px);
+}
+
+.pd-cover .print {
+  --ar: 16 / 9;
+}
+
+.pd-cover .print > video {
+  object-fit: cover;
+  background: #000;
+}
+
+/* Story ------------------------------------------------------------------- */
+
+.pd-story {
+  padding: var(--section-y) 0;
+}
+
+.pd-story-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 56px;
+}
+
+.pd-story-grid > .chan {
+  grid-column: 1 / -1;
+  margin-bottom: clamp(8px, 2vw, 24px);
+}
+
+.pd-about {
+  grid-column: 1 / span 7;
+  display: grid;
+  gap: 20px;
+  max-width: 68ch;
+}
+
+.pd-about p {
+  font-size: var(--fs-body-l);
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.pd-about p:first-child {
+  font-family: var(--font-display);
+  font-size: var(--fs-m);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  color: var(--ink);
+  word-spacing: 0.06em;
+}
+
+.pd-side {
+  grid-column: 9 / -1;
+  display: grid;
+  align-content: start;
+  gap: 44px;
+}
+
+.pd-links {
+  border-top: 1px solid var(--line-ink);
+}
+
+.pd-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  border-bottom: 1px solid var(--line-ink);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--ink);
+  transition: font-weight var(--t-mid) var(--ease-out);
+}
+
+.pd-links a:hover,
+.pd-links a:focus-visible {
+  font-weight: 600;
+}
+
+.pd-links .btn-arrow {
+  color: var(--signal);
+}
+
+.pd-links a:hover .btn-arrow {
+  transform: translate(3px, -3px);
+}
+
+.pd-actions {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+/* Gallery ----------------------------------------------------------------- */
+
+.pd-gallery {
+  padding: 0 0 var(--section-y);
+}
+
+.pd-gallery-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 28px;
+  margin-bottom: clamp(32px, 4vw, 56px);
+  border-top: 1px solid var(--line-ink);
+}
+
+.pd-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(40px, 5vw, 72px) var(--gap);
+}
+
+.pd-figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.pd-figure[data-wide="true"] {
+  grid-column: 1 / -1;
+}
+
+.pd-figure .print {
+  --ar: 4 / 3;
+}
+
+.pd-figure[data-wide="true"] .print {
+  --ar: 16 / 9;
+}
+
+.pd-figure .print > video {
+  background: #000;
+}
+
+.pd-zoom {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.pd-zoom:focus-visible {
+  outline: none;
+}
+
+.pd-zoom:focus-visible .print {
+  outline: 2px solid var(--ink);
+  outline-offset: 6px;
+}
+
+@media (hover: hover) {
+  .pd-zoom:hover .print > img {
+    transform: scale(1.035);
+  }
+}
+
+.pd-figure figcaption {
+  display: flex;
+  gap: 14px;
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.pd-figure figcaption b {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+/* Outcome: the result, turned all the way up ------------------------------ */
+
+.pd-outcome {
+  padding: var(--section-y) 0;
+}
+
+.pd-outcome-grid {
+  display: grid;
+  gap: clamp(28px, 4vw, 48px);
+}
+
+.pd-outcome-text {
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.6vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  color: var(--ink);
+  text-wrap: balance;
+  word-spacing: 0.08em;
+}
+
+.pd-outcome-text[data-long] {
+  max-width: 34ch;
+  font-size: clamp(1.5rem, 2.8vw, 2.625rem);
+  line-height: 1.12;
+}
+
+/* Next project ------------------------------------------------------------ */
+
+.pd-next {
+  padding: clamp(72px, 8vw, 120px) 0;
+  border-top: 1px solid var(--line);
+}
+
+.pd-next-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.42fr);
+  align-items: end;
+  gap: 24px var(--gap);
+  color: var(--bone);
+}
+
+.pd-next-text {
+  display: grid;
+  gap: 20px;
+}
+
+.pd-next-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2em;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 9vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  font-weight: 250;
+  color: var(--bone-2);
+  overflow-wrap: anywhere;
+  transition:
+    font-weight 900ms var(--ease-out),
+    color 600ms var(--ease-out);
+}
+
+.pd-next-title .btn-arrow {
+  width: 0.36em;
+  height: 0.36em;
+  color: var(--signal);
+}
+
+.pd-next-link:hover .pd-next-title,
+.pd-next-link:focus-visible .pd-next-title {
+  font-weight: 600;
+  color: var(--bone);
+}
+
+.pd-next-link:hover .pd-next-title .btn-arrow {
+  transform: translate(6px, -6px);
+}
+
+.pd-next-link:focus-visible {
+  outline: none;
+}
+
+.pd-next-link:focus-visible .pd-next-title {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+  text-decoration-color: var(--signal);
+}
+
+.pd-next .print {
+  --ar: 4 / 3;
+  transition: opacity var(--t-mid) var(--ease-out);
+}
+
+.pd-next-link:hover .print > img {
+  transform: scale(1.04);
+}
+
+/* Lightbox ---------------------------------------------------------------- */
+
+.pd-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  background: rgba(13, 11, 10, 0.97);
+  color: var(--bone);
+}
+
+.pd-lb-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px var(--pad);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.pd-lb-bar b {
+  font-weight: 400;
+  color: var(--bone);
+}
+
+.pd-lb-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 4px;
+  background: none;
+  border: 0;
+  font: inherit;
+  color: var(--bone);
+  cursor: pointer;
+}
+
+.pd-lb-close:hover {
+  color: var(--signal);
+}
+
+.pd-lb-stage {
+  position: relative;
+  flex: 1;
+  margin: 0 clamp(12px, 6vw, 88px) clamp(12px, 3vw, 40px);
+}
+
+.pd-lb-nav {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: rgba(13, 11, 10, 0.6);
+  color: var(--bone);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    border-color var(--t-fast) var(--ease-out),
+    background-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.pd-lb-nav[data-dir="prev"] {
+  left: clamp(8px, 1.6vw, 24px);
+}
+
+.pd-lb-nav[data-dir="next"] {
+  right: clamp(8px, 1.6vw, 24px);
+}
+
+.pd-lb-nav[data-dir="prev"] .btn-arrow {
+  transform: rotate(-135deg);
+}
+
+.pd-lb-nav[data-dir="next"] .btn-arrow {
+  transform: rotate(45deg);
+}
+
+.pd-lb-nav:hover {
+  border-color: var(--signal);
+  background: var(--signal);
+  color: var(--ink);
+}
+
+/* Responsive -------------------------------------------------------------- */
+
+@media (max-width: 1099px) {
+  .pd-about,
+  .pd-side {
+    grid-column: 1 / -1;
+  }
+
+  .pd-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--gap);
+  }
+
+  .pd-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .pd-cover .print {
+    --ar: 4 / 3;
+    margin-inline: calc(var(--pad) * -1);
+  }
+
+  .pd-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-gallery-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-figure[data-wide="true"] .print {
+    --ar: 4 / 3;
+  }
+
+  .pd-next-link {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-next .print {
+    grid-row: 1;
+  }
+
+  .pd-lb-nav {
+    top: auto;
+    bottom: 16px;
+    transform: none;
+  }
+
+  .pd-lb-nav[data-dir="prev"] {
+    left: calc(50% - 60px);
+  }
+
+  .pd-lb-nav[data-dir="next"] {
+    right: calc(50% - 60px);
+  }
+
+  .pd-lb-stage {
+    margin-bottom: 84px;
+  }
+}

@@ -3,526 +3,245 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const NAV_LINKS = [
-  { label: "Home",     href: "/"         },
-  { label: "Projects", href: "/projects" },
-  { label: "Products", href: "/products" },
-  { label: "Services", href: "/services" },
-  { label: "About",    href: "/about"    },
-  { label: "Contact",  href: "/contact"  },
-];
+import { Arrow } from "@/components/site/icons";
+import { NAV_LINKS, isActive } from "@/components/site/nav-links";
+import type { SocialLink } from "@/lib/types";
 
-/** A link stays active on its nested pages too (e.g. /services/[slug]). */
-function isActive(pathname: string | null, href: string) {
-  if (!pathname) return false;
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** The label twice: the roll slides the first up and the second in. */
+function Roll({ children }: { children: string }) {
+  return (
+    <span className="roll">
+      <span>{children}</span>
+      <span aria-hidden="true">{children}</span>
+    </span>
+  );
 }
 
-/** Labels past this length get a smaller type scale so they still fit. */
-const LONG_LABEL = 12;
-
-const SOCIAL_LINKS = [
-  { label: "Instagram", href: "https://instagram.com" },
-  { label: "Dribbble",  href: "https://dribbble.com"  },
-];
-
-export default function Navbar() {
+/**
+ * The site nav — the new bar and the old one, fused (styles/site/nav.css).
+ *
+ * Transparent over the page's dark masthead, carbon once you scroll, and the
+ * old solid orange bar once the masthead has gone (a page without one gets
+ * the orange bar straight away) — except over an orange ground, where it
+ * stays carbon so it doesn't disappear. The menu is always there and opens the old
+ * full-screen drawer. The static homepage runs the same design from
+ * public/landing (index.html, scripts/nav.js).
+ */
+export default function Navbar({ socialLinks = [] }: { socialLinks?: SocialLink[] }) {
   const pathname = usePathname();
-  const [open, setOpen]     = useState(false);
-  const [hidden, setHidden] = useState(false);
-  const lastScrollY = useRef(0);
+  const [bar, setBar] = useState({ scrolled: false, solid: false });
+  // The path the menu was opened on: following a link closes it by itself.
+  const [openAt, setOpenAt] = useState<string | null>(null);
+  const open = openAt !== null && openAt === pathname;
+  const headerRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Lock body scroll when drawer open
+  // Scrolled and past-the-masthead, read on the frame after each scroll.
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
-
-  // Close on Escape
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  // Scroll: hide on down, show on up
-  useEffect(() => {
-    let ticking = false;
-    const handle = () => {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        const y = window.scrollY;
-        if (y > lastScrollY.current && y > 80 && !open) setHidden(true);
-        else setHidden(false);
-        lastScrollY.current = y;
-        ticking = false;
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const header = headerRef.current;
+      const navH = header ? header.offsetHeight : 72;
+      const mast = document.querySelector("[data-mast]");
+      const scrolled = window.scrollY > 24;
+      // Over an orange ground the orange bar would vanish into it, so it
+      // goes back to carbon until the ground has passed.
+      const onOrange = [...document.querySelectorAll('[data-ground="signal"]')].some((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top < navH && r.bottom > navH / 2;
       });
+      const solid = (!mast || mast.getBoundingClientRect().bottom <= navH) && !onOrange;
+      setBar((prev) =>
+        prev.scrolled === scrolled && prev.solid === solid ? prev : { scrolled, solid },
+      );
     };
-    window.addEventListener("scroll", handle, { passive: true });
-    handle();
-    return () => window.removeEventListener("scroll", handle);
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    // A streamed page replaces its loading screen without a new pathname.
+    const swapped = new MutationObserver(schedule);
+    swapped.observe(document.body, { childList: true });
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      swapped.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [pathname]);
+
+  // While the drawer is open: the page can't scroll or take focus, Escape
+  // closes it, and Tab stays inside the header.
+  useEffect(() => {
+    if (!open) return;
+    const outside = [
+      document.getElementById("main"),
+      document.querySelector<HTMLElement>("footer.footer"),
+    ].filter((el): el is HTMLElement => Boolean(el));
+    outside.forEach((el) => (el.inert = true));
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpenAt(null);
+        toggleRef.current?.focus({ preventScroll: true });
+        return;
+      }
+      if (event.key !== "Tab" || !headerRef.current) return;
+      const items = [...headerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+        (el) => el.offsetParent !== null && !el.closest("[inert]"),
+      );
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      outside.forEach((el) => (el.inert = false));
+      document.body.style.overflow = previous;
+    };
   }, [open]);
+
+  const toggle = () => {
+    if (open) {
+      setOpenAt(null);
+      return;
+    }
+    setOpenAt(pathname);
+    window.setTimeout(() => {
+      menuRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus({ preventScroll: true });
+    }, 60);
+  };
+
+  const className = [
+    "nav sx",
+    bar.scrolled && "is-scrolled",
+    bar.solid && "is-solid",
+    open && "is-open",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <>
-      <style>{`
-        /* ── RESET ── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <header className={className} ref={headerRef}>
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
 
-        /* ══════════════════════════════════════
-           HEADER BAR
-        ══════════════════════════════════════ */
-        .nav-header {
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          z-index: 300;
-          height: 72px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 48px;
-          /* A solid orange bar, so links stay readable over any content. */
-          background: #ff6b00;
-          /* hide/show */
-          transform: translateY(0);
-          transition: transform 0.4s cubic-bezier(0.76,0,0.24,1), color 0.4s ease;
-        }
-        /* The open drawer has its own background; let the bar blend into it. */
-        .nav-header[data-open="true"] { background: transparent; }
-        .nav-header[data-hidden="true"]:not([data-open="true"]) {
-          transform: translateY(-100%);
-        }
-
-        /* ── LOGO ── */
-        .nav-logo {
-          display: flex;
-          align-items: center;
-          flex-shrink: 0;
-          line-height: 0;
-          position: relative;
-          z-index: 310;
-        }
-        /* White wordmark (1600 × 319); height sets the size. */
-        .nav-logo img {
-          display: block;
-          height: 26px;
-          width: auto;
-        }
-        .nav-logo:focus-visible {
-          outline: 2px solid #fff;
-          outline-offset: 6px;
-          border-radius: 2px;
-        }
-
-        /* ── DESKTOP NAV LINKS ── */
-        .nav-desktop {
-          display: flex;
-          align-items: center;
-          gap: clamp(18px, 3.2vw, 64px);
-          list-style: none;
-          transition: opacity 0.3s ease;
-        }
-        .nav-header[data-open="true"] .nav-desktop {
-          opacity: 0;
-          pointer-events: none;
-        }
-        .nav-desktop a {
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          text-decoration: none;
-          white-space: nowrap;
-          position: relative;
-          display: inline-flex;
-          flex-direction: column;
-          overflow: hidden;
-          transition: color 0.35s ease, opacity 0.2s ease;
-        }
-
-        /* Tighter tracking between the tablet breakpoint and 1100px, where the
-           six labels would otherwise crowd the burger. */
-        @media (max-width: 1100px) {
-          .nav-desktop a { letter-spacing: 0.12em; font-size: 10px; }
-        }
-        .nav-desktop a span {
-          transition: transform 0.4s cubic-bezier(0.76,0,0.24,1);
-        }
-        .nav-desktop a::after {
-          content: attr(data-text);
-          position: absolute;
-          top: 100%; left: 0;
-          width: 100%;
-          transition: transform 0.4s cubic-bezier(0.76,0,0.24,1);
-        }
-        .nav-desktop a:hover span,
-        .nav-desktop a:hover::after { transform: translateY(-100%); }
-
-        .nav-desktop a { color: #fff; opacity: 0.85; }
-        .nav-desktop a:hover { opacity: 1 !important; }
-
-        .nav-desktop a[data-active="true"] span,
-        .nav-desktop a[data-active="true"]::after {
-          text-decoration: line-through;
-          text-decoration-thickness: 0.1em;
-          text-decoration-color: rgba(255,255,255,0.5);
-        }
-
-        /* ── BURGER ── */
-        .nav-burger {
-          background: none; border: none;
-          padding: 6px; cursor: pointer;
-          display: flex; flex-direction: column;
-          gap: 6px; flex-shrink: 0;
-          position: relative; z-index: 310;
-        }
-        .nav-burger span {
-          display: block;
-          width: 26px; height: 1.5px;
-          transition: transform 0.35s ease, opacity 0.3s ease, background 0.35s ease;
-          transform-origin: center;
-        }
-        .nav-burger span { background: #fff; }
-
-        /* X animation */
-        .nav-burger[aria-expanded="true"] span:nth-child(1) {
-          transform: translateY(7.5px) rotate(45deg);
-        }
-        .nav-burger[aria-expanded="true"] span:nth-child(2) {
-          transform: translateY(-7.5px) rotate(-45deg);
-        }
-
-        /* ══════════════════════════════════════
-           FULLSCREEN DRAWER  (Image 1 style)
-           - Dark red-orange bg
-           - Giant centred nav links
-           - Bottom-left: phone + email
-           - Bottom-right: social links
-        ══════════════════════════════════════ */
-        .nav-drawer {
-          position: fixed;
-          inset: 0;
-          z-index: 290;
-          background: #c94000;          /* deep burnt-orange like Image 1 */
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-
-          /* slide from top */
-          transform: translateY(-100%);
-          transition: transform 0.55s cubic-bezier(0.76,0,0.24,1);
-          will-change: transform;
-        }
-        .nav-drawer[data-open="true"] {
-          transform: translateY(0);
-        }
-
-        /* ── Diagonal light beams (decorative, Image 1) ── */
-        .nav-drawer::before,
-        .nav-drawer::after {
-          content: "";
-          position: absolute;
-          pointer-events: none;
-        }
-        .nav-drawer::before {
-          top: -20%; left: 20%;
-          width: 55%; height: 160%;
-          background: linear-gradient(
-            105deg,
-            transparent 35%,
-            rgba(255,100,0,0.18) 50%,
-            transparent 65%
-          );
-          transform: rotate(-5deg);
-        }
-        .nav-drawer::after {
-          top: -20%; left: 55%;
-          width: 30%; height: 160%;
-          background: linear-gradient(
-            105deg,
-            transparent 30%,
-            rgba(255,120,20,0.10) 50%,
-            transparent 70%
-          );
-          transform: rotate(-5deg);
-        }
-
-        /* ── Link list — centred, giant ── */
-        .nav-drawer-links {
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          position: relative;
-          z-index: 2;
-        }
-
-        .nav-drawer-links li { overflow: hidden; }
-
-        .nav-drawer-links a {
-          display: inline-block;
-          /* Height term keeps all six links clear of the bottom bar on
-             shorter screens. */
-          font-size: clamp(40px, min(9vw, 10.5vh), 110px);
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          line-height: 1.05;
-          text-transform: uppercase;
-          text-decoration: none;
-          color: rgba(255,255,255,0.22);   /* dim by default like Image 1 */
-          position: relative;
-          overflow: hidden;
-          /* stagger slide-up */
-          transform: translateY(110%);
-          transition:
-            transform 0.55s cubic-bezier(0.76,0,0.24,1),
-            color 0.25s ease;
-        }
-
-        /* Longer labels drop a scale step so they never run off the edge of
-           the drawer. */
-        .nav-drawer-links a[data-long="true"] {
-          font-size: clamp(26px, 5.2vw, 64px);
-        }
-
-        /* inner text + clone for roll effect */
-        .nav-drawer-links a .dl-text {
-          display: block;
-          transition: transform 0.45s cubic-bezier(0.76,0,0.24,1);
-        }
-        .nav-drawer-links a .dl-clone {
-          position: absolute;
-          top: 100%; left: 0;
-          display: block;
-          transition: transform 0.45s cubic-bezier(0.76,0,0.24,1);
-          color: #fff;
-        }
-        .nav-drawer-links a:hover .dl-text  { transform: translateY(-100%); }
-        .nav-drawer-links a:hover .dl-clone { transform: translateY(-100%); }
-        .nav-drawer-links a:hover { color: #fff; }
-
-        /* active = strikethrough */
-        .nav-drawer-links a[data-active="true"] .dl-text,
-        .nav-drawer-links a[data-active="true"] .dl-clone {
-          text-decoration: line-through;
-          text-decoration-thickness: 0.04em;
-          text-decoration-color: rgba(255,255,255,0.45);
-        }
-        .nav-drawer-links a[data-active="true"] { color: rgba(255,255,255,0.50); }
-
-        /* staggered entrance when open */
-        .nav-drawer[data-open="true"] .nav-drawer-links li:nth-child(1) a {
-          transform: translateY(0); transition-delay: 0.08s;
-        }
-        .nav-drawer[data-open="true"] .nav-drawer-links li:nth-child(2) a {
-          transform: translateY(0); transition-delay: 0.14s;
-        }
-        .nav-drawer[data-open="true"] .nav-drawer-links li:nth-child(3) a {
-          transform: translateY(0); transition-delay: 0.20s;
-        }
-        .nav-drawer[data-open="true"] .nav-drawer-links li:nth-child(4) a {
-          transform: translateY(0); transition-delay: 0.26s;
-        }
-        .nav-drawer[data-open="true"] .nav-drawer-links li:nth-child(5) a {
-          transform: translateY(0); transition-delay: 0.32s;
-        }
-        .nav-drawer[data-open="true"] .nav-drawer-links li:nth-child(6) a {
-          transform: translateY(0); transition-delay: 0.38s;
-        }
-
-        /* ── DRAWER BOTTOM BAR ── */
-        .nav-drawer-bottom {
-          position: absolute;
-          bottom: 40px; left: 48px; right: 48px;
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          z-index: 2;
-          /* fade in after links */
-          opacity: 0;
-          transform: translateY(12px);
-          transition: opacity 0.4s ease 0.38s, transform 0.4s ease 0.38s;
-        }
-        .nav-drawer[data-open="true"] .nav-drawer-bottom {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        /* bottom-left: phone + email */
-        .nav-drawer-contact { display: flex; flex-direction: column; gap: 6px; }
-        .nav-drawer-phone {
-          font-size: 11px; font-weight: 600;
-          letter-spacing: 0.14em;
-          color: rgba(255,255,255,0.55);
-          text-decoration: none;
-          text-transform: uppercase;
-        }
-        .nav-drawer-email {
-          font-size: clamp(16px, 2vw, 22px);
-          font-weight: 700;
-          letter-spacing: -0.01em;
-          color: #fff;
-          text-decoration: none;
-          transition: opacity 0.2s ease;
-        }
-        .nav-drawer-email:hover { opacity: 0.75; }
-
-        /* bottom-right: social */
-        .nav-drawer-social { display: flex; gap: 32px; align-items: center; }
-        .nav-drawer-social a {
-          font-size: 10px; font-weight: 700;
-          letter-spacing: 0.20em; text-transform: uppercase;
-          color: rgba(255,255,255,0.75);
-          text-decoration: none;
-          display: flex; align-items: center; gap: 6px;
-          transition: color 0.2s ease;
-        }
-        .nav-drawer-social a:hover { color: #fff; }
-        .nav-drawer-social a::after {
-          content: "↗";
-          font-size: 12px;
-          opacity: 0.75;
-        }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 767px) {
-          .nav-header { padding: 0 20px; }
-          .nav-header { padding: 0 24px; }
-          .nav-desktop { display: none; }
-          .nav-logo img { height: 22px; }
-
-          .nav-drawer-bottom { left: 24px; right: 24px; bottom: 32px; }
-          .nav-drawer-social { gap: 20px; }
-          .nav-drawer-links a {
-            font-size: clamp(32px, min(12vw, 8.5vh), 80px);
-          }
-          .nav-drawer-links a[data-long="true"] {
-            font-size: clamp(22px, 6.4vw, 40px);
-          }
-
-          .nav-drawer-bottom { 
-            left: 24px; right: 24px; bottom: 32px; 
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-            text-align: center;
-          }
-          .nav-drawer-contact { align-items: center; }
-          .nav-drawer-social { 
-            gap: 20px; justify-content: center; flex-wrap: wrap;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .nav-drawer,
-          .nav-drawer-links a,
-          .nav-drawer-bottom { transition: none !important; }
-        }
-      `}</style>
-
-      {/* ── HEADER BAR ── */}
-      <header
-        className="nav-header"
-        data-open={String(open)}
-        data-hidden={String(hidden)}
-        role="banner"
-      >
-        <Link href="/" className="nav-logo" aria-label="Mark UI — home">
+      <div className="nav-bar">
+        <Link className="nav-logo" href="/" aria-label="Mark UI home">
           <Image
             src="/brand/markui-logo-white.png"
             alt="Mark UI"
             width={1600}
             height={319}
             sizes="130px"
-            priority
+            preload
           />
         </Link>
 
-        {/* Desktop links */}
-        <nav aria-label="Primary navigation">
-          <ul className="nav-desktop">
+        <nav className="nav-links" aria-label="Primary">
+          <ul className="nav-list">
             {NAV_LINKS.map(({ label, href }) => (
               <li key={href}>
                 <Link
+                  className="nav-link"
                   href={href}
-                  data-active={String(isActive(pathname, href))}
-                  data-text={label}
+                  aria-current={isActive(pathname, href) ? "page" : undefined}
                 >
-                  <span>{label}</span>
+                  <Roll>{label}</Roll>
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
 
-        {/* Burger — always visible */}
-        <button
-          className="nav-burger"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          aria-controls="nav-drawer"
-          onClick={() => setOpen(v => !v)}
-        >
-          <span />
-          <span />
-        </button>
-      </header>
-
-      {/* ══════════════════════════════════════
-          FULLSCREEN DRAWER
-      ══════════════════════════════════════ */}
-      <div
-        id="nav-drawer"
-        className="nav-drawer"
-        data-open={String(open)}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Navigation menu"
-        aria-hidden={!open}
-      >
-        {/* Giant centred nav links */}
-        <nav aria-label="Drawer navigation">
-          <ul className="nav-drawer-links">
-            {NAV_LINKS.map(({ label, href }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  data-active={String(isActive(pathname, href))}
-                  data-long={String(label.length > LONG_LABEL)}
-                  onClick={() => setOpen(false)}
-                >
-                  <span className="dl-text">{label}</span>
-                  <span className="dl-clone" aria-hidden="true">{label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Bottom bar — contact left, socials right */}
-        <div className="nav-drawer-bottom" aria-hidden="true">
-          <div className="nav-drawer-contact">
-            <a href="tel:+94760887702" className="nav-drawer-phone">+94 76 088 7702</a>
-            <a href="mailto:info@markui.lk" className="nav-drawer-email">
-              info@markui.lk
-            </a>
-          </div>
-          <div className="nav-drawer-social">
-            {SOCIAL_LINKS.map(({ label, href }) => (
-              <a key={label} href={href} target="_blank" rel="noopener noreferrer">
-                {label}
-              </a>
-            ))}
-          </div>
+        <div className="nav-actions">
+          <Link className="btn-signal nav-cta" href="/proposal">
+            Book a Call <Arrow />
+          </Link>
+          <button
+            ref={toggleRef}
+            className="nav-toggle"
+            type="button"
+            aria-expanded={open}
+            aria-controls="nav-menu"
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={toggle}
+          >
+            <span className="nav-toggle-text" aria-hidden="true">
+              {open ? "Close" : "Menu"}
+            </span>
+            <span className="nav-toggle-bars" aria-hidden="true">
+              <span />
+              <span />
+            </span>
+          </button>
         </div>
       </div>
-    </>
+
+      <div className="nav-menu" id="nav-menu" ref={menuRef} inert={!open}>
+        <nav className="nav-menu-inner" aria-label="Menu">
+          <ol className="nav-menu-list">
+            {NAV_LINKS.map(({ label, href }, i) => (
+              <li key={href}>
+                <Link
+                  className="nav-menu-link"
+                  href={href}
+                  aria-current={isActive(pathname, href) ? "page" : undefined}
+                  onClick={() => setOpenAt(null)}
+                >
+                  <Roll>{label}</Roll>
+                  <span className="nav-menu-num" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+
+          <div className="nav-menu-foot">
+            <div className="nav-menu-reach">
+              <a className="nav-menu-phone" href="tel:+94760887702">
+                +94 76 088 7702
+              </a>
+              <a className="nav-menu-email" href="mailto:info@markui.lk">
+                info@markui.lk
+              </a>
+            </div>
+            {socialLinks.length ? (
+              <ul className="nav-menu-social" aria-label="Social media">
+                {socialLinks.map((s) => (
+                  <li key={`${s.label}-${s.url}`}>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer">
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        </nav>
+      </div>
+    </header>
   );
 }

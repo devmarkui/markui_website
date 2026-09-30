@@ -12,9 +12,5 @@ export const metadata: Metadata = {
 export default async function ProductsPage() {
   const products = await getProducts();
 
-  return (
-    <main className="overflow-x-hidden">
-      <ProductsList products={products} />
-    </main>
-  );
+  return <ProductsList products={products} />;
 }

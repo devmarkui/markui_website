@@ -1,368 +1,144 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
+import { useSeen } from "@/components/site/hooks";
+import { Arrow } from "@/components/site/icons";
+import { NAV_LINKS, isActive } from "@/components/site/nav-links";
 import type { SocialLink } from "@/lib/types";
 
-const NAV_LINKS = [
-  { label: "Home",     href: "/"         },
-  { label: "Projects", href: "/projects" },
-  { label: "Products", href: "/products" },
-  { label: "Services", href: "/services" },
-  { label: "About",    href: "/about"    },
-  { label: "Contact",  href: "/contact"  },
-];
+export interface FooterService {
+  name: string;
+  slug: string;
+}
 
-export default function Footer({ socialLinks }: { socialLinks: SocialLink[] }) {
-  const ref    = useRef<HTMLElement>(null);
-  const [rev, setRev] = useState(0);
-
-  /* Scroll-reveal: slides up as footer enters viewport */
-  useEffect(() => {
-    const onScroll = () => {
-      const el = ref.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const prog = Math.min(Math.max((window.innerHeight - rect.top) / (window.innerHeight * 0.5), 0), 1);
-      setRev(prog);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+/**
+ * The homepage's footer on every page (styles/site/footer.css): the brand
+ * and the call, navigation, services, contact and social, then the finale —
+ * "Less Noise. More Impact" — which docks its full stop as it comes into view.
+ */
+export default function Footer({
+  socialLinks,
+  services,
+}: {
+  socialLinks: SocialLink[];
+  services: FooterService[];
+}) {
+  const pathname = usePathname();
+  const [finaleRef, docked] = useSeen<HTMLParagraphElement>("0px 0px -20% 0px");
   const year = new Date().getFullYear();
 
   return (
-    <>
-      <style>{`
-        /* ═══════════════════════════════════════════
-           FOOTER
-        ═══════════════════════════════════════════ */
-        .ft-root {
-          background: #0c0c0c;
-          position: relative;
-          overflow: hidden;
-          will-change: transform, opacity;
-        }
-
-        /* noise layer */
-        .ft-root::before {
-          content: "";
-          position: absolute; inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-          pointer-events: none; z-index: 0;
-        }
-
-        /* ── TOP GRID ────────────────────────────── */
-        .ft-grid {
-          position: relative; z-index: 1;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 40px 24px;
-          padding: 52px 24px 44px;
-          border-bottom: 1px solid rgba(255,255,255,0.07);
-          max-width: 1440px; margin: 0 auto;
-        }
-
-        .ft-col { display: flex; flex-direction: column; gap: 14px; }
-
-        /* Phones: contact spans the row; navigation and Back to Top share the next. */
-        @media (max-width: 899px) {
-          .ft-grid > .ft-col:first-child { grid-column: 1 / -1; }
-          .ft-col-top { align-items: flex-end; }
-        }
-
-        .ft-col-label {
-          display: flex; align-items: center; gap: 8px;
-          font-size: 9px; font-weight: 700;
-          letter-spacing: 0.18em; text-transform: uppercase;
-          color: rgba(255,255,255,0.30);
-        }
-        .ft-label-star { color: #ff6b00; font-size: 10px; }
-
-        /* contact col */
-        .ft-phone {
-          font-size: 13px; font-weight: 400;
-          color: rgba(255,255,255,0.50);
-          text-decoration: none; letter-spacing: 0.04em;
-          transition: color 0.18s ease;
-        }
-        .ft-phone:hover { color: #fff; }
-
-        .ft-email {
-          font-size: clamp(16px, 3.8vw, 24px);
-          font-weight: 500; color: #fff;
-          text-decoration: none; letter-spacing: -0.01em;
-          line-height: 1.2; word-break: break-all;
-          transition: color 0.18s ease;
-        }
-        .ft-email:hover { color: rgba(255,255,255,0.65); }
-
-        /* social — a single quiet row under the contact details */
-        .ft-social { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 2px; }
-        .ft-social .ft-link { font-size: 12px; letter-spacing: 0.1em; }
-
-        /* map link */
-        .ft-map {
-          display: block;
-          position: relative;
-          overflow: hidden;
-          border-radius: 6px;
-          margin-top: 12px;
-          height: 150px;
-          opacity: 0.55;
-          transition: opacity 0.3s ease;
-        }
-        .ft-map:hover {
-          opacity: 1;
-        }
-
-        /* nav links */
-        .ft-nav { display: flex; flex-direction: column; gap: 10px; }
-
-        .ft-link {
-          font-size: clamp(13px, 3.5vw, 15px);
-          font-weight: 500; text-transform: uppercase;
-          color: rgba(255,255,255,0.50);
-          text-decoration: none; letter-spacing: 0.06em;
-          display: inline-flex; align-items: center; gap: 6px;
-          width: fit-content;
-          transition: color 0.18s ease;
-        }
-        .ft-link:hover { color: #fff; }
-
-        .ft-link-arrow {
-          font-size: 11px; color: rgba(255,255,255,0.25);
-          transition: color 0.18s ease, transform 0.18s ease;
-        }
-        .ft-link:hover .ft-link-arrow {
-          color: #ff6b00; transform: translate(2px,-2px);
-        }
-
-        /* back to top */
-        .ft-col-top { align-items: flex-start; justify-content: flex-start; }
-
-        .ft-top-btn {
-          display: inline-flex; align-items: center; gap: 10px;
-          background: transparent;
-          border: 1px solid rgba(255,255,255,0.14);
-          border-radius: 999px; padding: 11px 20px;
-          font-size: 10px; font-weight: 600;
-          letter-spacing: 0.10em; text-transform: uppercase;
-          color: rgba(255,255,255,0.50); cursor: pointer;
-          transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
-          -webkit-tap-highlight-color: transparent;
-          white-space: nowrap;
-        }
-        .ft-top-btn:hover {
-          border-color: rgba(255,255,255,0.32);
-          color: #fff;
-          background: rgba(255,255,255,0.04);
-        }
-        .ft-top-arrow { font-size: 14px; transition: transform 0.18s ease; }
-        .ft-top-btn:hover .ft-top-arrow { transform: translateY(-3px); }
-
-        /* ── WORDMARK ────────────────────────────── */
-        .ft-wordmark-wrap {
-          position: relative; z-index: 1;
-          display: flex; align-items: flex-end;
-          padding: 0 24px; overflow: hidden;
-          line-height: 0.85;
-          max-width: 1440px; margin: 0 auto;
-          user-select: none; pointer-events: none;
-        }
-        .ft-wordmark {
-          font-size: clamp(72px, 17vw, 200px);
-          font-weight: 900; letter-spacing: -0.02em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.05);
-          line-height: 1; display: block;
-        }
-        .ft-wordmark-r {
-          font-size: clamp(36px, 8.5vw, 100px);
-          font-weight: 700; color: rgba(255,255,255,0.05);
-          line-height: 1; margin-left: 4px;
-          align-self: flex-start;
-          margin-top: clamp(10px, 2.5vw, 24px);
-        }
-
-        /* ── BOTTOM BAR ──────────────────────────── */
-        .ft-bottom {
-          position: relative; z-index: 1;
-          display: flex; align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap; gap: 12px;
-          padding: 18px 24px 28px;
-          border-top: 1px solid rgba(255,255,255,0.06);
-          max-width: 1440px; margin: 0 auto;
-        }
-        .ft-copy {
-          font-size: 10px; font-weight: 400;
-          letter-spacing: 0.06em;
-          color: rgba(255,255,255,0.22);
-        }
-        .ft-bottom-links { display: flex; gap: 20px; }
-        .ft-bottom-link {
-          font-size: 10px; font-weight: 400;
-          letter-spacing: 0.06em;
-          color: rgba(255,255,255,0.22);
-          text-decoration: none;
-          transition: color 0.18s ease;
-        }
-        .ft-bottom-link:hover { color: rgba(255,255,255,0.55); }
-
-        /* Staff entry point — present but understated. */
-        .ft-admin-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-        }
-        .ft-admin-link::before {
-          content: "";
-          width: 4px; height: 4px;
-          border-radius: 50%;
-          background: currentColor;
-          opacity: 0.5;
-        }
-        .ft-admin-link:hover { color: #ff6b00; }
-
-        /* ── DESKTOP ────────────────────────────── */
-        @media (min-width: 900px) {
-          .ft-grid {
-            grid-template-columns: 1.6fr 1fr auto;
-            gap: 0;
-            padding: 60px 64px 52px;
-          }
-          .ft-col { padding-right: 48px; }
-          .ft-col + .ft-col {
-            border-left: 1px solid rgba(255,255,255,0.06);
-            padding-left: 48px; padding-right: 0;
-          }
-          .ft-col-top { padding-left: 48px; }
-          .ft-wordmark-wrap { padding: 0 64px; }
-          .ft-bottom { padding: 20px 64px 32px; }
-        }
-
-        /* ── FOCUS VISIBLE ───────────────────────── */
-        .ft-top-btn:focus-visible,
-        .ft-link:focus-visible,
-        .ft-bottom-link:focus-visible {
-          outline: 2px solid rgba(255,255,255,0.55);
-          outline-offset: 3px;
-          border-radius: 4px;
-        }
-
-        /* ── REDUCED MOTION ──────────────────────── */
-        @media (prefers-reduced-motion: reduce) {
-          .ft-root { transform: none !important; opacity: 1 !important; }
-          * { transition-duration: 0.01ms !important; }
-        }
-      `}</style>
-
-      <footer
-        ref={ref}
-        className="ft-root"
-        style={{
-          transform: `translateY(${(1 - rev) * 56}px)`,
-          opacity: rev,
-        }}
-        aria-label="Site footer"
-      >
-        {/* ── Top grid ── */}
-        <div className="ft-grid">
-
-          {/* Contact */}
-          <div className="ft-col">
-            <div className="ft-col-label">
-              <span className="ft-label-star" aria-hidden="true">✦</span>
-              Contact
-            </div>
-            <a href="tel:+94760887702" className="ft-phone">+94 76 088 7702</a>
-            <a href="mailto:info@markui.lk" className="ft-email">
-              info@markui.lk
-            </a>
-            {socialLinks.length ? (
-              <nav className="ft-social" aria-label="Social media links">
-                {socialLinks.map(s => (
-                  <a key={`${s.label}-${s.url}`} href={s.url}
-                    className="ft-link" target="_blank" rel="noopener noreferrer">
-                    {s.label}
-                    <span className="ft-link-arrow" aria-hidden="true">↗</span>
-                  </a>
-                ))}
-              </nav>
-            ) : null}
-            <a 
-              href="https://maps.app.goo.gl/foPg5arqickUWhzL7"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ft-map"
-              aria-label="Open Mark UI Location on Google Maps"
-            >
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.595254377219!2d79.8902469747572!3d6.93888029306115!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae259003bca9245%3A0xd6d8c6b7efe210b9!2sMark%20UI!5e0!3m2!1sen!2slk!4v1781771867613!5m2!1sen!2slk" 
-                width="100%" 
-                height="100%" 
-                style={{ border: 0, filter: "invert(90%) grayscale(100%)", transform: "scale(1.5)", pointerEvents: "none" }} 
-                allowFullScreen={false} 
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Mark UI Location"
-              ></iframe>
-            </a>
-          </div>
-
-          {/* Navigation */}
-          <div className="ft-col">
-            <div className="ft-col-label">
-              <span className="ft-label-star" aria-hidden="true">✦</span>
-              Navigation
-            </div>
-            <nav className="ft-nav" aria-label="Footer navigation">
-              {NAV_LINKS.map(({ label, href }) => (
-                <Link key={href} href={href} className="ft-link">
-                  {label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Back to top */}
-          <div className="ft-col ft-col-top">
-            <button className="ft-top-btn" onClick={scrollTop} aria-label="Scroll back to top">
-              Back to Top
-              <span className="ft-top-arrow" aria-hidden="true">↑</span>
-            </button>
-          </div>
-
-        </div>
-
-        {/* Wordmark */}
-        <div className="ft-wordmark-wrap" aria-hidden="true">
-          <span className="ft-wordmark">MARK UI</span>
-          <span className="ft-wordmark-r">®</span>
-        </div>
-
-        {/* Bottom bar */}
-        <div className="ft-bottom">
-          <span className="ft-copy">© {year} Mark UI · All Rights Reserved</span>
-          <div className="ft-bottom-links">
-            <Link href="/terms" className="ft-bottom-link">Terms of Service</Link>
-            <Link href="/privacy" className="ft-bottom-link">Privacy Policy</Link>
-            <Link
-              href="/admin/login"
-              className="ft-bottom-link ft-admin-link"
-              rel="nofollow"
-            >
-              Admin Login
+    <footer className="footer sx">
+      <div className="footer-inner">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <Link className="footer-logo" href="/" aria-label="Mark UI home">
+              <Image src="/brand/markui-logo-white.png" alt="Mark UI" width={1600} height={319} sizes="140px" />
+            </Link>
+            <p className="footer-note">
+              Creative technology studio. Design, web and software, marketing, media and events under one roof.
+            </p>
+            <Link className="btn-signal" href="/proposal">
+              Book a Call <Arrow />
             </Link>
           </div>
+
+          <nav className="footer-col footer-col-nav" aria-labelledby="footer-nav-title">
+            <p className="footer-title" id="footer-nav-title">
+              Navigate
+            </p>
+            <ul className="footer-list">
+              {NAV_LINKS.map(({ label, href }) => (
+                <li key={href}>
+                  <Link
+                    className="footer-link"
+                    href={href}
+                    aria-current={isActive(pathname, href) ? "page" : undefined}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {services.length ? (
+            <nav className="footer-col footer-col-services" aria-labelledby="footer-services-title">
+              <p className="footer-title" id="footer-services-title">
+                Services
+              </p>
+              <ul className="footer-list">
+                {services.map((service) => (
+                  <li key={service.slug}>
+                    <Link className="footer-link" href={`/services/${service.slug}`}>
+                      {service.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
+
+          <div className="footer-col footer-col-contact">
+            <p className="footer-title">Contact</p>
+            <ul className="footer-list">
+              <li>
+                <a className="footer-link" href="mailto:info@markui.lk">
+                  info@markui.lk
+                </a>
+              </li>
+              <li>
+                <a className="footer-link" href="tel:+94760887702">
+                  +94 76 088 7702
+                </a>
+              </li>
+              <li>
+                <span className="footer-plain">Colombo, Sri Lanka</span>
+              </li>
+            </ul>
+            {socialLinks.length ? (
+              <>
+                <p className="footer-title">Follow</p>
+                <ul className="footer-list">
+                  {socialLinks.map((s) => (
+                    <li key={`${s.label}-${s.url}`}>
+                      <a className="footer-link" href={s.url} target="_blank" rel="noopener noreferrer">
+                        {s.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </div>
         </div>
 
-      </footer>
-    </>
+        <p className={docked ? "finale is-docked" : "finale"} ref={finaleRef}>
+          <span className="finale-kicker" aria-hidden="true">
+            <span className="finale-led" />
+            Signal received
+          </span>
+          <span className="finale-q">
+            Less Noise<span className="finale-q-stop">.</span>
+          </span>{" "}
+          <span className="finale-l">
+            <span className="finale-word">More Impact</span>
+            <span className="finale-stop" aria-hidden="true" />
+            <span className="sr-only">.</span>
+          </span>
+        </p>
+
+        <div className="footer-bottom">
+          <p>© {year} Mark UI. All rights reserved.</p>
+          <p>Colombo · Since 2023</p>
+          <a className="footer-top-link" href="#main">
+            Back to top <Arrow className="btn-arrow footer-up" />
+          </a>
+        </div>
+      </div>
+    </footer>
   );
 }

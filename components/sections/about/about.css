@@ -1,0 +1,496 @@
+/* ==========================================================================
+   About — the studio, told in the homepage's volumes: the story, the
+   numbers turned up, the approach as noise resolving into one clean
+   signal, the difference, the values on orange, expertise and the team.
+   ========================================================================== */
+
+/* Story ------------------------------------------------------------------- */
+
+.ab-story {
+  padding: var(--section-y) 0;
+}
+
+.ab-story-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 40px;
+}
+
+.ab-story-grid > .chan {
+  grid-column: 1 / span 3;
+  align-self: start;
+  margin-top: 0.7em;
+}
+
+.ab-story-text {
+  grid-column: 4 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 24px;
+}
+
+.ab-story-lead {
+  grid-column: 1 / -1;
+  max-width: 26ch;
+  margin-bottom: clamp(16px, 3vw, 40px);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.2vw, 4.25rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 300;
+  color: var(--bone);
+  word-spacing: 0.08em;
+  text-wrap: balance;
+}
+
+.ab-story-text p:not(.ab-story-lead) {
+  max-width: 46ch;
+  font-size: var(--fs-body-l);
+  line-height: 1.6;
+  color: var(--bone-2);
+}
+
+/* Numbers ----------------------------------------------------------------- */
+
+.ab-proof {
+  padding: 0 0 var(--section-y);
+}
+
+.ab-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+
+.ab-stat {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 24px var(--gap) 0 0;
+}
+
+.ab-stat + .ab-stat {
+  padding-left: var(--gap);
+  border-left: 1px solid var(--line);
+}
+
+.ab-stat dt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.ab-stat-value {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-weight: var(--w-loud);
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.ab-stat-value .unit {
+  color: var(--signal);
+}
+
+.ab-stat-suffix {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+}
+
+.ab-stat-note {
+  max-width: 28ch;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ash);
+}
+
+/* Approach: noise in, one clean signal out -------------------------------- */
+
+.ab-approach {
+  padding: var(--section-y) 0 clamp(96px, 10vw, 150px);
+  overflow: clip;
+}
+
+.ab-wave {
+  display: block;
+  width: 100%;
+  height: clamp(120px, 13vw, 200px);
+  margin-top: clamp(24px, 4vw, 56px);
+  overflow: visible;
+}
+
+.ab-wave-ghost {
+  fill: none;
+  stroke: rgba(21, 17, 14, 0.1);
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.ab-wave-path {
+  fill: none;
+  stroke-width: 2.25;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .ab-wave .ab-wave-path {
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 2600ms var(--ease-out) 200ms;
+  }
+
+  .js .ab-wave.is-in .ab-wave-path {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ab-steps {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+  column-gap: var(--gap);
+  margin-top: 28px;
+  border-top: 1px solid var(--line-ink);
+}
+
+.ab-step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding-top: 24px;
+}
+
+.ab-step::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -15px;
+  width: 1px;
+  height: 14px;
+  background: var(--ink);
+}
+
+.ab-step-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+/* Each stage a little louder than the one before (--s: 0 → 1). */
+.ab-step-name {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.6vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-weight: calc(200 + var(--s, 1) * 400);
+  color: color-mix(in oklab, var(--ink) calc(55% + var(--s, 1) * 45%), var(--ink-soft));
+  word-spacing: 0.09em;
+}
+
+.ab-step-text {
+  max-width: 28ch;
+  color: var(--ink-soft);
+}
+
+.ab-step:last-child .ab-step-num {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+}
+
+.ab-step:last-child .ab-step-num::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--signal);
+}
+
+/* The difference ---------------------------------------------------------- */
+
+.ab-diff {
+  padding: var(--section-y) 0;
+}
+
+.ab-rows {
+  border-bottom: 1px solid var(--line);
+}
+
+.ab-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  padding: clamp(24px, 2.6vw, 40px) 0;
+  border-top: 1px solid var(--line);
+  isolation: isolate;
+}
+
+.ab-row::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 calc(var(--pad) / -2 + 9px);
+  background: var(--bone);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 760ms var(--ease-out);
+}
+
+.ab-row-num {
+  grid-column: 1;
+  padding-top: 0.9em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--ash-dim);
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.ab-row-title {
+  grid-column: 2 / span 6;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.6vw, 3.5rem);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  font-weight: 300;
+  color: var(--ash);
+  word-spacing: 0.09em;
+  transition:
+    font-weight 800ms var(--ease-out),
+    color 500ms var(--ease-out);
+}
+
+.ab-row-text {
+  grid-column: 8 / span 5;
+  max-width: 44ch;
+  padding-top: 0.5em;
+  color: var(--ash);
+  transition: color var(--t-mid) var(--ease-out);
+}
+
+.ab-row:hover::before {
+  transform: scaleX(1);
+}
+
+.ab-row:hover .ab-row-num,
+.ab-row:hover .ab-row-title,
+.ab-row:hover .ab-row-text {
+  color: var(--ink);
+}
+
+.ab-row:hover .ab-row-title {
+  font-weight: 600;
+}
+
+/* Values on orange -------------------------------------------------------- */
+
+.ab-values {
+  padding: var(--section-y) 0;
+}
+
+.ab-values-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+  border-top: 1px solid var(--rule);
+}
+
+.ab-value {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 28px var(--gap) 8px 0;
+}
+
+.ab-value + .ab-value {
+  padding-left: var(--gap);
+  border-left: 1px solid var(--rule);
+}
+
+.ab-value-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  color: var(--fg-3);
+}
+
+.ab-value-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.4vw, 3.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ab-value-text {
+  max-width: 30ch;
+  color: var(--fg-2);
+}
+
+/* Expertise and team ------------------------------------------------------ */
+
+.ab-expertise {
+  padding: var(--section-y) 0 0;
+}
+
+.ab-team {
+  padding: var(--section-y) 0;
+}
+
+.ab-team-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 32px;
+  align-items: end;
+}
+
+.ab-team-grid > .chan {
+  grid-column: 1 / -1;
+}
+
+.ab-team-mark {
+  grid-column: 1 / span 6;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 13vw, 13rem);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  font-weight: 200;
+  color: var(--ash-dim);
+}
+
+.ab-team-mark b {
+  font-weight: 600;
+  color: var(--bone);
+}
+
+.ab-team-side {
+  grid-column: 8 / -1;
+  display: grid;
+  justify-items: start;
+  gap: 20px;
+}
+
+.ab-team-side h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-m);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  color: var(--bone);
+}
+
+.ab-team-side p {
+  max-width: 40ch;
+  color: var(--ash);
+}
+
+/* Responsive -------------------------------------------------------------- */
+
+@media (max-width: 1099px) {
+  .ab-story-grid > .chan,
+  .ab-story-text,
+  .ab-team-mark,
+  .ab-team-side {
+    grid-column: 1 / -1;
+  }
+
+  .ab-proof-grid,
+  .ab-values-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ab-stat:nth-child(odd),
+  .ab-value:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .ab-stat:nth-child(n + 3),
+  .ab-value:nth-child(n + 3) {
+    margin-top: 32px;
+  }
+
+  .ab-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 48px;
+  }
+
+  .ab-row {
+    grid-template-columns: 48px minmax(0, 1fr);
+    row-gap: 14px;
+  }
+
+  .ab-row-num {
+    grid-column: 1;
+  }
+
+  .ab-row-title,
+  .ab-row-text {
+    grid-column: 2;
+  }
+
+  .ab-row-text {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .ab-story-text {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ab-proof-grid,
+  .ab-values-grid,
+  .ab-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ab-stat,
+  .ab-stat + .ab-stat,
+  .ab-value,
+  .ab-value + .ab-value {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .ab-stat + .ab-stat,
+  .ab-value + .ab-value {
+    margin-top: 12px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .ab-step::before {
+    display: none;
+  }
+
+  .ab-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ab-row-num,
+  .ab-row-title,
+  .ab-row-text {
+    grid-column: 1;
+  }
+
+  .ab-row-num {
+    padding-top: 0;
+  }
+}

@@ -26,9 +26,5 @@ export default async function ProjectsPage({
     searchParams,
   ]);
 
-  return (
-    <main className="overflow-x-hidden">
-      <ProjectsPortfolio projects={projects} initialFilter={toFilter(category)} />
-    </main>
-  );
+  return <ProjectsPortfolio projects={projects} initialFilter={toFilter(category)} />;
 }

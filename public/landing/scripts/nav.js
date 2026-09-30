@@ -1,5 +1,10 @@
-// Nav: scrolled state and the mobile menu (Escape closes, focus is kept
-// inside the header while open and returned to the toggle afterwards).
+// Nav: the new bar and the old one, fused. At the top it is clear over the
+// hero; scrolled, it closes in (carbon); past the hero it turns into the old
+// orange bar (.is-solid), except over the orange reviews ground. The menu,
+// the old full-screen drawer, is there at every width (Escape closes, focus
+// is kept inside the header while open and returned to the toggle
+// afterwards). The React pages run the same design from
+// components/layout/Navbar.tsx.
 
 import { once } from "./ticker.js";
 
@@ -11,17 +16,33 @@ export function initNav() {
   const toggle = nav.querySelector("[data-nav-toggle]");
   const label = nav.querySelector("[data-nav-toggle-text]");
   const menu = nav.querySelector("[data-nav-menu]");
+  const hero = document.querySelector("[data-hero]");
+  // The orange grounds (the reviews): the orange bar would vanish into them.
+  const orange = [...document.querySelectorAll(".voices")];
   const outside = [document.getElementById("main"), document.querySelector("footer"), document.querySelector(".skip-link")].filter(Boolean);
 
-  // Scrolled state (on the shared frame loop)
+  // Scrolled and past-the-hero (on the shared frame loop)
   let scrolled = null;
+  let solid = null;
   const update = () => {
-    const next = window.scrollY > 24;
-    if (next === scrolled) return;
-    scrolled = next;
-    nav.classList.toggle("is-scrolled", next);
+    const nextScrolled = window.scrollY > 24;
+    const navH = nav.firstElementChild.offsetHeight;
+    const onOrange = orange.some((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top < navH && r.bottom > navH / 2;
+    });
+    const nextSolid = (!hero || hero.getBoundingClientRect().bottom <= navH) && !onOrange;
+    if (nextScrolled !== scrolled) {
+      scrolled = nextScrolled;
+      nav.classList.toggle("is-scrolled", nextScrolled);
+    }
+    if (nextSolid !== solid) {
+      solid = nextSolid;
+      nav.classList.toggle("is-solid", nextSolid);
+    }
   };
   window.addEventListener("scroll", () => once(update), { passive: true });
+  window.addEventListener("resize", () => once(update));
   update();
 
   // Menu
@@ -81,9 +102,5 @@ export function initNav() {
 
   menu.addEventListener("click", (event) => {
     if (event.target.closest("a")) close({ restoreFocus: false });
-  });
-
-  window.matchMedia("(min-width: 1100px)").addEventListener("change", (event) => {
-    if (event.matches) close({ restoreFocus: false });
   });
 }
