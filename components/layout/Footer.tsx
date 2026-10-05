@@ -7,7 +7,8 @@ import { usePathname } from "next/navigation";
 import { useSeen } from "@/components/site/hooks";
 import { Arrow } from "@/components/site/icons";
 import { NAV_LINKS, isActive } from "@/components/site/nav-links";
-import type { SocialLink } from "@/lib/types";
+import { BOOK_CALL_HREF, mailHref, phoneLines, telHref } from "@/lib/contact-details";
+import type { ContactDetails, SocialLink } from "@/lib/types";
 
 export interface FooterService {
   name: string;
@@ -21,10 +22,16 @@ export interface FooterService {
  */
 export default function Footer({
   socialLinks,
+  contact,
   services,
+  note,
 }: {
   socialLinks: SocialLink[];
+  /** Managed in the dashboard (Contact Details). */
+  contact: ContactDetails;
   services: FooterService[];
+  /** The sentence under the logo, managed in the dashboard (Page Text). */
+  note: string;
 }) {
   const pathname = usePathname();
   const [finaleRef, docked] = useSeen<HTMLParagraphElement>("0px 0px -20% 0px");
@@ -38,10 +45,8 @@ export default function Footer({
             <Link className="footer-logo" href="/" aria-label="Mark UI home">
               <Image src="/brand/markui-logo-white.png" alt="Mark UI" width={1600} height={319} sizes="140px" />
             </Link>
-            <p className="footer-note">
-              Creative technology studio. Design, web and software, marketing, media and events under one roof.
-            </p>
-            <Link className="btn-signal" href="/proposal">
+            <p className="footer-note">{note}</p>
+            <Link className="btn-signal" href={BOOK_CALL_HREF}>
               Book a Call <Arrow />
             </Link>
           </div>
@@ -85,18 +90,20 @@ export default function Footer({
           <div className="footer-col footer-col-contact">
             <p className="footer-title">Contact</p>
             <ul className="footer-list">
+              {phoneLines(contact).map((line) => (
+                <li key={line.tel}>
+                  <a className="footer-link" href={telHref(line)}>
+                    {line.label}
+                  </a>
+                </li>
+              ))}
               <li>
-                <a className="footer-link" href="mailto:info@markui.lk">
-                  info@markui.lk
+                <a className="footer-link" href={mailHref(contact.email)}>
+                  {contact.email}
                 </a>
               </li>
               <li>
-                <a className="footer-link" href="tel:+94760887702">
-                  +94 76 088 7702
-                </a>
-              </li>
-              <li>
-                <span className="footer-plain">Colombo, Sri Lanka</span>
+                <span className="footer-plain">{contact.location}</span>
               </li>
             </ul>
             {socialLinks.length ? (

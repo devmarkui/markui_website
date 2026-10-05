@@ -19,7 +19,7 @@ export function initReveal() {
         revealer.unobserve(entry.target);
       }
     },
-    { rootMargin: "0px 0px -10% 0px", threshold: 0.08 },
+    { rootMargin: "0px 0px -4% 0px", threshold: 0 },
   );
   targets.forEach((el) => revealer.observe(el));
 

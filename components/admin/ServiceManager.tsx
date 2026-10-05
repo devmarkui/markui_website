@@ -74,8 +74,10 @@ export default function ServiceManager({
           <h1 className="ad-title">Services</h1>
           <p className="ad-subtitle">
             Each service has its own public page at <code>/services/…</code>.
-            Changes here update the Services page, the home page section and the
-            service&rsquo;s own page immediately.
+            Changes here update the Services page, the homepage&rsquo;s
+            services list, the footer and the service&rsquo;s own page
+            immediately. The homepage headline counts them (&ldquo;Seven
+            disciplines.&rdquo;), so adding or hiding one changes it.
           </p>
         </div>
         <button
@@ -389,7 +391,7 @@ function ServiceEditor({
 
               <div className="ad-field ad-field--full">
                 <label className="ad-label" htmlFor="sv-features">
-                  What we offer <span>(one per line)</span>
+                  What we offer <span>(one per line; the homepage lists the first six)</span>
                 </label>
                 <textarea
                   id="sv-features"
@@ -461,7 +463,10 @@ function ServiceEditor({
                   defaultValue={service?.icon ?? "◆"}
                   placeholder="◎"
                 />
-                <p className="ad-hint">Shown when there is no image.</p>
+                <p className="ad-hint">
+                  One character. Used in this dashboard&rsquo;s lists; the
+                  website itself does not show it.
+                </p>
               </div>
 
               <div className="ad-field">
@@ -504,7 +509,8 @@ function ServiceEditor({
                   }}
                 />
                 <p className="ad-hint">
-                  Used on the service card and as the hero background.
+                  Washed in behind the title at the top of the
+                  service&rsquo;s own page. A wide, dark picture works best.
                 </p>
 
                 {service?.image && !newImage ? (

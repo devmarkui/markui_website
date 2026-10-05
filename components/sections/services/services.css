@@ -2,7 +2,9 @@
    Services — one channel per service. Each band sits quiet (weight 300,
    ash) until you reach it, then turns up: the name swells to 600, the LED
    and the feature ticks light. A sticky channel bar follows you down the
-   page and jumps to any band.
+   page and jumps to any band. On phones and tablets a band is a brief:
+   name, short description, the first few features, and its work as one row
+   you swipe — so a service is about a screen tall, not four.
    ========================================================================== */
 
 /* Channel bar -------------------------------------------------------------- */
@@ -153,8 +155,8 @@
   overflow-wrap: anywhere;
   word-spacing: 0.09em;
   transition:
-    font-weight 900ms var(--ease-out),
-    color 600ms var(--ease-out);
+    font-weight 480ms var(--ease-out),
+    color 360ms var(--ease-out);
 }
 
 .sv-band.is-live .sv-name {
@@ -188,6 +190,11 @@
 
 .sv-band-head .btn-row {
   margin-top: 6px;
+}
+
+/* "+ 2 more": only where the feature list is cut short (phones, tablets). */
+.ticks .ticks-more {
+  display: none;
 }
 
 /* Top work ---------------------------------------------------------------- */
@@ -287,10 +294,6 @@ a.sv-item:focus-visible .print {
   a.sv-item:hover .btn-arrow {
     transform: translate(3px, -3px);
   }
-
-  .sv-work-grid:has(a.sv-item:hover) .sv-item:not(:hover) .print {
-    opacity: 0.55;
-  }
 }
 
 .sv-empty {
@@ -313,7 +316,17 @@ a.sv-item:focus-visible .print {
 
 /* Responsive -------------------------------------------------------------- */
 
+/* Phones and tablets: the brief ------------------------------------------- */
+
 @media (max-width: 1099px) {
+  .sv-band {
+    padding: 56px 0;
+  }
+
+  .sv-band-grid {
+    row-gap: 32px;
+  }
+
   .sv-band-head,
   .sv-work {
     grid-column: 1 / -1;
@@ -321,10 +334,93 @@ a.sv-item:focus-visible .print {
 
   .sv-band-head {
     position: static;
+    gap: 16px;
   }
 
   .sv-bar-label {
     display: none;
+  }
+
+  /* One short paragraph. The long one is on the service's own page, unless
+     it is the only one there is. */
+  .sv-short,
+  .sv-full {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .sv-short + .sv-full {
+    display: none;
+  }
+
+  /* The first few features on a line or two, then "+ N more". */
+  .sv-offer {
+    padding-top: 16px;
+  }
+
+  .sv-offer .label {
+    display: none;
+  }
+
+  .sv-offer .ticks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+  }
+
+  .sv-offer .ticks li[data-extra] {
+    display: none;
+  }
+
+  .sv-offer .ticks .ticks-more {
+    display: flex;
+    color: var(--bone-2);
+  }
+
+  .sv-offer .ticks .ticks-more::before {
+    display: none;
+  }
+
+  /* Top work: one row you swipe, the next print always peeking in. */
+  .sv-work-head {
+    margin-bottom: 14px;
+  }
+
+  .sv-work-grid {
+    display: flex;
+    gap: 12px;
+    margin-inline: calc(var(--pad) * -1);
+    padding-inline: var(--pad);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--pad);
+    scrollbar-width: none;
+  }
+
+  .sv-work-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sv-item,
+  .sv-item[data-feature="true"] {
+    flex: 0 0 min(40%, 340px);
+    gap: 10px;
+    scroll-snap-align: start;
+  }
+
+  .sv-item[data-feature="true"] .print {
+    --ar: 4 / 3;
+  }
+
+  .sv-item-title {
+    font-size: 1.0625rem;
+  }
+
+  .sv-item-cat {
+    margin-top: -6px;
   }
 }
 
@@ -338,12 +434,21 @@ a.sv-item:focus-visible .print {
     padding-inline: calc(var(--pad) - 12px);
   }
 
-  .sv-work-grid {
-    grid-template-columns: minmax(0, 1fr);
+  .sv-band {
+    padding: 44px 0;
   }
 
-  .sv-item[data-feature="true"] .print {
-    --ar: 4 / 3;
+  .sv-band-grid {
+    row-gap: 28px;
+  }
+
+  .sv-name {
+    font-size: clamp(1.875rem, 8.6vw, 2.5rem);
+  }
+
+  .sv-item,
+  .sv-item[data-feature="true"] {
+    flex-basis: 72%;
   }
 
   .sv-band-head .btn-row {

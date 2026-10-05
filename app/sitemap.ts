@@ -9,8 +9,8 @@ const SITE = "https://markui.lk";
 export const revalidate = 3600;
 
 /**
- * The pages the site links to. /proposal, /careers and /insights are left out
- * while they are still placeholders.
+ * The pages the site links to. /careers and /insights are left out while
+ * they are still placeholders.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [services, projects] = await Promise.all([getServices(), getProjects()]);

@@ -15,5 +15,11 @@ export default async function ServicesPage() {
     getSettings(),
   ]);
 
-  return <ServicesList services={services} portfolioUrl={settings.portfolioUrl} />;
+  return (
+    <ServicesList
+      services={services}
+      portfolioUrl={settings.portfolioUrl}
+      copy={settings.content.pages.services}
+    />
+  );
 }

@@ -2,7 +2,9 @@
    Products — spec sheets on bone. Each product is a channel: its status on
    an LED (lit: available; ring: coming soon; pulsing: in development), the
    sheet on the left and its screens and demos hung on the right. The name
-   turns up as you reach it.
+   turns up as you reach it. On phones and tablets a sheet is a brief: the
+   long description, features and technologies fold behind "Features and
+   details", and the previews are one row you swipe.
    ========================================================================== */
 
 .pl-list {
@@ -107,8 +109,8 @@
   overflow-wrap: anywhere;
   word-spacing: 0.09em;
   transition:
-    font-weight 900ms var(--ease-out),
-    color 600ms var(--ease-out);
+    font-weight 480ms var(--ease-out),
+    color 360ms var(--ease-out);
 }
 
 .pl-row.is-live .pl-name {
@@ -147,6 +149,16 @@
   width: 100%;
   padding-top: 20px;
   border-top: 1px solid var(--line-ink);
+}
+
+/* The details: on wide screens they are simply part of the sheet (the
+   wrapper adds no box and the toggle is not shown). */
+.pl-more {
+  display: contents;
+}
+
+.pl-more-toggle {
+  display: none;
 }
 
 .pl-row.is-live .ticks li::before {
@@ -262,7 +274,17 @@
 
 /* Responsive -------------------------------------------------------------- */
 
+/* Phones and tablets: the brief ------------------------------------------- */
+
 @media (max-width: 1099px) {
+  .pl-row {
+    padding: 56px 0;
+  }
+
+  .pl-grid {
+    row-gap: 32px;
+  }
+
   .pl-sheet,
   .pl-preview {
     grid-column: 1 / -1;
@@ -270,16 +292,123 @@
 
   .pl-sheet {
     position: static;
+    gap: 16px;
   }
-}
 
-@media (max-width: 767px) {
+  .pl-short {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Folded until asked for. */
+  .pl-more {
+    display: none;
+    width: 100%;
+  }
+
+  .pl-more[data-open] {
+    display: grid;
+    justify-items: start;
+    gap: 20px;
+  }
+
+  .pl-more-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0;
+    background: none;
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .pl-more-icon {
+    position: relative;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--line-ink);
+    border-radius: 50%;
+    transition:
+      background-color var(--t-fast) var(--ease-out),
+      transform var(--t-fast) var(--ease-out);
+  }
+
+  .pl-more-icon::before,
+  .pl-more-icon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 9px;
+    height: 1.5px;
+    background: currentColor;
+    transform: translate(-50%, -50%);
+  }
+
+  .pl-more-icon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+
+  .pl-more-toggle[aria-expanded="true"] .pl-more-icon {
+    background: var(--signal);
+    border-color: var(--signal);
+    transform: rotate(45deg);
+  }
+
+  /* Previews: one row you swipe, the next one always peeking in. */
+  .pl-preview-head {
+    margin-bottom: 14px;
+  }
+
   .pl-preview-grid {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    gap: 12px;
+    margin-inline: calc(var(--pad) * -1);
+    padding-inline: var(--pad);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--pad);
+    scrollbar-width: none;
+  }
+
+  .pl-preview-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pl-item,
+  .pl-item[data-feature="true"] {
+    flex: 0 0 min(46%, 380px);
+    gap: 10px;
+    scroll-snap-align: start;
   }
 
   .pl-item[data-feature="true"] .print {
     --ar: 4 / 3;
+  }
+}
+
+@media (max-width: 767px) {
+  .pl-row {
+    padding: 44px 0;
+  }
+
+  .pl-name {
+    font-size: clamp(1.875rem, 8.6vw, 2.5rem);
+  }
+
+  .pl-item,
+  .pl-item[data-feature="true"] {
+    flex-basis: 78%;
   }
 
   .pl-sheet .btn-signal {

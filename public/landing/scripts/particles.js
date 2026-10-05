@@ -312,8 +312,9 @@ export const engine = {
         },
         { rootMargin: "12% 0px 12% 0px" },
       );
-      // Fallback trigger: the scene tunes in by itself once its host is in
-      // the upper half of the screen (the signal normally gets there first).
+      // The scene tunes in as soon as its host is properly on screen, so
+      // nothing sits as static while it is being read. If the signal gets
+      // there first, the tune-in starts from the point it arrived at.
       bandIO = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {
@@ -321,7 +322,7 @@ export const engine = {
             if (s && e.isIntersecting) s.fallback();
           }
         },
-        { rootMargin: "-6% 0px -50% 0px" },
+        { rootMargin: "0px 0px -8% 0px" },
       );
       window.addEventListener("resize", () => {
         window.clearTimeout(resizeTimer);

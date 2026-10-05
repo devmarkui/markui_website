@@ -13,10 +13,14 @@ import { Reveal } from "@/components/site/Reveal";
 import SitePage from "@/components/site/SitePage";
 import { useHoverVideo } from "@/hooks/useHoverVideo";
 import { isExternalUrl } from "@/lib/products";
+import { DEFAULT_CONTENT, type PageCopy } from "@/lib/site-content";
 import type { ResolvedTopWork, Service } from "@/lib/types";
 
 /** Thumbnails shown per service; the rest stay on the service's own page. */
 const MAX_TOP_WORK = 6;
+
+/** Features listed on phones and tablets; the rest fold into "+ N more". */
+const BRIEF_FEATURES = 4;
 
 export interface ServiceWithTopWork {
   service: Service;
@@ -33,16 +37,22 @@ function hasMedia(work: ResolvedTopWork) {
 
 /**
  * The public /services page: one channel band per service, the details on
- * the left and that service's Top Work on the right. Everything comes from
- * the database; the admin controls which services appear, their order and
- * copy, and the work inside each one.
+ * the left and that service's Top Work on the right. On phones and tablets
+ * each band is a brief instead: the name, the short description, the first
+ * few features and the work as one row you swipe (services.css); the full
+ * write-up stays on the service's own page. Everything comes from the
+ * database; the admin controls which services appear, their order and copy,
+ * and the work inside each one.
  */
 export default function ServicesList({
   services,
   portfolioUrl,
+  copy = DEFAULT_CONTENT.pages.services,
 }: {
   services: ServiceWithTopWork[];
   portfolioUrl: string;
+  /** The page's header and closing text, managed in the dashboard (Page Text). */
+  copy?: PageCopy;
 }) {
   const [active, setActive] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -82,17 +92,11 @@ export default function ServicesList({
     <SitePage>
       <Masthead
         station="Services"
-        label="What we do"
+        label={copy.header.label}
         titleId="services-title"
-        quiet="Every discipline,"
-        loud="one team"
-        lede={
-          <p>
-            From strategy and design to production and development, our team handles every part of your
-            brand&apos;s digital presence. Each channel below lists what it includes, beside a selection of recent
-            work.
-          </p>
-        }
+        quiet={copy.header.quiet || undefined}
+        loud={copy.header.loud}
+        lede={<p>{copy.header.lede}</p>}
         readouts={[
           { label: "Services", value: pad(services.length) },
           ...(shownTotal ? [{ label: "Pieces of work", value: pad(shownTotal) }] : []),
@@ -143,11 +147,7 @@ export default function ServicesList({
         </section>
       )}
 
-      <ClosingCta
-        quiet="Let's work"
-        loud="together"
-        text="Tell us what you're planning and we'll come back with ideas, timelines and a clear proposal."
-      />
+      <ClosingCta quiet={copy.cta.quiet} loud={copy.cta.loud} text={copy.cta.text} />
     </SitePage>
   );
 }
@@ -207,9 +207,14 @@ function ServiceBand({
             <div className="sv-offer">
               <p className="label">What we offer</p>
               <ul className="ticks">
-                {service.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
+                {service.features.map((feature, i) => (
+                  <li key={feature} data-extra={i >= BRIEF_FEATURES ? "" : undefined}>
+                    {feature}
+                  </li>
                 ))}
+                {service.features.length > BRIEF_FEATURES ? (
+                  <li className="ticks-more">+ {service.features.length - BRIEF_FEATURES} more</li>
+                ) : null}
               </ul>
             </div>
           ) : null}

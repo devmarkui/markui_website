@@ -9,7 +9,7 @@ type Tag = "div" | "section" | "article" | "header" | "li" | "figure" | "p" | "u
 type Props = {
   as?: Tag;
   className?: string;
-  /** Stagger step: each one waits another 80ms. */
+  /** Stagger step: each one waits another 45ms, up to the fifth. */
   delay?: number;
   children?: ReactNode;
 } & Omit<HTMLAttributes<HTMLElement>, "className" | "children">;

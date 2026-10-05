@@ -248,8 +248,8 @@
   color: var(--bone-2);
   overflow-wrap: anywhere;
   transition:
-    font-weight 900ms var(--ease-out),
-    color 600ms var(--ease-out);
+    font-weight 480ms var(--ease-out),
+    color 360ms var(--ease-out);
 }
 
 .pd-next-title .btn-arrow {

@@ -2,11 +2,13 @@
 // dip, the matching prints are re-hung at the front of the wall (the slots
 // are defined by position, see styles/work.css), the rest are turned down
 // behind them, the page glides to the first match, and the lights come back
-// up print by print. "All" restores the original hang.
+// up print by print. "All" restores the original hang. The prints are
+// numbered by where they hang, so the wall always counts 01, 02, 03…
 // On phones the filter row scrolls sideways; its edges fade to show there
 // is more, and the pressed channel is brought into view.
 
-const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+const word = (n) => WORDS[n] || String(n);
 const DIM_MS = 260;
 
 export function initWork() {
@@ -30,6 +32,8 @@ export function initWork() {
     [...on, ...off].forEach((it, slot) => {
       it.classList.toggle("is-muted", !on.includes(it));
       it.style.setProperty("--slot", String(slot));
+      const index = it.querySelector(".work-index");
+      if (index) index.textContent = String(slot + 1).padStart(2, "0");
       grid.insertBefore(it, foot);
     });
     return on.length;
@@ -37,11 +41,14 @@ export function initWork() {
 
   function announce(filter, lit) {
     if (filter === "all") {
-      status.textContent = "All ten projects in focus.";
+      status.textContent = items.length === 1 ? "The one project in focus." : `All ${word(items.length)} projects in focus.`;
       return;
     }
     const label = buttons.find((b) => b.dataset.filter === filter).querySelector(".work-tuner-name").dataset.label;
-    status.textContent = `${label}: ${WORDS[lit]} projects moved to the front, the other ${WORDS[items.length - lit]} turned down.`;
+    const rest = items.length - lit;
+    status.textContent = rest
+      ? `${label}: ${word(lit)} ${lit === 1 ? "project" : "projects"} moved to the front, the other ${word(rest)} turned down.`
+      : `${label}: all ${word(lit)} in focus.`;
   }
 
   function glideToWall() {

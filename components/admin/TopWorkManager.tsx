@@ -746,6 +746,11 @@ function TopWorkEditor({
                     <img src={currentImage} alt="Top work preview" />
                   </div>
                 ) : null}
+                <p className="ad-hint">
+                  <strong>Format:</strong> landscape 4:3, at least 1200px
+                  wide. On phones these sit in a row you swipe, so the
+                  subject should read at a small size.
+                </p>
 
                 <input
                   name="image"

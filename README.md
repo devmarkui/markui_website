@@ -69,19 +69,46 @@ carry their own title, copy, image and video instead.
 
 ### Admin dashboard
 
-| Route | Purpose |
+| Route | What it controls on the site |
 | --- | --- |
-| `/admin/login` | Sign in (also linked from the site footer) |
+| `/admin/login` | Sign in |
 | `/admin` | Overview, counts and things needing attention |
-| `/admin/services` | Add, edit, reorder, hide and delete services |
-| `/admin/top-work` | Manage the Top Work shown on each service page |
-| `/admin/products` | Add, edit, hide and delete products |
-| `/admin/projects` | Manage the main project showcase |
+| `/admin/home` | The homepage's own text: the hero (two-line headline, paragraph, button, three channels), then the headings and text of the Services, Work, Why, Process and Contact sections, and the search title |
+| `/admin/trust` | Homepage Proof section (headline, the four figures, the client dial) and the figures on About |
+| `/admin/reviews` | The homepage's review wall: each review is sized by how few words it has |
+| `/admin/services` | The Services page and each service's page, the homepage's services list and its "Seven disciplines." count, the footer, and the choices in the contact form |
+| `/admin/top-work` | The Top Work shown beside each service |
+| `/admin/products` | The Products page |
+| `/admin/projects` | The Projects page and each project's page; the homepage wall shows up to ten, featured first |
+| `/admin/about` | The About page |
+| `/admin/pages` | The header and closing text of the Projects, Products and Services pages, and the footer note |
+| `/admin/contact` | Phone numbers, WhatsApp, email, address and hours, on every page and in the Book a Call pop-up; and the contact page's header, promises strip, questions and closing text |
+| `/admin/footer` | Social links in the footer, the menu and the contact page |
 | `/admin/settings` | The external portfolio URL |
+| `/admin/enquiries` | Messages sent from the contact page and the homepage form |
+| `/admin/account` | The admin username and password |
 
-Anything saved appears on the public site immediately — the home page, the
-Products and Services pages, and every service page are regenerated when a
-record changes.
+Anything saved appears on the public site immediately — the homepage, the
+Products, Services, Projects, About and Contact pages, and every service and
+project page are regenerated when a record changes.
+
+The previous homepage's "Latest From Our Studio" posts and hero service cards
+have no place on the current site, so they have no admin screen. Their rows
+are still in the database (`studio_items`, `hero_services`) and are carried
+through every save untouched.
+
+**The homepage.** `/` is the static build in `public/landing/`, served by
+`app/landing-home/route.ts`. The parts the dashboard manages are marked in
+`public/landing/index.html` with `<!-- cms:name -->` comment pairs and filled
+in from the database by `lib/landing.ts`; what is written between the comments
+is the fallback, served as it is if the database cannot be read.
+
+**Written content.** Text that is not a record of its own (homepage sections,
+reviews, page headers and closing lines, the contact page's promises and
+questions, the footer note) is one JSON document, described in
+`lib/site-content.ts` with its defaults and the length each field must fit.
+It and the contact details are stored in the `app_meta` table, so neither
+needed a schema change.
 
 Each service supports a name, slug, short and full description, image, icon,
 features, benefits, tags, display order and an active/inactive switch. Hiding a

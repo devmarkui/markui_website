@@ -33,9 +33,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Social links are managed in the dashboard (Footer & Social); the
-  // footer lists every active service.
-  const [{ socialLinks }, services] = await Promise.all([getSettings(), getServices()]);
+  // Social links and contact details are managed in the dashboard (Footer &
+  // Social, Contact Details); the footer lists every active service.
+  const [{ socialLinks, contact, content }, services] = await Promise.all([getSettings(), getServices()]);
 
   return (
     <html
@@ -49,11 +49,13 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: 'document.documentElement.classList.add("js")' }} />
       </head>
       <body>
-        <SiteHeader socialLinks={socialLinks} />
+        <SiteHeader socialLinks={socialLinks} contact={contact} />
         {children}
         <SiteFooter
           socialLinks={socialLinks}
+          contact={contact}
           services={services.map(({ name, slug }) => ({ name, slug }))}
+          note={content.footerNote}
         />
       </body>
     </html>

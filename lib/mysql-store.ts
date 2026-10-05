@@ -125,6 +125,23 @@ async function insertRows(
   );
 }
 
+/**
+ * The contact details and the site's written content are each one JSON
+ * document in `app_meta`, the key/value table that was already there, so
+ * adding them needed no schema change.
+ */
+const CONTACT_META_KEY = "contact_details";
+const CONTENT_META_KEY = "site_content";
+
+function parseJson(value: unknown): unknown {
+  if (typeof value !== "string") return undefined;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return undefined;
+  }
+}
+
 // ─── Load ────────────────────────────────────────────────────────────────────
 
 /**
@@ -166,6 +183,10 @@ export async function loadDatabase(client: DbClient): Promise<Partial<Database>>
       await q("SELECT * FROM social_links ORDER BY sort_order"),
       await q("SELECT * FROM site_settings WHERE id = 1"),
     ];
+    const metaRows = await q(
+      `SELECT meta_key, meta_value FROM app_meta WHERE meta_key IN ('${CONTACT_META_KEY}', '${CONTENT_META_KEY}')`,
+    );
+    const meta = (key: string) => parseJson(metaRows.find((row) => row.meta_key === key)?.meta_value);
     await client.query("COMMIT");
 
     const projectServices = groupBy(projectServiceRows, "project_id");
@@ -331,6 +352,9 @@ export async function loadDatabase(client: DbClient): Promise<Partial<Database>>
         ctaText: s.about_cta_text as string,
       },
       socialLinks: socialRows.map((r) => ({ label: r.label as string, url: r.url as string })),
+      // Missing until first saved; `lib/db.ts` fills in the defaults.
+      contact: meta(CONTACT_META_KEY) as Settings["contact"],
+      content: meta(CONTENT_META_KEY) as Settings["content"],
       updatedAt: iso(s.updated_at),
     };
 
@@ -516,6 +540,17 @@ export async function saveDatabase(client: DbClient, db: Database): Promise<void
         about.ctaHeading, about.ctaText, ts(db.settings.updatedAt),
       ]],
     );
+
+    for (const [key, value] of [
+      [CONTACT_META_KEY, db.settings.contact],
+      [CONTENT_META_KEY, db.settings.content],
+    ] as const) {
+      await client.query(
+        `INSERT INTO app_meta (meta_key, meta_value) VALUES ('${key}', ?)
+         ON DUPLICATE KEY UPDATE meta_value = VALUES(meta_value)`,
+        [JSON.stringify(value)],
+      );
+    }
 
     await client.query("COMMIT");
   } catch (error) {

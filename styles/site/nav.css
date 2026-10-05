@@ -7,7 +7,8 @@
    quiet links, one loud button. Scroll a little and it closes in (carbon);
    once you are past the opening it becomes the old nav's solid orange bar
    (.is-solid). Links roll on hover like the old nav's and the current page
-   is struck through. Menu is always there, at every width, and opens the
+   is struck through. From 1100px the links sit dead centre in the bar and
+   there is no menu button; below that they fold into Menu, which opens the
    old nav's full-screen burnt-orange drawer: giant rolling links that turn
    up from quiet to loud, with the contact lines along the bottom.
    ========================================================================== */
@@ -81,8 +82,16 @@
 }
 
 .nav-links {
-  margin-left: auto;
   transition: opacity var(--t-fast) var(--ease-out);
+}
+
+/* The right-hand end of the bar: the actions (and, on the homepage, the
+   Noise desk beside them). */
+.nav-end {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: auto;
 }
 
 .nav.is-open .nav-links {
@@ -172,7 +181,6 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-left: 8px;
 }
 
 .nav-cta {
@@ -200,7 +208,7 @@
   outline-color: #fff;
 }
 
-/* Toggle: always on screen, as the old burger was. */
+/* Toggle: phones and tablets only (hidden from 1100px, see Breakpoints). */
 .nav-toggle {
   display: inline-flex;
   align-items: center;
@@ -520,6 +528,28 @@
 
 /* Breakpoints ------------------------------------------------------------- */
 
+/* Wide: logo left, links dead centre, actions right. The two side columns
+   are equal, so the links stay centred whatever sits at either end. */
+@media (min-width: 1100px) {
+  .nav-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .nav-logo {
+    justify-self: start;
+  }
+
+  .nav-end {
+    justify-self: end;
+    margin-left: 0;
+  }
+
+  .nav-toggle {
+    display: none;
+  }
+}
+
 @media (min-width: 1100px) and (max-width: 1279px) {
   .nav-bar {
     gap: 20px;
@@ -534,25 +564,11 @@
     left: 7px;
     right: 7px;
   }
-
-  /* Bars only, so the six links still fit beside them. */
-  .nav-toggle-text {
-    display: none;
-  }
-
-  .nav-toggle {
-    padding: 0;
-    justify-content: center;
-  }
 }
 
 @media (max-width: 1099px) {
   .nav-links {
     display: none;
-  }
-
-  .nav-actions {
-    margin-left: auto;
   }
 }
 

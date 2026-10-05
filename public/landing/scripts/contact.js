@@ -50,11 +50,16 @@ export function initContact() {
   const status = form.querySelector("[data-form-status]");
   const hint = form.querySelector("[data-reach-hint]");
   const reset = panel.querySelector("[data-contact-reset]");
+  // The studio's own lines, set on the panel from the dashboard's Contact Details.
+  const studioCall = panel.dataset.studioCall || "";
+  const studioNumbers = (panel.dataset.studioNumbers || "").split(",").filter(Boolean);
+  const studioEmail = panel.dataset.studioEmail || "info@markui.lk";
+  // In the order the form asks: the project first, then who is writing.
   const fields = {
+    message: form.elements.message,
     name: form.elements.name,
     email: form.elements.email,
     phone: form.elements.phone,
-    message: form.elements.message,
   };
   const touched = new Set();
   const checks = { name: checkName, email: checkEmail, phone: checkPhone, message: checkMessage };
@@ -134,7 +139,7 @@ export function initContact() {
     if (reachMissing && !bad.includes("email")) bad.push("email");
 
     if (bad.length) {
-      const order = ["name", "email", "phone", "message"];
+      const order = ["message", "name", "email", "phone"];
       const first = order.find((k) => bad.includes(k));
       const count = new Set(bad.map((k) => (k === "phone" && reachMissing ? "email" : k))).size;
       status.textContent = count === 1 ? "One thing to fix before we can send this." : `${count} things to fix before we can send this.`;
@@ -174,23 +179,25 @@ export function initContact() {
       .then((res) => res.json().catch(() => ({ ok: false })))
       .then((result) => {
         if (!result.ok) {
-          fail(result.error || "Sorry, we could not send that just now. Please try again, or email info@markui.lk.");
+          fail(result.error || `Sorry, we could not send that just now. Please try again, or email ${studioEmail}.`);
           return;
         }
         sent();
       })
-      .catch(() => fail("Sorry, we could not send that just now. Please try again, or email info@markui.lk."));
+      .catch(() => fail(`Sorry, we could not send that just now. Please try again, or email ${studioEmail}.`));
 
     function sent() {
       const first = fields.name.value.trim().split(/\s+/)[0];
       const email = fields.email.value.trim();
       const phone = fields.phone.value.trim();
-      // Never echo the studio's own number back as the visitor's.
-      const studio = phone.replace(/\D/g, "").replace(/^0/, "94").endsWith("94760887702");
+      // Never echo one of the studio's own numbers back as the visitor's.
+      const digits = phone.replace(/\D/g, "").replace(/^0/, "94");
+      const studio = Boolean(digits) && studioNumbers.some((n) => digits.endsWith(n));
       const reach = email || (studio ? "" : phone);
+      const call = studioCall ? ` Can't wait? Call the studio on ${studioCall}.` : "";
       successText.textContent = reach
-        ? `Thanks, ${first}. We'll get back to you at ${reach} soon. Can't wait? Call the studio on +94 76 088 7702.`
-        : `Thanks, ${first}. We'll be in touch soon. Can't wait? Call the studio on +94 76 088 7702.`;
+        ? `Thanks, ${first}. We'll get back to you at ${reach} soon.${call}`
+        : `Thanks, ${first}. We'll be in touch soon.${call}`;
       form.hidden = true;
       success.hidden = false;
       panel.classList.add("is-sent");
@@ -217,6 +224,6 @@ export function initContact() {
     panel.classList.remove("is-sent");
     signal();
     form.dispatchEvent(new CustomEvent("contact:reset"));
-    fields.name.focus();
+    fields.message.focus();
   });
 }

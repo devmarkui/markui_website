@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { BOOK_CALL_HREF } from "@/lib/contact-details";
+
 import Chan from "./Chan";
 import { Arrow } from "./icons";
 import { LiveSection, Reveal } from "./Reveal";
@@ -13,7 +15,7 @@ export default function ClosingCta({
   loud,
   text,
   primary = { href: "/contact", label: "Start a project" },
-  secondary = { href: "/proposal", label: "Book a call" },
+  secondary = { href: BOOK_CALL_HREF, label: "Book a call" },
   ground = "soot",
 }: {
   quiet: string;

@@ -447,7 +447,10 @@ function ProductEditor({
                   defaultValue={product?.icon ?? "▣"}
                   placeholder="▣"
                 />
-                <p className="ad-hint">Shown when there is no image.</p>
+                <p className="ad-hint">
+                  One character. Used in this dashboard&rsquo;s list; the
+                  website itself does not show it.
+                </p>
               </div>
 
               <div className="ad-field">
@@ -508,6 +511,10 @@ function ProductEditor({
                 ) : (
                   <p className="ad-hint">No cover image.</p>
                 )}
+                <p className="ad-hint">
+                  <strong>Format:</strong> a screenshot or picture of the
+                  product, landscape 4:3 or 16:10, at least 1600px wide.
+                </p>
 
                 <input
                   name="image"
@@ -538,6 +545,10 @@ function ProductEditor({
                 <span className="ad-label">
                   Logo <span>(optional — shown beside the product number)</span>
                 </span>
+                <p className="ad-hint">
+                  <strong>Format:</strong> square, at least 160px, on a white
+                  or transparent background. It is shown small (40px).
+                </p>
 
                 {currentLogo ? (
                   <div className="ad-preview ad-preview--logo">

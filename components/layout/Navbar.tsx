@@ -7,7 +7,8 @@ import { useEffect, useRef, useState } from "react";
 
 import { Arrow } from "@/components/site/icons";
 import { NAV_LINKS, isActive } from "@/components/site/nav-links";
-import type { SocialLink } from "@/lib/types";
+import { BOOK_CALL_HREF, mailHref, phoneLines, telHref } from "@/lib/contact-details";
+import { DEFAULT_CONTACT, type ContactDetails, type SocialLink } from "@/lib/types";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -27,11 +28,19 @@ function Roll({ children }: { children: string }) {
  * Transparent over the page's dark masthead, carbon once you scroll, and the
  * old solid orange bar once the masthead has gone (a page without one gets
  * the orange bar straight away) — except over an orange ground, where it
- * stays carbon so it doesn't disappear. The menu is always there and opens the old
+ * stays carbon so it doesn't disappear. From 1100px the links sit centred in
+ * the bar; below that they fold into the menu, which opens the old
  * full-screen drawer. The static homepage runs the same design from
  * public/landing (index.html, scripts/nav.js).
  */
-export default function Navbar({ socialLinks = [] }: { socialLinks?: SocialLink[] }) {
+export default function Navbar({
+  socialLinks = [],
+  contact = DEFAULT_CONTACT,
+}: {
+  socialLinks?: SocialLink[];
+  /** Managed in the dashboard (Contact Details). */
+  contact?: ContactDetails;
+}) {
   const pathname = usePathname();
   const [bar, setBar] = useState({ scrolled: false, solid: false });
   // The path the menu was opened on: following a link closes it by itself.
@@ -121,6 +130,17 @@ export default function Navbar({ socialLinks = [] }: { socialLinks?: SocialLink[
     };
   }, [open]);
 
+  // The toggle is hidden on wide screens, so a drawer left open while the
+  // window grows (or a tablet turns) would have no way to close.
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 1100px)");
+    const onChange = (event: MediaQueryListEvent) => {
+      if (event.matches) setOpenAt(null);
+    };
+    wide.addEventListener("change", onChange);
+    return () => wide.removeEventListener("change", onChange);
+  }, []);
+
   const toggle = () => {
     if (open) {
       setOpenAt(null);
@@ -175,27 +195,29 @@ export default function Navbar({ socialLinks = [] }: { socialLinks?: SocialLink[
           </ul>
         </nav>
 
-        <div className="nav-actions">
-          <Link className="btn-signal nav-cta" href="/proposal">
-            Book a Call <Arrow />
-          </Link>
-          <button
-            ref={toggleRef}
-            className="nav-toggle"
-            type="button"
-            aria-expanded={open}
-            aria-controls="nav-menu"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={toggle}
-          >
-            <span className="nav-toggle-text" aria-hidden="true">
-              {open ? "Close" : "Menu"}
-            </span>
-            <span className="nav-toggle-bars" aria-hidden="true">
-              <span />
-              <span />
-            </span>
-          </button>
+        <div className="nav-end">
+          <div className="nav-actions">
+            <Link className="btn-signal nav-cta" href={BOOK_CALL_HREF} onClick={() => setOpenAt(null)}>
+              Book a Call <Arrow />
+            </Link>
+            <button
+              ref={toggleRef}
+              className="nav-toggle"
+              type="button"
+              aria-expanded={open}
+              aria-controls="nav-menu"
+              aria-label={open ? "Close menu" : "Open menu"}
+              onClick={toggle}
+            >
+              <span className="nav-toggle-text" aria-hidden="true">
+                {open ? "Close" : "Menu"}
+              </span>
+              <span className="nav-toggle-bars" aria-hidden="true">
+                <span />
+                <span />
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -221,11 +243,13 @@ export default function Navbar({ socialLinks = [] }: { socialLinks?: SocialLink[
 
           <div className="nav-menu-foot">
             <div className="nav-menu-reach">
-              <a className="nav-menu-phone" href="tel:+94760887702">
-                +94 76 088 7702
-              </a>
-              <a className="nav-menu-email" href="mailto:info@markui.lk">
-                info@markui.lk
+              {phoneLines(contact).map((line) => (
+                <a className="nav-menu-phone" href={telHref(line)} key={line.tel}>
+                  {line.label}
+                </a>
+              ))}
+              <a className="nav-menu-email" href={mailHref(contact.email)}>
+                {contact.email}
               </a>
             </div>
             {socialLinks.length ? (

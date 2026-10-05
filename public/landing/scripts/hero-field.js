@@ -119,7 +119,8 @@ export function createField(canvas, { reduce = false } = {}) {
         ctx.strokeStyle = palette[0];
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(cx, cy, R + e * (reach - R), 0, TAU);
+        // Never negative: the disc may not have been measured on the first frame.
+        ctx.arc(cx, cy, Math.max(0, R + e * (reach - R)), 0, TAU);
         ctx.stroke();
         ctx.lineWidth = 1;
       }

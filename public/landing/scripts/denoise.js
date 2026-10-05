@@ -2,16 +2,15 @@
 // grid of static cells coloured from the photo itself (so the static is the
 // picture, detuned); when the signal reaches it, the cells lock on in a
 // wave from the contact point, with a bright edge where the picture is
-// arriving. Hovering a tuned print flicks it through a quick channel change.
+// arriving. Once tuned, a print stays clean: nothing plays over it on hover.
 // Runs on the particle engine (one loop, canvases only while on screen).
 // The photo underneath is always the real, sharp <img>.
 
 import { engine, clamp01 } from "./particles.js";
 
-const DUR = 1250;
-const GLITCH_MS = 420;
+const DUR = 650;
 
-// Prints tune in as soon as they are properly on screen (a quarter in):
+// Prints tune in as soon as they come on screen:
 // the work is the proof, it should never sit as static for long. If the
 // signal's branch reaches a print first, it tunes in from that point.
 let early = null;
@@ -20,7 +19,7 @@ function observeEarly(scene) {
   if (!early) {
     early = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && byFrame.get(e.target)?.trigger(null)),
-      { rootMargin: "0px 0px -24% 0px" },
+      { rootMargin: "0px 0px -6% 0px" },
     );
   }
   byFrame.set(scene.host, scene);
@@ -35,14 +34,7 @@ export class Denoise {
     this.maxDpr = 1;
     this.useBand = false;
     this.onTune = onTune;
-    this.glitchT = -1;
     frame.classList.add("fx-host", "fx-static");
-    const card = frame.closest(".work-card") || frame;
-    card.addEventListener("pointerenter", (e) => {
-      if (e.pointerType !== "mouse" || this.state !== "done") return;
-      this.glitchT = performance.now();
-      engine.wake();
-    });
     if (this.img && !this.img.complete) this.img.addEventListener("load", () => this.box && this.sample(), { once: true });
     engine.add(this);
     observeEarly(this);
@@ -145,21 +137,19 @@ export class Denoise {
     if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  paint(p, band) {
+  paint(p) {
     const { cols, rows, th, photo } = this;
     const d = this.data.data;
     const n = cols * rows;
     for (let i = 0; i < n; i += 1) {
       const o = i * 4;
       const t = th[i];
-      let on = t >= p;
-      if (band) on = band(Math.floor(i / cols));
-      if (!on) {
+      if (t < p) {
         d[o + 3] = 0;
         continue;
       }
       const g = Math.random() * 255;
-      const edge = !band && t - p < 0.05;
+      const edge = t - p < 0.05;
       if (edge && Math.random() < 0.22) {
         d[o] = 255;
         d[o + 1] = 107;
@@ -190,20 +180,6 @@ export class Denoise {
       const p = clamp01((now - this.t0) / DUR);
       this.paint(p * 1.08 - 0.04);
       if (p >= 1) this.finish();
-      return true;
-    }
-    if (this.glitchT > 0) {
-      const u = (now - this.glitchT) / GLITCH_MS;
-      if (u >= 1) {
-        this.glitchT = -1;
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        return false;
-      }
-      const rows = this.rows;
-      const seed = Math.floor(u * 7);
-      const bands = [0.13, 0.41, 0.66, 0.87].map((b, k) => [Math.floor(((b + seed * 0.17 * (k + 1)) % 1) * rows), 1 + ((seed + k) % 4)]);
-      const cut = 1 - u;
-      this.paint(0, (r) => bands.some(([b0, h]) => r >= b0 && r < b0 + h * cut * 3));
       return true;
     }
     return false;

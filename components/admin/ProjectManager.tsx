@@ -78,11 +78,12 @@ export default function ProjectManager({
         <div>
           <h1 className="ad-title">Projects</h1>
           <p className="ad-subtitle">
-            Your client work, shown on the Projects page in this order (and in
-            the home page&rsquo;s <em>Our Projects</em> section). Adding,
-            editing, hiding or reordering a project updates the website
-            straight away. Projects without a cover image or video are left
-            off the Projects page.
+            Your client work, shown on the Projects page in this order.
+            The homepage&rsquo;s <em>Selected work</em> wall shows up to ten of
+            them: featured projects first, then the rest in this order.
+            Adding, editing, hiding or reordering a project updates the
+            website straight away. Projects without a cover image are left off
+            both.
           </p>
         </div>
         <button
@@ -552,7 +553,8 @@ function ProjectEditor({
                     name="featured"
                     defaultChecked={project?.featured ?? false}
                   />
-                  Featured — pin near the top of the Projects page
+                  Featured — first on the homepage wall and at the top
+                  of its channel on the Projects page
                 </label>
               </div>
 
@@ -568,22 +570,9 @@ function ProjectEditor({
                 />
               </div>
 
-              <div className="ad-field">
-                <label className="ad-label" htmlFor="pr-size">
-                  Card size <span>(home page grid)</span>
-                </label>
-                <select
-                  id="pr-size"
-                  name="size"
-                  defaultValue={project?.size ?? "small"}
-                >
-                  <option value="small">Standard</option>
-                  <option value="large">Large</option>
-                </select>
-                <p className="ad-hint">
-                  Also makes the card taller on the Projects page.
-                </p>
-              </div>
+              {/* The wall sizes each print by its place in the order, so
+                  there is no card size to choose; the stored value is kept. */}
+              <input type="hidden" name="size" value={project?.size ?? "small"} />
 
               <div className="ad-field">
                 <label className="ad-label" htmlFor="pr-industry">
@@ -600,7 +589,7 @@ function ProjectEditor({
 
               <div className="ad-field ad-field--full">
                 <label className="ad-label" htmlFor="pr-tag">
-                  Card caption <span>(home page — optional)</span>
+                  Caption <span>(optional — the small note after the category)</span>
                 </label>
                 <input
                   id="pr-tag"
@@ -722,6 +711,13 @@ function ProjectEditor({
                   {project?.image
                     ? "Choosing a file replaces the current image."
                     : ""}
+                </p>
+                <p className="ad-hint">
+                  <strong>Format:</strong> a landscape picture, 3:2, at least
+                  1920px wide. The homepage wall and the Projects page crop it
+                  to different shapes (wide, square and tall) and keep the
+                  left side, so put the project&rsquo;s name or main subject
+                  left of centre and nothing important at the far right.
                 </p>
 
                 {project?.image && !newImage ? (

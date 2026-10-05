@@ -14,14 +14,14 @@ import { LiveSection } from "@/components/site/Reveal";
 import SitePage from "@/components/site/SitePage";
 import { useHoverVideo } from "@/hooks/useHoverVideo";
 import { projectCover, projectYear } from "@/lib/projects";
+import { DEFAULT_CONTENT, type PageCopy } from "@/lib/site-content";
 import { PROJECT_CATEGORIES, type Project, type ProjectCategory } from "@/lib/types";
 
 const FILTERS: ProjectCategory[] = [...PROJECT_CATEGORIES];
 
-/** A project that has something to show, with its stable position number. */
+/** A project that has something to show. */
 interface Entry {
   project: Project;
-  number: number;
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -35,16 +35,18 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export default function ProjectsPortfolio({
   projects,
   initialFilter,
+  copy = DEFAULT_CONTENT.pages.projects,
 }: {
   projects: Project[];
   initialFilter: ProjectCategory;
+  /** The page's header and closing text, managed in the dashboard (Page Text). */
+  copy?: PageCopy;
 }) {
   const [filter, setFilter] = useState<ProjectCategory>(initialFilter);
 
-  // Numbers follow the admin's order and stay put while tuning.
   const entries: Entry[] = projects
     .filter((project) => projectCover(project))
-    .map((project, index) => ({ project, number: index + 1 }));
+    .map((project) => ({ project }));
 
   const count = (category: ProjectCategory) =>
     entries.filter((e) => e.project.category === category).length;
@@ -73,16 +75,11 @@ export default function ProjectsPortfolio({
     <SitePage>
       <Masthead
         station="Projects"
-        label="Selected work"
+        label={copy.header.label}
         titleId="projects-title"
-        quiet="Work we've"
-        loud="put our name on"
-        lede={
-          <p>
-            Brand identities and campaigns, websites and film: a selection of the projects we&apos;ve designed,
-            built and delivered for our clients. Tune in to one channel at a time.
-          </p>
-        }
+        quiet={copy.header.quiet || undefined}
+        loud={copy.header.loud}
+        lede={<p>{copy.header.lede}</p>}
         readouts={[
           { label: "Projects", value: pad(entries.length) },
           { label: "Channels", value: pad(FILTERS.length) },
@@ -134,7 +131,8 @@ export default function ProjectsPortfolio({
             ) : (
               inFilter.map((entry, i) => (
                 <li className="wall-item" key={entry.project.id} style={{ "--slot": i } as CSSProperties}>
-                  <ProjectCard entry={entry} eager={i < 2} />
+                  {/* Numbered by place on this wall, so every channel counts 01, 02, 03… */}
+                  <ProjectCard entry={entry} number={i + 1} eager={i < 2} />
                 </li>
               ))
             )}
@@ -159,19 +157,15 @@ export default function ProjectsPortfolio({
         </div>
       </LiveSection>
 
-      <ClosingCta
-        quiet="Have a project"
-        loud="in mind"
-        text="Tell us about it: what you're making, who it's for and when you need it. We'll come back with ideas and a clear plan."
-      />
+      <ClosingCta quiet={copy.cta.quiet} loud={copy.cta.loud} text={copy.cta.text} />
     </SitePage>
   );
 }
 
 // ─── Card ────────────────────────────────────────────────────────────────────
 
-function ProjectCard({ entry, eager }: { entry: Entry; eager: boolean }) {
-  const { project, number } = entry;
+function ProjectCard({ entry, number, eager }: { entry: Entry; number: number; eager: boolean }) {
+  const { project } = entry;
   const cover = projectCover(project);
   const video = cover?.type === "video" ? cover.video : undefined;
   const { videoRef, playing, handlers } = useHoverVideo(Boolean(video), { touch: "tap-preview" });

@@ -655,24 +655,24 @@ body:has(> main.sx) {
 
 @media (prefers-reduced-motion: no-preference) {
   .mast-title .mast-l {
-    animation: mast-up 1400ms var(--ease-out) 200ms both;
+    animation: mast-up 800ms var(--ease-out) 80ms both;
   }
 
   .mast .chan,
   .mast-back {
-    animation: mast-fade 800ms var(--ease-out) both;
+    animation: mast-fade 500ms var(--ease-out) both;
   }
 
   .mast-q {
-    animation: mast-rise 1000ms var(--ease-out) 60ms both;
+    animation: mast-rise 600ms var(--ease-out) 30ms both;
   }
 
   .mast-foot {
-    animation: mast-rise 1000ms var(--ease-out) 360ms both;
+    animation: mast-rise 600ms var(--ease-out) 140ms both;
   }
 
   .dial-needle {
-    animation: dial-tune 1600ms var(--ease-out) 300ms both;
+    animation: dial-tune 1000ms var(--ease-out) 120ms both;
   }
 }
 
@@ -691,7 +691,7 @@ body:has(> main.sx) {
 @keyframes mast-rise {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(16px);
   }
 }
 
@@ -1095,19 +1095,20 @@ body:has(> main.sx) {
   height: 11px;
 }
 
-/* Lights on: each print develops out of the dark as it enters. */
+/* Lights on: each print develops out of the dark as it enters. Quick, so
+   the work is never something you wait for. */
 @media (prefers-reduced-motion: no-preference) {
   .js .print[data-develop] {
-    clip-path: inset(6% 6% 6% 6%);
+    clip-path: inset(4% 4% 4% 4%);
     transition:
-      clip-path 1400ms var(--ease-out),
-      opacity 700ms var(--ease-out);
+      clip-path 600ms var(--ease-out),
+      opacity 500ms var(--ease-out);
   }
 
   .js .print[data-develop] > img,
   .js .print[data-develop] > video {
-    transform: scale(1.12);
-    filter: brightness(0.08) saturate(0.2);
+    transform: scale(1.06);
+    filter: brightness(0.2) saturate(0.4);
   }
 
   .js .print[data-develop].is-in {
@@ -1119,8 +1120,8 @@ body:has(> main.sx) {
     transform: scale(1.001);
     filter: none;
     transition:
-      transform 1600ms var(--ease-out),
-      filter 1300ms var(--ease-out) 150ms,
+      transform 700ms var(--ease-out),
+      filter 500ms var(--ease-out),
       opacity 350ms var(--ease-out);
   }
 }
@@ -1133,14 +1134,15 @@ body:has(> main.sx) {
 @media (prefers-reduced-motion: no-preference) {
   .js [data-rv] {
     transition:
-      opacity 900ms var(--ease-out),
-      transform 1100ms var(--ease-out);
-    transition-delay: calc(var(--d, 0) * 80ms);
+      opacity 420ms var(--ease-out),
+      transform 520ms var(--ease-out);
+    /* The stagger stops growing after the fifth item of a long list. */
+    transition-delay: calc(min(var(--d, 0), 4) * 45ms);
   }
 
   .js [data-rv]:not(.is-in) {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translateY(16px);
   }
 }
 

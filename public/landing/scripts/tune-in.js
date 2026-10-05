@@ -48,10 +48,10 @@ export function initTuneIn() {
   scenes.proofTitle = text($(".proof-title"), { max: 1500, dust: 90 });
   feed(proof, scenes.proofTitle);
   const reads = $$(".proof-read-value").map(prepDecode);
-  const sixty = text($(".proof-lead-value"), { home: "columns", order: "chars", split: "char", max: 3800, dust: 160, travel: 900, spread: 700, charStep: 300 });
+  const sixty = text($(".proof-lead-value"), { home: "columns", order: "chars", split: "char", max: 3800, dust: 160, travel: 420, spread: 280, charStep: 120 });
   if (sixty) {
-    sixty.onTrigger = () => decode(reads, { stagger: 260, rate: 70, hold: 300 });
-    feed(proof, { trigger: () => window.setTimeout(() => sixty.trigger(null), 260) });
+    sixty.onTrigger = () => decode(reads, { stagger: 120, rate: 40, hold: 100 });
+    feed(proof, { trigger: () => window.setTimeout(() => sixty.trigger(null), 80) });
   }
   const dialNames = $$(".proof-dial-name");
   dialNames.forEach(prepDecode);
@@ -62,12 +62,12 @@ export function initTuneIn() {
 
   // Services ------------------------------------------------------------
   const services = $("#services");
-  scenes.servicesTitle = text($(".services-title"), { home: "band", bandAt: "bottom", bandGap: 40, order: "ltr", spread: 700, max: 2400 });
+  scenes.servicesTitle = text($(".services-title"), { home: "band", bandAt: "bottom", bandGap: 40, order: "ltr", spread: 240, max: 2400 });
   feed(services, scenes.servicesTitle);
   if (scenes.servicesTitle) scenes.servicesTitle.onReveal = () => $(".services-head")?.classList.add("is-tuned");
   $$("[data-service]").forEach((row) => {
     const name = $(".services-name", row);
-    const s = text(row, { source: name, home: "band", bandAt: "top", bandGap: 22, order: "ltr", travel: 560, spread: 380, max: 1300, dust: 50, waitMax: 2000, interactive: false });
+    const s = text(row, { source: name, home: "band", bandAt: "top", bandGap: 22, order: "ltr", travel: 300, spread: 160, max: 1300, dust: 50 });
     if (!s) return;
     s.onTrigger = () => row.classList.add("is-locked");
     feed(row, s);
@@ -98,19 +98,19 @@ export function initTuneIn() {
         if (!e.isIntersecting) return;
         once.disconnect();
         say();
-      }, { rootMargin: "-10% 0px -30% 0px" });
+      }, { rootMargin: "0px 0px -8% 0px" });
       once.observe(item);
       return;
     }
     let s;
     if (item.classList.contains("voices-item-xxl")) {
-      s = text(quote, { home: "band", bandAt: "bottom", bandGap: 60, order: "release", travel: 700, max: 3600, dust: 160, useBand: false, waitMax: 2800 });
+      s = text(quote, { home: "band", bandAt: "bottom", bandGap: 60, order: "release", travel: 360, max: 3600, dust: 160, useBand: false, waitMax: 700 });
       scenes.sweep = s;
       voices.addEventListener("signal:sweep", (e) => s.release(e.detail.x));
     } else if (item.classList.contains("voices-item-s")) {
-      s = text(quote, { home: "scan", order: "ttb", travel: 520, spread: 640, max: 1400, dust: 40, interactive: false });
+      s = text(quote, { home: "scan", order: "ttb", travel: 300, spread: 240, max: 1400, dust: 40 });
     } else {
-      s = text(quote, { home: "rain", order: "ltr", travel: 760, spread: 520, max: 2000, dust: 80 });
+      s = text(quote, { home: "rain", order: "ltr", travel: 360, spread: 200, max: 2000, dust: 80 });
     }
     if (s) s.onTrigger = say;
   });
@@ -127,7 +127,7 @@ export function initTuneIn() {
 
   // Process -------------------------------------------------------------
   const process = $("#process");
-  scenes.processBig = text($(".process-big"), { home: "noise", order: "ltr", spread: 900, travel: 900, max: 3200, dust: 120 });
+  scenes.processBig = text($(".process-big"), { home: "noise", order: "ltr", spread: 300, travel: 400, max: 3200, dust: 120 });
   feed(process, scenes.processBig);
   const kicker = $(".process-kicker");
   if (kicker && scenes.processBig) {
@@ -145,7 +145,7 @@ export function initTuneIn() {
   if (finale) {
     const k = $(".finale-kicker", finale);
     if (k) k.setAttribute("data-fx-skip", "");
-    const s = text(finale, { home: "field", order: "origin", spread: 900, travel: 860, max: 4200, dust: 200, useBand: false, waitMax: 3200 });
+    const s = text(finale, { home: "field", order: "origin", spread: 320, travel: 400, max: 4200, dust: 200, useBand: false, waitMax: 900 });
     finale.addEventListener("signal:dock", (e) => s && s.trigger(e.detail || null));
     scenes.finale = s;
   }

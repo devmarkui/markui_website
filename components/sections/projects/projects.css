@@ -245,7 +245,8 @@
   justify-self: end;
 }
 
-/* Hover: the print you point at is the only one turned up. */
+/* Hover: a slow push-in and the "View project" tab. The other prints stay
+   exactly as they are, so the wall never flickers under the pointer. */
 @media (hover: hover) {
   .wall-card:hover .print > img,
   .wall-card:hover .print > video {
@@ -255,10 +256,6 @@
   .wall-card:hover .print-view,
   .wall-card:focus-visible .print-view {
     transform: none;
-  }
-
-  .wall-grid:has(.wall-card:hover) .wall-card:not(:hover) .print {
-    opacity: 0.5;
   }
 
   .wall-card:hover .wall-index {
@@ -282,15 +279,15 @@
 /* Re-hang: after tuning, each print comes back up in its slot, front to back. */
 @media (prefers-reduced-motion: no-preference) {
   .wall-grid .wall-item {
-    animation: wall-rehang 900ms var(--ease-out) both;
-    animation-delay: calc(min(var(--slot, 0), 8) * 70ms);
+    animation: wall-rehang 520ms var(--ease-out) both;
+    animation-delay: calc(min(var(--slot, 0), 6) * 40ms);
   }
 }
 
 @keyframes wall-rehang {
   from {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translateY(16px);
   }
 }
 
@@ -328,23 +325,34 @@
   text-align: center;
 }
 
-/* Tablet: pairs of equal prints, every third one full width ---------------- */
+/* Tablet and phone: a lead print, then pairs. Two prints to a row, so the
+   wall is roughly half as long, and each caption is a brief: name, a line
+   of facts and (on tablets) two lines of description ------------------------ */
 
 @media (max-width: 1099px) {
   .wall-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 48px;
   }
 
   .wall-grid > .wall-item {
+    grid-column: auto;
     margin-top: 0;
+    --ar: 4 / 3;
+    --pos: 0% 50%;
   }
 
-  .wall-item:nth-child(3n + 1) { grid-column: 1 / -1; --ar: 3 / 2; }
-  .wall-item:nth-child(3n + 2) { grid-column: 1 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
-  .wall-item:nth-child(3n + 3) { grid-column: 4 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
+  /* The lead, and a print that would otherwise hang alone at the end. */
+  .wall-grid > .wall-item:nth-child(5n + 1),
+  .wall-grid > .wall-item:is(:nth-child(5n + 2), :nth-child(5n + 4)):nth-last-child(2) {
+    grid-column: 1 / -1;
+    --ar: 16 / 9;
+    --pos: 50% 50%;
+  }
 
   .wall-item:nth-child(n) .wall-caption {
     grid-template-columns: 40px minmax(0, 1fr);
+    padding-top: 14px;
   }
 
   .wall-item:nth-child(n) .wall-index {
@@ -355,7 +363,8 @@
     grid-column: 2;
     grid-row: auto;
     justify-self: start;
-    margin-top: 4px;
+    margin-top: 2px;
+    -webkit-line-clamp: 2;
   }
 
   .wall-foot {
@@ -375,40 +384,73 @@
 
 @media (max-width: 767px) {
   .wall-grid {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 40px;
+    column-gap: 12px;
+    row-gap: 28px;
   }
 
-  .wall-grid > .wall-item {
-    grid-column: 1;
-    --ar: 3 / 2;
-    --pos: 50% 50%;
-  }
-
-  .wall-grid > .wall-item:nth-child(3n + 1) {
+  /* The lead print runs edge to edge. */
+  .wall-grid > .wall-item:nth-child(5n + 1),
+  .wall-grid > .wall-item:is(:nth-child(5n + 2), :nth-child(5n + 4)):nth-last-child(2) {
     margin-inline: calc(var(--pad) * -1);
+    --ar: 3 / 2;
   }
 
-  .wall-grid > .wall-item:nth-child(3n + 1) .wall-caption {
+  .wall-grid > .wall-item:nth-child(5n + 1) .wall-caption,
+  .wall-grid > .wall-item:is(:nth-child(5n + 2), :nth-child(5n + 4)):nth-last-child(2) .wall-caption {
     padding-inline: var(--pad);
   }
 
-  .wall-grid > .wall-item:nth-child(3n + 2) {
-    width: 88%;
-    margin-left: auto;
-  }
-
-  .wall-grid > .wall-item:nth-child(3n) {
-    width: 88%;
-  }
-
-  .wall-caption,
+  /* Paired prints: number over name, one line of facts, no description. */
   .wall-item:nth-child(n) .wall-caption {
-    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    padding-top: 10px;
+  }
+
+  .wall-item:nth-child(n) .wall-index {
+    grid-row: auto;
+    padding-top: 0;
+  }
+
+  .wall-name {
+    font-size: 1.1875rem;
+    line-height: 1.05;
+  }
+
+  .wall-meta {
+    flex-wrap: nowrap;
+    gap: 0 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 0.65625rem;
+  }
+
+  .wall-meta span:nth-child(n + 3) {
+    display: none;
+  }
+
+  .wall-item:nth-child(n) .wall-desc {
+    display: none;
+  }
+
+  /* The lead keeps a fuller label. */
+  .wall-grid > .wall-item:nth-child(5n + 1) .wall-name {
+    font-size: 1.625rem;
+  }
+
+  .wall-grid > .wall-item:nth-child(5n + 1) .wall-desc {
+    grid-column: 1;
+    display: -webkit-box;
+  }
+
+  .wall-flag {
+    left: 8px;
+    top: 8px;
+    padding: 4px 7px;
   }
 
   .wall-foot {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-template-columns: 1fr;
   }
 

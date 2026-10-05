@@ -32,7 +32,8 @@ export default async function AdminOverviewPage() {
         <div>
           <h1 className="ad-title">Dashboard</h1>
           <p className="ad-subtitle">
-            Manage what appears on the public website. Anything you add, edit or
+            Manage what appears on the public website: the homepage, Projects,
+            Products, Services, About and Contact. Anything you add, edit or
             delete here shows up on the live site immediately — no code changes
             needed.
           </p>
@@ -114,8 +115,11 @@ export default async function AdminOverviewPage() {
           <Link className="ad-btn ad-btn--primary" href="/admin/home">
             Home page
           </Link>
-          <Link className="ad-btn" href="/admin/studio">
-            Latest from studio
+          <Link className="ad-btn" href="/admin/trust">
+            Trust &amp; stats
+          </Link>
+          <Link className="ad-btn" href="/admin/reviews">
+            Reviews
           </Link>
           <Link className="ad-btn" href="/admin/services">
             Services
@@ -128,6 +132,18 @@ export default async function AdminOverviewPage() {
           </Link>
           <Link className="ad-btn" href="/admin/projects">
             Projects
+          </Link>
+          <Link className="ad-btn" href="/admin/about">
+            About page
+          </Link>
+          <Link className="ad-btn" href="/admin/pages">
+            Page text
+          </Link>
+          <Link className="ad-btn" href="/admin/contact">
+            Contact
+          </Link>
+          <Link className="ad-btn" href="/admin/footer">
+            Footer &amp; social
           </Link>
           <Link className="ad-btn" href="/admin/settings">
             Portfolio settings
@@ -194,13 +210,8 @@ export default async function AdminOverviewPage() {
       <div className="ad-panel">
         <div className="ad-panel-title">Public pages</div>
         <div className="ad-quick-links">
-          <Link
-            className="ad-btn"
-            href="/products-services"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Products &amp; Services ↗
+          <Link className="ad-btn" href="/" target="_blank" rel="noopener noreferrer">
+            Home ↗
           </Link>
           <Link
             className="ad-btn"

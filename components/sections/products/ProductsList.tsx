@@ -4,6 +4,7 @@ import "./products.css";
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 import ClosingCta from "@/components/site/ClosingCta";
 import { Arrow } from "@/components/site/icons";
@@ -13,6 +14,7 @@ import { LiveSection, Reveal } from "@/components/site/Reveal";
 import SitePage from "@/components/site/SitePage";
 import { useHoverVideo } from "@/hooks/useHoverVideo";
 import { isExternalUrl, productPreview } from "@/lib/products";
+import { DEFAULT_CONTENT, type PageCopy } from "@/lib/site-content";
 import { PRODUCT_STATUS_LABELS, type Product, type ProductPreviewItem } from "@/lib/types";
 
 /** Preview items shown per product. */
@@ -23,10 +25,20 @@ const pad = (n: number) => String(n).padStart(2, "0");
 /**
  * The public /products page: what Mark UI has built, as spec sheets on the
  * bone ground — the product on the left, its screenshots and demo videos on
- * the right. Everything comes from the database; the admin controls the
- * products, their order and status, and each product's preview items.
+ * the right. On phones and tablets each sheet is a brief: the long
+ * description, features and technologies fold behind "Features and
+ * details", and the previews become one row you swipe (products.css).
+ * Everything comes from the database; the admin controls the products,
+ * their order and status, and each product's preview items.
  */
-export default function ProductsList({ products }: { products: Product[] }) {
+export default function ProductsList({
+  products,
+  copy = DEFAULT_CONTENT.pages.products,
+}: {
+  products: Product[];
+  /** The page's header and closing text, managed in the dashboard (Page Text). */
+  copy?: PageCopy;
+}) {
   const available = products.filter((p) => (p.status ?? "available") === "available").length;
   const coming = products.length - available;
 
@@ -34,16 +46,11 @@ export default function ProductsList({ products }: { products: Product[] }) {
     <SitePage>
       <Masthead
         station="Products"
-        label="What we build"
+        label={copy.header.label}
         titleId="products-title"
-        quiet="Software we"
-        loud="build and run"
-        lede={
-          <p>
-            Digital products and software solutions designed to solve real business problems, built, maintained
-            and supported by the Mark UI team.
-          </p>
-        }
+        quiet={copy.header.quiet || undefined}
+        loud={copy.header.loud}
+        lede={<p>{copy.header.lede}</p>}
         readouts={
           products.length
             ? [
@@ -67,12 +74,7 @@ export default function ProductsList({ products }: { products: Product[] }) {
         )}
       </section>
 
-      <ClosingCta
-        ground="signal"
-        quiet="Ready to build"
-        loud="something"
-        text="Whether it's one of our products or something built around your business, tell us what you need and we'll take it from there."
-      />
+      <ClosingCta ground="signal" quiet={copy.cta.quiet} loud={copy.cta.loud} text={copy.cta.text} />
     </SitePage>
   );
 }
@@ -85,6 +87,11 @@ function ProductRow({ product, index }: { product: Product; index: number }) {
   const leadWide = shown.length % 2 === 1;
   const status = product.status ?? "available";
   const technologies = product.technologies ?? [];
+  // Phones and tablets only: the details are folded until asked for.
+  const [more, setMore] = useState(false);
+  const moreId = `${headingId}-more`;
+  const hasFull = Boolean(product.fullDescription && product.fullDescription !== product.shortDescription);
+  const hasMore = hasFull || product.features.length > 0 || technologies.length > 0;
 
   // A configured URL is explored; without one the button starts an enquiry.
   const href = product.link || "/contact";
@@ -116,30 +123,46 @@ function ProductRow({ product, index }: { product: Product; index: number }) {
           {product.price ? <p className="pl-price">{product.price}</p> : null}
 
           {product.shortDescription ? <p className="pl-short">{product.shortDescription}</p> : null}
-          {product.fullDescription && product.fullDescription !== product.shortDescription ? (
-            <p className="pl-full">{product.fullDescription}</p>
-          ) : null}
 
-          {product.features.length ? (
-            <div className="pl-block">
-              <p className="label">Key features</p>
-              <ul className="ticks">
-                {product.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+          {hasMore ? (
+            <>
+              <button
+                className="pl-more-toggle"
+                type="button"
+                aria-expanded={more}
+                aria-controls={moreId}
+                onClick={() => setMore((open) => !open)}
+              >
+                {more ? "Hide details" : "Features and details"}
+                <span className="pl-more-icon" aria-hidden="true" />
+              </button>
 
-          {technologies.length ? (
-            <div className="pl-block">
-              <p className="label">Built with</p>
-              <ul className="chips">
-                {technologies.map((tech) => (
-                  <li key={tech}>{tech}</li>
-                ))}
-              </ul>
-            </div>
+              <div className="pl-more" id={moreId} data-open={more ? "" : undefined}>
+                {hasFull ? <p className="pl-full">{product.fullDescription}</p> : null}
+
+                {product.features.length ? (
+                  <div className="pl-block">
+                    <p className="label">Key features</p>
+                    <ul className="ticks">
+                      {product.features.map((feature) => (
+                        <li key={feature}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {technologies.length ? (
+                  <div className="pl-block">
+                    <p className="label">Built with</p>
+                    <ul className="chips">
+                      {technologies.map((tech) => (
+                        <li key={tech}>{tech}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
+            </>
           ) : null}
 
           <Link

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import ProductsList from "@/components/sections/products/ProductsList";
-import { getProducts } from "@/lib/db";
+import { getProducts, getSettings } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Products · Mark UI",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage() {
-  const products = await getProducts();
+  const [products, { content }] = await Promise.all([getProducts(), getSettings()]);
 
-  return <ProductsList products={products} />;
+  return <ProductsList products={products} copy={content.pages.products} />;
 }

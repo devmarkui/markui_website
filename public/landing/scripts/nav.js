@@ -1,9 +1,9 @@
 // Nav: the new bar and the old one, fused. At the top it is clear over the
 // hero; scrolled, it closes in (carbon); past the hero it turns into the old
 // orange bar (.is-solid), except over the orange reviews ground. The menu,
-// the old full-screen drawer, is there at every width (Escape closes, focus
-// is kept inside the header while open and returned to the toggle
-// afterwards). The React pages run the same design from
+// the old full-screen drawer, is for phones and tablets: from 1100px the
+// links sit in the bar and the toggle is hidden (Escape closes, focus is
+// kept inside the header while open and returned to the toggle afterwards). The React pages run the same design from
 // components/layout/Navbar.tsx.
 
 import { once } from "./ticker.js";
@@ -78,6 +78,12 @@ export function initNav() {
   }
 
   toggle.addEventListener("click", () => (isOpen() ? close() : open()));
+
+  // The toggle is gone on wide screens, so a drawer left open while the
+  // window grows (or a tablet turns) would have no way to close.
+  window.matchMedia("(min-width: 1100px)").addEventListener("change", (event) => {
+    if (event.matches) close({ restoreFocus: false });
+  });
 
   document.addEventListener("keydown", (event) => {
     if (!isOpen()) return;

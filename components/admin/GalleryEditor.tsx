@@ -245,7 +245,8 @@ function GalleryRow({
 
         <div className="ad-pv-col">
           <span className="ad-label">
-            {type === "video" ? "Poster image (recommended)" : "Image"}
+            {type === "video" ? "Poster image (recommended)" : "Image"}{" "}
+            <span>(landscape 4:3 or 16:10, at least 1600px wide)</span>
           </span>
           {image ? (
             <div className="ad-preview">

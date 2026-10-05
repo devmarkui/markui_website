@@ -881,7 +881,8 @@ button {
    quiet links, one loud button. Scroll a little and it closes in (carbon);
    once you are past the opening it becomes the old nav's solid orange bar
    (.is-solid). Links roll on hover like the old nav's and the current page
-   is struck through. Menu is always there, at every width, and opens the
+   is struck through. From 1100px the links sit dead centre in the bar and
+   there is no menu button; below that they fold into Menu, which opens the
    old nav's full-screen burnt-orange drawer: giant rolling links that turn
    up from quiet to loud, with the contact lines along the bottom.
    ========================================================================== */
@@ -955,8 +956,16 @@ button {
 }
 
 .nav-links {
-  margin-left: auto;
   transition: opacity var(--t-fast) var(--ease-out);
+}
+
+/* The right-hand end of the bar: the actions (and, on the homepage, the
+   Noise desk beside them). */
+.nav-end {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: auto;
 }
 
 .nav.is-open .nav-links {
@@ -1046,7 +1055,6 @@ button {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-left: 8px;
 }
 
 .nav-cta {
@@ -1074,7 +1082,7 @@ button {
   outline-color: #fff;
 }
 
-/* Toggle: always on screen, as the old burger was. */
+/* Toggle: phones and tablets only (hidden from 1100px, see Breakpoints). */
 .nav-toggle {
   display: inline-flex;
   align-items: center;
@@ -1394,6 +1402,28 @@ button {
 
 /* Breakpoints ------------------------------------------------------------- */
 
+/* Wide: logo left, links dead centre, actions right. The two side columns
+   are equal, so the links stay centred whatever sits at either end. */
+@media (min-width: 1100px) {
+  .nav-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .nav-logo {
+    justify-self: start;
+  }
+
+  .nav-end {
+    justify-self: end;
+    margin-left: 0;
+  }
+
+  .nav-toggle {
+    display: none;
+  }
+}
+
 @media (min-width: 1100px) and (max-width: 1279px) {
   .nav-bar {
     gap: 20px;
@@ -1408,25 +1438,11 @@ button {
     left: 7px;
     right: 7px;
   }
-
-  /* Bars only, so the six links still fit beside them. */
-  .nav-toggle-text {
-    display: none;
-  }
-
-  .nav-toggle {
-    padding: 0;
-    justify-content: center;
-  }
 }
 
 @media (max-width: 1099px) {
   .nav-links {
     display: none;
-  }
-
-  .nav-actions {
-    margin-left: auto;
   }
 }
 
@@ -1543,7 +1559,12 @@ button {
   --disc-d: min(38vw, 60svh, 720px);
   --disc-x: 72%;
   --disc-y: calc(var(--nav-h) + (var(--stage-h) - var(--nav-h) - var(--desk-h)) * 0.47);
-  --title-fs: clamp(3.25rem, min(7.2vw, 12.4svh), 9rem);
+  /* The headline is edited in the dashboard, so its size also depends on its
+     length: --line-chars is the longer line and --seg-chars the longest
+     half-line (lib/landing.ts sets both on the section). A character is
+     about half an em wide, so 160vw / chars keeps a line inside 80vw. At
+     the designed length (22 and 11) these limits change nothing. */
+  --title-fs: clamp(3.25rem, min(7.2vw, 12.4svh, 160vw / var(--line-chars, 22)), 9rem);
   --pin: 0px;
   position: relative;
   height: calc(var(--stage-h) + var(--pin));
@@ -1782,7 +1803,8 @@ button {
     --disc-d: 58vw;
     --disc-x: 62%;
     --disc-y: calc(var(--nav-h) + 64px + var(--disc-d) / 2);
-    --title-fs: 11.4vw;
+    /* Each half-line sits on a row of its own here. */
+    --title-fs: min(11.4vw, 176vw / var(--seg-chars, 11));
     height: auto;
   }
 
@@ -1834,7 +1856,7 @@ button {
     --disc-d: 84vw;
     --disc-x: 58%;
     --disc-y: calc(var(--nav-h) + 56px + var(--disc-d) / 2);
-    --title-fs: 13.2vw;
+    --title-fs: min(13.2vw, 172vw / var(--seg-chars, 11));
   }
 
   .hero-eyebrow .chan-sep,
@@ -2787,16 +2809,20 @@ button {
   padding-bottom: 34px;
 }
 
+/* One column per client name. The list sets --dial-count and --dial-chars
+   (the longest name) from the dashboard's list (lib/landing.ts), and the
+   type shrinks so the longest name still fits its column. */
 .proof-dial-list {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--dial-count, 7), minmax(0, 1fr));
 }
 
 .proof-dial-name {
   padding: 10px 0 18px;
   text-align: center;
   font-family: var(--font-display);
-  font-size: clamp(1.75rem, 3.1vw, 3rem);
+  font-size: clamp(1rem, min(21.7vw / max(var(--dial-count, 7), 6), 170vw / (var(--dial-count, 7) * var(--dial-chars, 7))), 3rem);
+  white-space: nowrap;
   line-height: 1;
   letter-spacing: -0.025em;
   font-weight: 250;
@@ -3227,6 +3253,13 @@ button {
   .services-body {
     grid-column: 2;
     padding-top: 0;
+    gap: 14px;
+  }
+
+  .services-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
   }
 
   .services-go {
@@ -3250,13 +3283,22 @@ button {
     grid-column: 1 / -1;
   }
 
+  /* A brief: the name and two lines. What each service includes is on its
+     own page, one tap away (the whole row is the link). */
+  .services-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .services-features {
-    column-gap: 18px;
+    display: none;
   }
 
   .services-row {
     grid-template-columns: minmax(0, 1fr) 24px;
-    row-gap: 12px;
+    row-gap: 10px;
     padding: 18px 0 20px;
   }
 
@@ -3512,7 +3554,8 @@ button {
   justify-self: end;
 }
 
-/* Hover: the print you point at is the only one turned up. */
+/* Hover: a slow push-in and the "View project" tab. The other prints stay
+   exactly as they are, so the wall never flickers under the pointer. */
 @media (hover: hover) {
   .work-card:hover .work-frame img {
     transform: scale(1.045);
@@ -3521,10 +3564,6 @@ button {
   .work-card:hover .work-view,
   .work-card:has(.work-link:focus-visible) .work-view {
     transform: none;
-  }
-
-  .work-grid:has(.work-card:hover) .work-item:not(.is-muted) .work-card:not(:hover) .work-frame {
-    opacity: 0.5;
   }
 
   .work-card:hover .work-index {
@@ -3547,8 +3586,8 @@ button {
   .js:not(.fx) .work-frame {
     clip-path: inset(7% 7% 7% 7%);
     transition:
-      clip-path 1400ms var(--ease-out),
-      opacity 700ms var(--ease-out);
+      clip-path 700ms var(--ease-out),
+      opacity 500ms var(--ease-out);
   }
 
   .js:not(.fx) .work-frame img {
@@ -3564,8 +3603,8 @@ button {
     transform: scale(1.001);
     filter: none;
     transition:
-      transform 1600ms var(--ease-out),
-      filter 1300ms var(--ease-out) 150ms;
+      transform 800ms var(--ease-out),
+      filter 600ms var(--ease-out);
   }
 
   .js:not(.fx) .work-card:hover .work-frame.is-in img {
@@ -3583,8 +3622,8 @@ button {
   }
 
   .work-grid.is-rehung .work-item {
-    animation: work-rehang 900ms var(--ease-out) both;
-    animation-delay: calc(var(--slot, 0) * 70ms);
+    animation: work-rehang 560ms var(--ease-out) both;
+    animation-delay: calc(min(var(--slot, 0), 6) * 45ms);
   }
 }
 
@@ -3634,6 +3673,14 @@ button {
 
 .work-foot-cta:focus-visible {
   outline-color: var(--ink);
+}
+
+/* A wall with fewer than ten prints has no tenth slot for the foot to sit
+   beside, so the closing text takes a row of its own. */
+.work-grid:not(:has(> .work-item:nth-child(10))) > .work-foot {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
 }
 
 /* Tablet: pairs of equal prints, so rows never leave a hole ---------------- */
@@ -3688,7 +3735,9 @@ button {
   }
 }
 
-/* Mobile: the whole print, never cropped ----------------------------------- */
+/* Mobile: a lead print edge to edge, then pairs. Two prints to a row, so
+   the wall is about half as long; each caption is a brief (number, name and
+   one line of facts), and the full story is one tap away ------------------- */
 
 @media (max-width: 767px) {
   .work-lede,
@@ -3698,40 +3747,75 @@ button {
   }
 
   .work-grid {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 40px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 12px;
+    row-gap: 28px;
   }
 
   .work-grid > .work-item {
-    grid-column: 1;
+    grid-column: auto;
+    --ar: 4 / 3;
+    --pos: 0% 50%;
+  }
+
+  .work-grid > .work-item:nth-child(5n + 1) {
+    grid-column: 1 / -1;
+    margin-inline: calc(var(--pad) * -1);
     --ar: 3 / 2;
     --pos: 50% 50%;
   }
 
-  .work-grid > :nth-child(3n + 1) {
-    margin-inline: calc(var(--pad) * -1);
-  }
-
-  .work-grid > :nth-child(3n + 1) .work-caption {
+  .work-grid > .work-item:nth-child(5n + 1) .work-caption {
     padding-inline: var(--pad);
   }
 
-  .work-grid > :nth-child(3n + 2) {
-    width: 88%;
-    margin-left: auto;
+  .work-grid > .work-item:nth-child(n) .work-caption {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    padding-top: 10px;
   }
 
-  .work-grid > :nth-child(3n) {
-    width: 88%;
+  .work-grid > .work-item:nth-child(n) .work-index {
+    grid-row: auto;
+    padding-top: 0;
   }
 
-  .work-caption,
-  .work-grid > :nth-child(5) .work-caption {
-    grid-template-columns: 32px minmax(0, 1fr);
+  .work-name {
+    font-size: 1.1875rem;
+    line-height: 1.05;
+  }
+
+  .work-meta {
+    flex-wrap: nowrap;
+    gap: 0 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 0.65625rem;
+  }
+
+  .work-meta .work-tag {
+    display: none;
+  }
+
+  .work-grid > .work-item:nth-child(n) .work-desc {
+    display: none;
+  }
+
+  /* The lead keeps a fuller label. */
+  .work-grid > .work-item:nth-child(5n + 1) .work-name {
+    font-size: 1.625rem;
+  }
+
+  .work-grid > .work-item:nth-child(5n + 1) .work-desc {
+    grid-column: 1;
+    grid-row: auto;
+    display: block;
+    margin-top: 2px;
+    justify-self: start;
   }
 
   .work-grid > .work-foot {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-template-columns: 1fr;
     width: auto;
     margin: 0;
@@ -4236,14 +4320,16 @@ button {
 /* ---- why.css ---- */
 /* ==========================================================================
    Why — four reasons on a four-position knob. The orange "+" (from
-   "Design + Dev") is the knob: it stays pinned while the reasons scroll
-   past, and scrolling turns it from 01 to 04 (scripts/why.js writes
-   --turn). It has detents, so it rests on a clean "+" at each reason.
-   Each reason is only as loud as it is close to the centre line (--on).
+   "Design + Dev") is the knob: it stays pinned, with the section's heading
+   above it, while the reasons scroll past, and scrolling turns it from 01
+   to 04 (scripts/why.js writes --turn). It has detents, so it rests on a
+   clean "+" at each reason. Each reason is only as loud as it is close to
+   the centre line (--on).
    ========================================================================== */
 
 .why {
-  --knob: min(30vw, 56svh, 440px);
+  /* Sized so the heading, the knob and its readout all fit under the nav. */
+  --knob: max(140px, min(30vw, 100svh - var(--nav-h) - 320px, 440px));
   position: relative;
   padding: var(--section-y) 0 calc(var(--section-y) * 0.6);
   background: var(--carbon);
@@ -4260,8 +4346,6 @@ button {
 
 .why-head {
   grid-column: 1 / -1;
-  display: grid;
-  gap: 24px;
 }
 
 .why-title {
@@ -4281,12 +4365,20 @@ button {
   grid-row: 2;
 }
 
-.why-knob {
+/* The heading and the knob, pinned as one: "Why teams choose Mark UI."
+   stays on screen for as long as the knob is turning. The channel label
+   above stays where it is, so the signal's branch still meets its LED. */
+.why-pin {
   position: sticky;
-  top: calc(var(--nav-h) + (100svh - var(--nav-h) - var(--knob)) / 2 - 24px);
+  top: calc(var(--nav-h) + 28px);
+  padding-top: 24px;
+}
+
+.why-knob {
+  position: relative;
   width: var(--knob);
   aspect-ratio: 1;
-  margin: calc(var(--section-y) * 0.5) auto 0;
+  margin: 64px auto 0;
 }
 
 .why-knob-ring {
@@ -4437,10 +4529,12 @@ button {
 
 /* The reasons ------------------------------------------------------------- */
 
+/* The first reason starts low enough that the heading and knob are already
+   pinned by the time it reaches the middle of the screen. */
 .why-list {
   grid-column: 7 / span 6;
   grid-row: 2;
-  padding: 2svh 0 4svh;
+  padding: max(2svh, 29svh - var(--nav-h) - 28px) 0 4svh;
 }
 
 .why-item {
@@ -4489,7 +4583,7 @@ button {
 
 @media (max-width: 1099px) and (min-width: 768px) {
   .why {
-    --knob: min(26vw, 40svh, 300px);
+    --knob: max(120px, min(26vw, 100svh - var(--nav-h) - 320px, 300px));
   }
 
   .why-rail {
@@ -4498,6 +4592,7 @@ button {
 
   .why-list {
     grid-column: 6 / span 7;
+    padding-top: max(2svh, 32svh - var(--nav-h) - 28px);
   }
 
   .why-item {
@@ -4505,25 +4600,50 @@ button {
   }
 }
 
-/* Phones: the knob shrinks to a small pinned control beside the reasons --- */
+/* Phones: the heading and a small knob pin as one bar under the nav, and
+   the reasons scroll up behind it ----------------------------------------- */
 
 @media (max-width: 767px) {
   .why {
-    --knob: 56px;
+    --knob: 48px;
+    --why-bar: 92px;
   }
 
   .why-inner {
-    grid-template-columns: minmax(0, 1fr) 64px;
-    column-gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
+  /* The rail lies over the list (same cell) so the bar can stay pinned for
+     the list's whole height; only the bar itself takes the pointer. */
   .why-rail {
-    grid-column: 2;
+    grid-column: 1;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .why-pin {
+    top: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: var(--why-bar);
+    margin-top: 16px;
+    padding: 0 8px 0 0;
+    border-bottom: 1px solid var(--line);
+    background: var(--carbon);
+    pointer-events: auto;
+  }
+
+  .why-title {
+    max-width: none;
+    font-size: clamp(1.25rem, 5.6vw, 1.5rem);
+    line-height: 1.05;
   }
 
   .why-knob {
-    top: calc(var(--nav-h) + 28px);
-    margin: 40px 0 0 auto;
+    flex: none;
+    margin: 0;
   }
 
   .why-knob-tick b,
@@ -4543,7 +4663,7 @@ button {
 
   .why-list {
     grid-column: 1;
-    padding: 24px 0 0;
+    padding: calc(var(--why-bar) + 24px) 0 0;
   }
 
   .why-item {
@@ -4890,10 +5010,17 @@ button {
 
 .contact-lines li {
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-columns: 92px minmax(0, 1fr);
   align-items: center;
   min-height: 64px;
+  padding: 4px 0;
   border-bottom: 1px solid var(--line);
+}
+
+/* A line can carry more than one number. */
+.contact-lines-values {
+  display: grid;
+  justify-items: start;
 }
 
 .contact-lines-label {
@@ -4911,11 +5038,11 @@ button {
   align-items: center;
   min-height: 44px;
   font-family: var(--font-display);
-  font-size: clamp(1.25rem, 1.9vw, 1.75rem);
+  font-size: clamp(1.1875rem, 1.7vw, 1.5rem);
   letter-spacing: -0.01em;
   font-weight: 400;
   color: var(--bone);
-  transition: font-weight var(--t-mid) var(--ease-out);
+  transition: font-weight var(--t-fast) var(--ease-out);
 }
 
 .contact-lines-plain {
@@ -4980,15 +5107,32 @@ button {
 
 /* Tablet and mobile -------------------------------------------------------- */
 
+/* The form comes straight after the lede; the direct lines follow it, so a
+   phone never shows a list of contact details before the first field. */
 @media (max-width: 1099px) {
-  .contact-intro,
-  .contact-panel {
+  .contact-intro {
+    display: contents;
+  }
+
+  .contact-lede,
+  .contact-panel,
+  .contact-lines {
     grid-column: 1 / -1;
   }
 
-  .contact-intro {
+  .contact-lede {
+    order: 1;
+    margin-bottom: 40px;
+  }
+
+  .contact-panel {
+    order: 2;
+  }
+
+  .contact-lines {
+    order: 3;
     max-width: 640px;
-    margin-bottom: 64px;
+    margin-top: 64px;
   }
 }
 
@@ -5582,7 +5726,7 @@ button {
 }
 
 .fx .fx-in .fx-w {
-  transition: opacity 360ms var(--ease-out);
+  transition: opacity 220ms var(--ease-out);
 }
 
 .fx .fx-w.fx-off {
@@ -5597,7 +5741,7 @@ button {
   scale: 1.13;
   transition:
     transform 1100ms var(--ease-out),
-    scale 1600ms var(--ease-out);
+    scale 800ms var(--ease-out);
 }
 
 .fx .work-frame.fx-static img {
@@ -5612,11 +5756,11 @@ button {
 /* Rows lock on like channels: a short flicker as the name lands. */
 @media (prefers-reduced-motion: no-preference) {
   .fx .services-row.is-locked .services-name {
-    animation: fx-lock 420ms steps(1) both;
+    animation: fx-lock 280ms steps(1) both;
   }
 
   .fx .services-row.is-locked .services-index {
-    animation: fx-lock 420ms steps(1) 80ms both;
+    animation: fx-lock 280ms steps(1) 40ms both;
   }
 }
 

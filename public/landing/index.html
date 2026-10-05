@@ -89,19 +89,21 @@
             <li><a class="nav-link" href="/services"><span class="roll"><span>Services</span><span aria-hidden="true">Services</span></span></a></li><li><a class="nav-link" href="/about"><span class="roll"><span>About</span><span aria-hidden="true">About</span></span></a></li><li><a class="nav-link" href="/contact"><span class="roll"><span>Contact</span><span aria-hidden="true">Contact</span></span></a></li>
           </ul>
         </nav>
-        <div class="nav-desk" data-nav-desk>
-          <span class="nav-desk-label" id="nav-desk-label">Noise</span>
-          <div class="nav-desk-track" role="slider" tabindex="0" aria-labelledby="nav-desk-label" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="8" aria-valuetext="8 percent" data-desk-track>
-            <span class="nav-desk-rail" aria-hidden="true"></span><span class="nav-desk-fill" aria-hidden="true"></span><span class="nav-desk-cap" aria-hidden="true"></span>
+        <div class="nav-end">
+          <div class="nav-desk" data-nav-desk>
+            <span class="nav-desk-label" id="nav-desk-label">Noise</span>
+            <div class="nav-desk-track" role="slider" tabindex="0" aria-labelledby="nav-desk-label" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="8" aria-valuetext="8 percent" data-desk-track>
+              <span class="nav-desk-rail" aria-hidden="true"></span><span class="nav-desk-fill" aria-hidden="true"></span><span class="nav-desk-cap" aria-hidden="true"></span>
+            </div>
+            <span class="nav-desk-value" aria-hidden="true" data-desk-value>08</span>
           </div>
-          <span class="nav-desk-value" aria-hidden="true" data-desk-value>08</span>
-        </div>
-        <div class="nav-actions">
-          <a class="btn-signal nav-cta" href="/proposal">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
-          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu" data-nav-toggle>
-            <span class="nav-toggle-text" aria-hidden="true" data-nav-toggle-text>Menu</span>
-            <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span></span>
-          </button>
+          <div class="nav-actions">
+            <a class="btn-signal nav-cta" href="/contact?call=1">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu" data-nav-toggle>
+              <span class="nav-toggle-text" aria-hidden="true" data-nav-toggle-text>Menu</span>
+              <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span></span>
+            </button>
+          </div>
         </div>
       </div>
       <div class="nav-menu" id="nav-menu" data-nav-menu>
@@ -111,10 +113,13 @@
             <li><a class="nav-menu-link" href="/services"><span class="roll"><span>Services</span><span aria-hidden="true">Services</span></span><span class="nav-menu-num" aria-hidden="true">04</span></a></li><li><a class="nav-menu-link" href="/about"><span class="roll"><span>About</span><span aria-hidden="true">About</span></span><span class="nav-menu-num" aria-hidden="true">05</span></a></li><li><a class="nav-menu-link" href="/contact"><span class="roll"><span>Contact</span><span aria-hidden="true">Contact</span></span><span class="nav-menu-num" aria-hidden="true">06</span></a></li>
           </ol>
           <div class="nav-menu-foot">
-            <div class="nav-menu-reach">
+            <!-- The cms: pairs mark what the dashboard manages (lib/landing.ts fills them from the database; what is written here is the fallback). -->
+            <div class="nav-menu-reach"><!-- cms:nav-reach -->
               <a class="nav-menu-phone" href="tel:+94760887702">+94 76 088 7702</a>
+              <a class="nav-menu-phone" href="tel:+94706290504">+94 70 629 0504</a>
               <a class="nav-menu-email" href="mailto:info@markui.lk">info@markui.lk</a>
-            </div>
+            <!-- /cms:nav-reach --></div>
+            <!-- cms:nav-social --><!-- /cms:nav-social -->
           </div>
         </nav>
       </div>
@@ -122,22 +127,22 @@
 
     <main id="main">
       <!-- ===================================================== HERO: the signal source. Its disc becomes the dot that travels the page. -->
-      <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
+      <section class="hero" id="top" aria-labelledby="hero-title" data-hero style="--line-chars: 22; --seg-chars: 11">
         <div class="hero-stage" data-hero-stage>
           <canvas class="hero-field" aria-hidden="true" data-hero-field></canvas>
           <svg class="hero-route" aria-hidden="true" focusable="false" data-hero-route><path class="sig-ghost" data-ghost /><path class="sig-lit" data-lit /><g data-branches></g></svg>
           <div class="hero-disc" aria-hidden="true" data-hero-disc></div>
           <div class="hero-inner">
-            <p class="hero-eyebrow chan"><span class="chan-led" aria-hidden="true"></span><span class="sr-only">Creative technology studio, Colombo, Sri Lanka</span>
-              <span aria-hidden="true" data-decode>Creative technology studio</span><span class="chan-sep" aria-hidden="true"></span><span class="hero-eyebrow-place" aria-hidden="true" data-decode>Colombo, Sri Lanka</span></p>
+            <p class="hero-eyebrow chan"><!-- cms:hero-eyebrow --><span class="chan-led" aria-hidden="true"></span><span class="sr-only">Creative technology studio, Colombo, Sri Lanka</span>
+              <span aria-hidden="true" data-decode>Creative technology studio</span><span class="chan-sep" aria-hidden="true"></span><span class="hero-eyebrow-place" aria-hidden="true" data-decode>Colombo, Sri Lanka</span><!-- /cms:hero-eyebrow --></p>
             <h1 class="hero-title" id="hero-title" aria-label="Design the Future. Define the Experience." data-hero-title>
-              <span class="hero-lines" aria-hidden="true"><span class="hero-line hero-line-q"><span class="hero-seg">Design the</span> <span class="hero-seg">Future.</span></span>
-                <span class="hero-line hero-line-l"><span class="hero-seg">Define the</span> <span class="hero-seg">Experience.</span></span></span>
+              <span class="hero-lines" aria-hidden="true"><!-- cms:hero-title --><span class="hero-line hero-line-q"><span class="hero-seg">Design the</span> <span class="hero-seg">Future.</span></span>
+                <span class="hero-line hero-line-l"><span class="hero-seg">Define the</span> <span class="hero-seg">Experience.</span></span><!-- /cms:hero-title --></span>
             </h1>
             <div class="hero-copy">
-              <p class="hero-desc">We help ambitious companies launch memorable brands, build high-impact websites, and design digital products people love to use.</p>
+              <p class="hero-desc"><!-- cms:hero-desc -->We help ambitious companies launch memorable brands, build high-impact websites, and design digital products people love to use.<!-- /cms:hero-desc --></p>
               <div class="hero-ctas">
-                <a class="btn-signal" href="/proposal">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+                <!-- cms:hero-cta --><a class="btn-signal" href="/contact?call=1">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a><!-- /cms:hero-cta -->
                 <a class="btn-line" href="/projects">View Projects <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
               </div>
             </div>
@@ -148,13 +153,13 @@
               </div>
               <span class="hero-fader-value" aria-hidden="true" data-fader-value>08</span>
             </div>
-            <ul class="hero-channels" aria-label="What we do">
+            <ul class="hero-channels" aria-label="What we do"><!-- cms:hero-channels -->
               <li class="hero-channel-item" data-channel><a class="hero-channel" href="/services/software-it-solutions"><span class="hero-channel-head"><span class="hero-meter" aria-hidden="true" data-meter><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="hero-channel-num">CH 01</span></span>
                 <span class="hero-channel-title">IT Solutions</span><span class="hero-channel-text">Websites, web applications and custom software built around the way your business works.</span></a></li>
               <li class="hero-channel-item" data-channel><a class="hero-channel" href="/services/digital-marketing"><span class="hero-channel-head"><span class="hero-meter" aria-hidden="true" data-meter><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="hero-channel-num">CH 02</span></span>
                 <span class="hero-channel-title">Digital Marketing</span><span class="hero-channel-text">Social media, content and campaigns that help the right people find and choose you.</span></a></li>
               <li class="hero-channel-item" data-channel><a class="hero-channel" href="/services/multimedia-production"><span class="hero-channel-head"><span class="hero-meter" aria-hidden="true" data-meter><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="hero-channel-num">CH 03</span></span>
-                <span class="hero-channel-title">Media Production</span><span class="hero-channel-text">Photography, video and multimedia production that gives your brand something worth showing.</span></a></li>
+                <span class="hero-channel-title">Media Production</span><span class="hero-channel-text">Photography, video and multimedia production that gives your brand something worth showing.</span></a></li><!-- /cms:hero-channels -->
             </ul>
           </div>
         </div>
@@ -165,9 +170,9 @@
         <div class="proof-inner">
           <div class="proof-head">
             <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">01</span><span class="chan-sep" aria-hidden="true"></span><span>Proof</span></p>
-            <h2 class="proof-title" id="proof-title">Design that works. <em>Results that last.</em></h2>
+            <h2 class="proof-title" id="proof-title"><!-- cms:proof-title -->Design that works. <em>Results that last.</em><!-- /cms:proof-title --></h2>
           </div>
-          <dl class="proof-stats">
+          <dl class="proof-stats"><!-- cms:proof-stats -->
             <div class="proof-lead">
               <dt class="proof-lead-label"><span class="proof-lead-led" aria-hidden="true"></span>Delivered projects</dt>
               <dd class="proof-lead-value"><span class="proof-lead-num">60</span><span class="proof-lead-plus">+</span></dd>
@@ -175,7 +180,7 @@
             </div>
             <div class="proof-read"><dt class="proof-read-label">Client satisfaction</dt><dd class="proof-read-value">100<span class="proof-read-unit">%</span></dd><dd class="proof-read-note">Trusted by growing digital teams</dd></div>
             <div class="proof-read"><dt class="proof-read-label">Years experience</dt><dd class="proof-read-value">8<span class="proof-read-unit">+</span></dd><dd class="proof-read-note">Designing scalable digital products</dd></div>
-            <div class="proof-read"><dt class="proof-read-label">Growth impact</dt><dd class="proof-read-value"><span class="proof-read-unit">+</span>40<span class="proof-read-unit">%</span></dd><dd class="proof-read-note">Average ROI growth after new design</dd></div>
+            <div class="proof-read"><dt class="proof-read-label">Growth impact</dt><dd class="proof-read-value"><span class="proof-read-unit">+</span>40<span class="proof-read-unit">%</span></dd><dd class="proof-read-note">Average ROI growth after new design</dd></div><!-- /cms:proof-stats -->
           </dl>
         </div>
         <div class="proof-dial" data-dial>
@@ -184,10 +189,10 @@
             <p class="proof-dial-freq" aria-hidden="true"><span data-dial-freq>01 / 07</span></p>
           </div>
           <div class="proof-dial-body">
-            <ul class="proof-dial-list" aria-labelledby="proof-dial-label">
+            <!-- cms:proof-dial --><ul class="proof-dial-list" aria-labelledby="proof-dial-label" style="--dial-count: 7; --dial-chars: 7">
               <li class="proof-dial-name">Prisma</li><li class="proof-dial-name">Vertex</li><li class="proof-dial-name">Lumina</li><li class="proof-dial-name">Nexus</li>
               <li class="proof-dial-name">Courto</li><li class="proof-dial-name">Orbital</li><li class="proof-dial-name">Vanta</li>
-            </ul>
+            </ul><!-- /cms:proof-dial -->
             <span class="proof-dial-scale" aria-hidden="true"></span><span class="proof-dial-needle" aria-hidden="true" data-dial-needle></span>
           </div>
         </div>
@@ -198,14 +203,14 @@
         <div class="services-inner">
           <div class="services-head">
             <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">02</span><span class="chan-sep" aria-hidden="true"></span><span>Services</span></p>
-            <h2 class="services-title" id="services-title" aria-label="Seven disciplines. One team." data-ramp><span class="services-title-line" aria-hidden="true">Seven disciplines.</span> <span class="services-title-line" aria-hidden="true">One team.</span></h2>
+            <!-- cms:services-title --><h2 class="services-title" id="services-title" aria-label="Seven disciplines. One team." data-ramp><span class="services-title-line" aria-hidden="true">Seven disciplines.</span> <span class="services-title-line" aria-hidden="true">One team.</span></h2><!-- /cms:services-title -->
             <svg class="services-hairpin" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 400 3M0 20 400 37" /></svg>
             <div class="services-intro">
-              <p>Design, web and software, digital marketing, photography and video, multimedia production and events. One team takes it from the first idea to the final frame.</p>
+              <p><!-- cms:services-intro -->Design, web and software, digital marketing, photography and video, multimedia production and events. One team takes it from the first idea to the final frame.<!-- /cms:services-intro --></p>
               <a class="btn-line" href="/services">All services <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
             </div>
           </div>
-          <ol class="services-list" data-services>
+          <ol class="services-list" data-services><!-- cms:services-rows -->
             <li class="services-row" data-service><span class="services-index" aria-hidden="true">01</span>
               <h3 class="services-name"><a class="services-link" href="/services/digital-marketing"><span>Digital</span> <span>Marketing</span></a></h3>
               <div class="services-body"><p class="services-desc">We build marketing systems that connect every channel — search, social, email, and paid media — into one engine that attracts the right audience and turns them into paying clients.</p>
@@ -233,7 +238,7 @@
             <li class="services-row" data-service><span class="services-index" aria-hidden="true">07</span>
               <h3 class="services-name"><a class="services-link" href="/services/event-organisation-planning"><span>Event Organisation</span> <span>&amp; Planning</span></a></h3>
               <div class="services-body"><p class="services-desc">We handle the full picture — from concept and logistics to live production, promotion, and post-event media — making sure every moment lands with the impact it deserves.</p>
-                <ul class="services-features" aria-label="Includes"><li>Corporate Events</li><li>Brand Activations</li><li>Stage &amp; AV</li><li>Live Promotion</li><li>Event Media</li><li>Post-Event Package</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li>
+                <ul class="services-features" aria-label="Includes"><li>Corporate Events</li><li>Brand Activations</li><li>Stage &amp; AV</li><li>Live Promotion</li><li>Event Media</li><li>Post-Event Package</li></ul></div> <svg class="services-go" aria-hidden="true"><use href="#i-arrow" /></svg></li><!-- /cms:services-rows -->
           </ol>
         </div>
       </section>
@@ -243,26 +248,26 @@
         <div class="work-inner">
           <div class="work-head">
             <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">03</span><span class="chan-sep" aria-hidden="true"></span><span>Selected work</span></p>
-            <h2 class="work-title" id="work-title">The work does the talking.</h2>
-            <p class="work-lede">Ten projects across branding, web, marketing and multimedia. Tune in to one channel: its prints move to the front of the wall and the rest turn down.</p>
+            <h2 class="work-title" id="work-title"><!-- cms:work-title -->The work does the talking.<!-- /cms:work-title --></h2>
+            <p class="work-lede"><!-- cms:work-lede -->Ten projects across branding, web, marketing and multimedia. Tune in to one channel: its prints move to the front of the wall and the rest turn down.<!-- /cms:work-lede --></p>
             <a class="btn-line work-all" href="/projects">See all work <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
           </div>
 
           <div class="work-tuner" data-work-tuner>
             <p class="work-tuner-label" id="work-tuner-label">Tune in</p>
             <div class="work-tuner-scroll" data-tuner-scroll>
-              <div class="work-tuner-options" role="group" aria-labelledby="work-tuner-label">
+              <div class="work-tuner-options" role="group" aria-labelledby="work-tuner-label"><!-- cms:work-tuner -->
                 <button class="work-tuner-btn" type="button" aria-pressed="true" data-filter="all"><span class="work-tuner-name" data-label="All">All</span><span class="work-tuner-count">10</span></button>
                 <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="web"><span class="work-tuner-name" data-label="Web">Web</span><span class="work-tuner-count">03</span></button>
                 <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="marketing"><span class="work-tuner-name" data-label="Marketing">Marketing</span><span class="work-tuner-count">02</span></button>
                 <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="branding"><span class="work-tuner-name" data-label="Branding">Branding</span><span class="work-tuner-count">03</span></button>
-                <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="multimedia"><span class="work-tuner-name" data-label="Multimedia">Multimedia</span><span class="work-tuner-count">02</span></button>
+                <button class="work-tuner-btn" type="button" aria-pressed="false" data-filter="multimedia"><span class="work-tuner-name" data-label="Multimedia">Multimedia</span><span class="work-tuner-count">02</span></button><!-- /cms:work-tuner -->
               </div>
             </div>
-            <p class="work-tuner-status" role="status" aria-live="polite" data-work-status>All ten projects in focus.</p>
+            <p class="work-tuner-status" role="status" aria-live="polite" data-work-status><!-- cms:work-status -->All ten projects in focus.<!-- /cms:work-status --></p>
           </div>
 
-          <ol class="work-grid" data-work-grid>
+          <ol class="work-grid" data-work-grid><!-- cms:work-items -->
             <li class="work-item" data-cat="branding" data-index="1"><article class="work-card">
               <div class="work-frame" data-reveal><img src="/landing/assets/opt/atlas-1536.webp" srcset="/landing/assets/opt/atlas-800.webp 800w, /landing/assets/opt/atlas-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
                 alt="ATLAS brand identity: a black brand book, business cards and a mug lit by an orange mountain-shaped light" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
@@ -302,9 +307,9 @@
             <li class="work-item" data-cat="multimedia" data-index="10"><article class="work-card">
               <div class="work-frame" data-reveal><img src="/landing/assets/opt/orbit-1536.webp" srcset="/landing/assets/opt/orbit-800.webp 800w, /landing/assets/opt/orbit-1536.webp 1536w" sizes="(max-width: 767px) 100vw, 60vw" width="1536" height="1024" loading="lazy" decoding="async"
                 alt="ORBIT video production: an editing suite with a cinematic timeline and night-time film stills" /><span class="work-view" aria-hidden="true">View project <svg class="btn-arrow"><use href="#i-arrow" /></svg></span></div>
-              <div class="work-caption"><span class="work-index" aria-hidden="true">10</span><h3 class="work-name"><a class="work-link" href="/projects/orbit">ORBIT</a></h3><p class="work-meta"><span>Events</span><span>Multimedia</span><span class="work-tag">/ video production</span></p><p class="work-desc">High-impact video production capturing the essence of global live events.</p></div></article></li>
+              <div class="work-caption"><span class="work-index" aria-hidden="true">10</span><h3 class="work-name"><a class="work-link" href="/projects/orbit">ORBIT</a></h3><p class="work-meta"><span>Events</span><span>Multimedia</span><span class="work-tag">/ video production</span></p><p class="work-desc">High-impact video production capturing the essence of global live events.</p></div></article></li><!-- /cms:work-items -->
             <li class="work-foot" role="none">
-              <p class="work-foot-note">Ten of the projects we're proudest of. The full archive lives on the projects page.</p>
+              <p class="work-foot-note"><!-- cms:work-foot-note -->Ten of the projects we're proudest of. The full archive lives on the projects page.<!-- /cms:work-foot-note --></p>
               <a class="btn-signal work-foot-cta" href="/projects">See all work <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
             </li>
           </ol>
@@ -316,10 +321,10 @@
         <div class="voices-inner">
           <div class="voices-head">
             <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">04</span><span class="chan-sep" aria-hidden="true"></span><span>Google reviews</span></p>
-            <h2 class="voices-title" id="voices-title">Twelve reviews. All five stars.</h2>
-            <p class="voices-rule">Set by length: the fewer the words, the louder the type.</p>
+            <h2 class="voices-title" id="voices-title"><!-- cms:voices-title -->Twelve reviews. All five stars.<!-- /cms:voices-title --></h2>
+            <p class="voices-rule"><!-- cms:voices-rule -->Set by length: the fewer the words, the louder the type.<!-- /cms:voices-rule --></p>
           </div>
-          <ul class="voices-wall">
+          <ul class="voices-wall"><!-- cms:voices-wall -->
             <li class="voices-item voices-item-xxl"><figure class="voices-quote"><blockquote class="voices-text"><p>Better than I&nbsp;expected.</p></blockquote>
               <figcaption class="voices-by"><span class="voices-name">Mohamed Faveed</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></figcaption></figure></li>
             <li class="voices-item voices-item-s voices-pos-a"><figure class="voices-quote"><blockquote class="voices-text"><p>Having worked with several marketing partners over the years but out of all I found Mark UI standing out for their data driven approach and commitment towards the task.</p></blockquote>
@@ -347,7 +352,7 @@
                 <li class="voices-silent-row"><span class="voices-name">Ayush Ag</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></li>
                 <li class="voices-silent-row"><span class="voices-name">Thilina Fernando</span><span class="voices-stars" role="img" aria-label="Rated 5 out of 5 on Google"></span></li>
               </ul>
-            </li>
+            </li><!-- /cms:voices-wall -->
           </ul>
         </div>
       </section>
@@ -357,17 +362,20 @@
         <div class="why-inner">
           <div class="why-head">
             <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">05</span><span class="chan-sep" aria-hidden="true"></span><span>Why Mark UI</span></p>
-            <h2 class="why-title" id="why-title">Why teams choose Mark&nbsp;UI.</h2>
           </div>
-          <div class="why-rail" aria-hidden="true">
-            <div class="why-knob" data-why-knob>
-              <span class="why-knob-feed" data-why-feed></span><span class="why-knob-ring"></span><svg class="why-knob-arc" viewBox="0 0 100 100"><circle cx="50" cy="50" r="49.6" pathLength="1" data-why-arc /></svg>
-              <span class="why-knob-tick" style="--a: -90deg"><b>01</b></span><span class="why-knob-tick" style="--a: 0deg"><b>02</b></span><span class="why-knob-tick" style="--a: 90deg"><b>03</b></span><span class="why-knob-tick" style="--a: 180deg"><b>04</b></span>
-              <span class="why-knob-plus"><span class="why-knob-notch"></span></span>
-              <p class="why-readout"><span data-why-num>01</span> / 04 <span class="why-readout-name" data-why-name>Integrated team</span></p>
+          <!-- The heading and the knob are pinned together while the four reasons scroll past. -->
+          <div class="why-rail">
+            <div class="why-pin">
+              <h2 class="why-title" id="why-title"><!-- cms:why-title -->Why teams choose Mark&nbsp;UI.<!-- /cms:why-title --></h2>
+              <div class="why-knob" aria-hidden="true" data-why-knob>
+                <span class="why-knob-feed" data-why-feed></span><span class="why-knob-ring"></span><svg class="why-knob-arc" viewBox="0 0 100 100"><circle cx="50" cy="50" r="49.6" pathLength="1" data-why-arc /></svg>
+                <span class="why-knob-tick" style="--a: -90deg"><b>01</b></span><span class="why-knob-tick" style="--a: 0deg"><b>02</b></span><span class="why-knob-tick" style="--a: 90deg"><b>03</b></span><span class="why-knob-tick" style="--a: 180deg"><b>04</b></span>
+                <span class="why-knob-plus"><span class="why-knob-notch"></span></span>
+                <p class="why-readout"><span data-why-num>01</span> / 04 <span class="why-readout-name" data-why-name><!-- cms:why-readout -->Integrated team<!-- /cms:why-readout --></span></p>
+              </div>
             </div>
           </div>
-          <ol class="why-list">
+          <ol class="why-list"><!-- cms:why-list -->
             <li class="why-item" data-why-item><p class="why-label"><span>01</span>Integrated team</p><h3 class="why-name">Design <span class="why-plus">+</span> Dev, Under One Roof.</h3>
               <p class="why-text">No handoff chaos. Our designers and developers work side by side, so what gets designed is exactly what gets built.</p></li>
             <li class="why-item" data-why-item><p class="why-label"><span>02</span>Full-stack execution</p><h3 class="why-name">Strategy to Execution.</h3>
@@ -375,7 +383,7 @@
             <li class="why-item" data-why-item><p class="why-label"><span>03</span>Creative engineering</p><h3 class="why-name">Creative Meets Technology.</h3>
               <p class="why-text">We don't trade beauty for function. Every project fuses cinematic visual thinking with solid, scalable engineering.</p></li>
             <li class="why-item" data-why-item><p class="why-label"><span>04</span>Results driven</p><h3 class="why-name">Results, Not Just Visuals.</h3>
-              <p class="why-text">We measure success by leads generated and brands elevated, not by how premium it looks on a screen.</p></li>
+              <p class="why-text">We measure success by leads generated and brands elevated, not by how premium it looks on a screen.</p></li><!-- /cms:why-list -->
           </ol>
         </div>
       </section>
@@ -384,17 +392,17 @@
       <section class="process" id="process" aria-labelledby="process-title" data-section>
         <div class="process-inner">
           <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">06</span><span class="chan-sep" aria-hidden="true"></span><span>Process</span></p>
-          <h2 class="process-title" id="process-title"><span class="process-kicker">Four stages.</span> <span class="process-big">One clean signal.</span></h2>
+          <h2 class="process-title" id="process-title"><!-- cms:process-title --><span class="process-kicker">Four stages.</span> <span class="process-big">One clean signal.</span><!-- /cms:process-title --></h2>
           <div class="process-scope" data-process>
             <svg class="process-wave" aria-hidden="true" data-process-wave>
               <defs><linearGradient id="process-grad" gradientUnits="userSpaceOnUse" data-process-grad><stop offset="0" stop-color="#15110e" stop-opacity="0.55" /><stop offset="0.62" stop-color="#15110e" /><stop offset="0.86" stop-color="#ff6b00" /><stop offset="1" stop-color="#ff6b00" /></linearGradient></defs>
               <path class="process-wave-ghost" data-process-ghost /><path class="process-wave-path" pathLength="1" stroke="url(#process-grad)" data-process-path />
             </svg>
-            <ol class="process-steps">
+            <ol class="process-steps"><!-- cms:process-steps -->
               <li class="process-step" data-process-step><span class="process-num">01</span><h3 class="process-name">Discover</h3><p class="process-text">Understand the business, audience and problem.</p><p class="process-tag" aria-hidden="true">All noise</p></li>
               <li class="process-step" data-process-step><span class="process-num">02</span><h3 class="process-name">Plan</h3><p class="process-text">Define the strategy, direction and solution.</p><p class="process-tag" aria-hidden="true">A pattern</p></li>
               <li class="process-step" data-process-step><span class="process-num">03</span><h3 class="process-name">Create</h3><p class="process-text">Design, develop and produce the required work.</p><p class="process-tag" aria-hidden="true">A shape</p></li>
-              <li class="process-step" data-process-step><span class="process-num">04</span><h3 class="process-name">Deliver</h3><p class="process-text">Launch, measure and improve the final result.</p><p class="process-tag" aria-hidden="true">Signal</p></li>
+              <li class="process-step" data-process-step><span class="process-num">04</span><h3 class="process-name">Deliver</h3><p class="process-text">Launch, measure and improve the final result.</p><p class="process-tag" aria-hidden="true">Signal</p></li><!-- /cms:process-steps -->
             </ol>
           </div>
         </div>
@@ -405,44 +413,46 @@
         <div class="contact-inner">
           <div class="contact-head">
             <p class="chan"><span class="chan-led" aria-hidden="true"></span><span class="chan-num">07</span><span class="chan-sep" aria-hidden="true"></span><span>Contact</span></p>
-            <h2 class="contact-title" id="contact-title">Start something worth hearing<span class="contact-title-dot">.</span></h2>
+            <h2 class="contact-title" id="contact-title"><!-- cms:contact-title -->Start something worth hearing<span class="contact-title-dot">.</span><!-- /cms:contact-title --></h2>
           </div>
           <div class="contact-scope" aria-hidden="true" data-contact-scope>
             <canvas class="contact-scope-canvas" data-scope-canvas></canvas>
             <p class="contact-scope-meta"><span class="contact-scope-led"></span><span>Input</span><span class="contact-scope-state" data-scope-state>Line open. Type and we're listening.</span></p>
           </div>
           <div class="contact-intro">
-            <p class="contact-lede">Ready to start your next project? Tell us where you are and where you want to be. A few lines is plenty.</p>
-            <ul class="contact-lines">
-              <li><span class="contact-lines-label">Email</span><a class="contact-lines-link" href="mailto:info@markui.lk">info@markui.lk</a></li>
-              <li><span class="contact-lines-label">Phone</span><a class="contact-lines-link" href="tel:+94760887702">+94 76 088 7702</a></li>
-              <li><span class="contact-lines-label">Studio</span><span class="contact-lines-plain">Colombo, Sri Lanka</span></li>
-            </ul>
+            <p class="contact-lede"><!-- cms:contact-lede -->Ready to start your next project? Tell us where you are and where you want to be. A few lines is plenty.<!-- /cms:contact-lede --></p>
+            <!-- The direct lines, quickest first: managed in the dashboard (Contact Details). -->
+            <ul class="contact-lines"><!-- cms:contact-lines -->
+              <li><span class="contact-lines-label">Phone</span><span class="contact-lines-values"><a class="contact-lines-link" href="tel:+94760887702">+94 76 088 7702</a><a class="contact-lines-link" href="tel:+94706290504">+94 70 629 0504</a></span></li>
+              <li><span class="contact-lines-label">WhatsApp</span><span class="contact-lines-values"><a class="contact-lines-link" href="https://wa.me/94760887702?text=Hi%20Mark%20UI%2C%20I'd%20like%20to%20talk%20about%20a%20project." target="_blank" rel="noopener noreferrer">+94 76 088 7702</a><a class="contact-lines-link" href="https://wa.me/94706290504?text=Hi%20Mark%20UI%2C%20I'd%20like%20to%20talk%20about%20a%20project." target="_blank" rel="noopener noreferrer">+94 70 629 0504</a></span></li>
+              <li><span class="contact-lines-label">Email</span><span class="contact-lines-values"><a class="contact-lines-link" href="mailto:info@markui.lk">info@markui.lk</a></span></li>
+              <li><span class="contact-lines-label">Studio</span><span class="contact-lines-values"><span class="contact-lines-plain">Colombo, Sri Lanka</span></span></li>
+            <!-- /cms:contact-lines --></ul>
           </div>
-          <div class="contact-panel" data-contact>
+          <div class="contact-panel" data-contact data-studio-call="+94 76 088 7702" data-studio-numbers="94760887702,94706290504" data-studio-email="info@markui.lk">
             <form class="contact-form" novalidate data-contact-form>
+              <div class="contact-field" data-field="message">
+                <label class="contact-label" for="c-message"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">01</span>About the project <span class="contact-req">Required</span></label>
+                <textarea class="contact-input contact-textarea" id="c-message" name="message" rows="4" placeholder="What are you building, and what would a great result look like?" aria-describedby="c-message-err" required></textarea>
+                <p class="contact-error" id="c-message-err" data-error></p>
+              </div>
               <div class="contact-field" data-field="name">
-                <label class="contact-label" for="c-name"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">01</span>Your name <span class="contact-req">Required</span></label>
+                <label class="contact-label" for="c-name"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">02</span>Your name <span class="contact-req">Required</span></label>
                 <input class="contact-input" id="c-name" name="name" type="text" autocomplete="name" placeholder="First and last name" aria-describedby="c-name-err" required />
                 <p class="contact-error" id="c-name-err" data-error></p>
               </div>
               <div class="contact-pair">
                 <div class="contact-field" data-field="email">
-                  <label class="contact-label" for="c-email"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">02</span>Email</label>
+                  <label class="contact-label" for="c-email"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">03</span>Email</label>
                   <input class="contact-input" id="c-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@company.lk" aria-describedby="c-reach-hint c-email-err" />
                   <p class="contact-error" id="c-email-err" data-error></p>
                 </div>
                 <div class="contact-field" data-field="phone">
-                  <label class="contact-label" for="c-phone"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">03</span>Phone</label>
+                  <label class="contact-label" for="c-phone"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">04</span>Phone</label>
                   <input class="contact-input" id="c-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+94 7X XXX XXXX" aria-describedby="c-reach-hint c-phone-err" />
                   <p class="contact-error" id="c-phone-err" data-error></p>
                 </div>
                 <p class="contact-hint" id="c-reach-hint" data-reach-hint>Email or phone: at least one, so we can reply.</p>
-              </div>
-              <div class="contact-field" data-field="message">
-                <label class="contact-label" for="c-message"><span class="contact-led" aria-hidden="true"></span><span class="contact-ch" aria-hidden="true">04</span>About the project <span class="contact-req">Required</span></label>
-                <textarea class="contact-input contact-textarea" id="c-message" name="message" rows="4" placeholder="What are you building, and what would a great result look like?" aria-describedby="c-message-err" required></textarea>
-                <p class="contact-error" id="c-message-err" data-error></p>
               </div>
               <div class="contact-actions">
                 <button class="btn-signal contact-submit" type="submit" data-submit>
@@ -470,8 +480,8 @@
         <div class="footer-top">
           <div class="footer-brand">
             <a class="footer-logo" href="/" aria-label="Mark UI home"><img src="/landing/assets/brand/markui-logo-white.png" width="1600" height="319" alt="Mark UI" loading="lazy" decoding="async" /></a>
-            <p class="footer-note">Creative technology studio. Design, web and software, marketing, media and events under one roof.</p>
-            <a class="btn-signal footer-cta" href="/proposal">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+            <p class="footer-note"><!-- cms:footer-note -->Creative technology studio. Design, web and software, marketing, media and events under one roof.<!-- /cms:footer-note --></p>
+            <a class="btn-signal footer-cta" href="/contact?call=1">Book a Call <svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow" /></svg></a>
           </div>
           <nav class="footer-col footer-col-nav" aria-labelledby="footer-nav-title">
             <p class="footer-title" id="footer-nav-title">Navigate</p>
@@ -480,20 +490,21 @@
           </nav>
           <nav class="footer-col footer-col-services" aria-labelledby="footer-services-title">
             <p class="footer-title" id="footer-services-title">Services</p>
-            <ul class="footer-list"><li><a class="footer-link" href="/services/digital-marketing">Digital Marketing</a></li><li><a class="footer-link" href="/services/multimedia-production">Multimedia Production</a></li>
+            <ul class="footer-list"><!-- cms:footer-services --><li><a class="footer-link" href="/services/digital-marketing">Digital Marketing</a></li><li><a class="footer-link" href="/services/multimedia-production">Multimedia Production</a></li>
               <li><a class="footer-link" href="/services/graphic-designing">Graphic Designing</a></li><li><a class="footer-link" href="/services/photography-videography">Photography &amp; Videography</a></li>
               <li><a class="footer-link" href="/services/web-design-development">Web Design &amp; Development</a></li><li><a class="footer-link" href="/services/software-it-solutions">Software &amp; IT Solutions</a></li>
-              <li><a class="footer-link" href="/services/event-organisation-planning">Event Organisation &amp; Planning</a></li></ul>
+              <li><a class="footer-link" href="/services/event-organisation-planning">Event Organisation &amp; Planning</a></li><!-- /cms:footer-services --></ul>
           </nav>
           <div class="footer-col footer-col-contact">
             <p class="footer-title">Contact</p>
-            <ul class="footer-list"><li><a class="footer-link" href="mailto:info@markui.lk">info@markui.lk</a></li><li><a class="footer-link" href="tel:+94760887702">+94 76 088 7702</a></li><li><span class="footer-plain">Colombo, Sri Lanka</span></li></ul>
+            <ul class="footer-list"><!-- cms:footer-contact --><li><a class="footer-link" href="tel:+94760887702">+94 76 088 7702</a></li><li><a class="footer-link" href="tel:+94706290504">+94 70 629 0504</a></li><li><a class="footer-link" href="mailto:info@markui.lk">info@markui.lk</a></li><li><span class="footer-plain">Colombo, Sri Lanka</span></li><!-- /cms:footer-contact --></ul>
+            <!-- cms:footer-social --><!-- /cms:footer-social -->
           </div>
         </div>
         <p class="finale" data-finale><span class="finale-kicker" aria-hidden="true"><span class="finale-led"></span>Signal received</span>
           <span class="finale-q">Less Noise<span class="finale-q-stop">.</span></span> <span class="finale-l"><span class="finale-word">More Impact</span><span class="finale-stop" aria-hidden="true" data-finale-stop></span><span class="sr-only">.</span></span></p>
         <div class="footer-bottom">
-          <p>© 2026 Mark UI. All rights reserved.</p>
+          <p><!-- cms:footer-copyright -->© 2026 Mark UI. All rights reserved.<!-- /cms:footer-copyright --></p>
           <p class="footer-since">Colombo · Since 2023</p>
           <a class="footer-top-link" href="#top">Back to top <svg class="btn-arrow footer-up" aria-hidden="true"><use href="#i-down" /></svg></a>
         </div>

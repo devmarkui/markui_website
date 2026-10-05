@@ -14,12 +14,22 @@ const nextConfig: NextConfig = {
     // half-written with only a warning in the server log.
     proxyClientMaxBodySize: "25mb",
   },
+  async redirects() {
+    return [
+      // "Book a Call" used to point at /proposal, which was never built.
+      // Old links and anything saved in the dashboard land on the contact
+      // page with the call chooser open.
+      { source: "/proposal", destination: "/contact?call=1", permanent: false },
+    ];
+  },
   async rewrites() {
     return {
       // The homepage is the static build in public/landing/ (intro, signal
-      // trace, scroll effects). beforeFiles so it wins over app/page.tsx,
-      // which stays in place: removing this rewrite restores the old home.
-      beforeFiles: [{ source: "/", destination: "/landing/index.html" }],
+      // trace, scroll effects), served by app/landing-home/route.ts, which
+      // fills in what the dashboard manages (lib/landing.ts). beforeFiles so
+      // it wins over app/page.tsx, which stays in place: removing this
+      // rewrite restores the old home.
+      beforeFiles: [{ source: "/", destination: "/landing-home" }],
       afterFiles: [],
       fallback: [],
     };

@@ -493,10 +493,10 @@
 
 /* ── Feedback ──────────────────────────────────────────────── */
 
+/* A block, not a flex row: a note with bold words or a link in it must read
+   as one paragraph rather than break into columns. */
 .ad-alert {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  display: block;
   padding: 12px 16px;
   border-radius: 10px;
   font-size: 12.5px;
@@ -669,6 +669,8 @@
 
 .ad-field input[type="text"],
 .ad-field input[type="url"],
+.ad-field input[type="tel"],
+.ad-field input[type="email"],
 .ad-field input[type="date"],
 .ad-field input[type="password"],
 .ad-field select,

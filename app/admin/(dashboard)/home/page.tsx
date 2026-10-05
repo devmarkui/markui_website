@@ -1,22 +1,16 @@
-import HeroServicesManager from "@/components/admin/HeroServicesManager";
 import HomeForm from "@/components/admin/HomeForm";
+import HomeSectionsForm from "@/components/admin/HomeSectionsForm";
 import { requireAdmin } from "@/lib/auth";
-import { getHeroServices, getSettings } from "@/lib/db";
+import { getSettings } from "@/lib/db";
 
 export default async function AdminHomePage() {
   await requireAdmin("/admin/home");
-  const [{ home }, services] = await Promise.all([
-    getSettings(),
-    getHeroServices({ includeInactive: true }),
-  ]);
+  const { home, content } = await getSettings();
 
   return (
     <>
       <HomeForm home={home} />
-      <HeroServicesManager
-        services={services}
-        panelLinks={{ it: home.itLink, marketing: home.marketingLink }}
-      />
+      <HomeSectionsForm home={content.home} />
     </>
   );
 }

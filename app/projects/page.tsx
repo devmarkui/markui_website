@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import ProjectsPortfolio from "@/components/sections/projects/ProjectsPortfolio";
-import { getProjects } from "@/lib/db";
+import { getProjects, getSettings } from "@/lib/db";
 import { PROJECT_CATEGORIES, type ProjectCategory } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -21,10 +21,13 @@ export default async function ProjectsPage({
 }: {
   searchParams: Promise<{ category?: string | string[] }>;
 }) {
-  const [projects, { category }] = await Promise.all([
+  const [projects, { category }, { content }] = await Promise.all([
     getProjects(),
     searchParams,
+    getSettings(),
   ]);
 
-  return <ProjectsPortfolio projects={projects} initialFilter={toFilter(category)} />;
+  return (
+    <ProjectsPortfolio projects={projects} initialFilter={toFilter(category)} copy={content.pages.projects} />
+  );
 }

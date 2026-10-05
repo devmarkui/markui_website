@@ -14,10 +14,12 @@ import {
   BODY_LIMITS,
   HEADING_LIMITS,
   richFromLines,
+  richPlainText,
   sanitizeColor,
   sanitizeRichDoc,
   sanitizeWeight,
 } from "./rich-text";
+import { normalizeContent } from "./site-content";
 import { slugify } from "./slug";
 import {
   SEED_HERO_SERVICES,
@@ -29,9 +31,13 @@ import {
   CTA_SIZE_RANGE,
   DB_VERSION,
   DEFAULT_ABOUT,
+  DEFAULT_CONTACT,
   DEFAULT_HOME,
   DEFAULT_SETTINGS,
   DEFAULT_TRUST,
+  MAX_CONTACT_PHONES,
+  type ContactDetails,
+  type ContactPhone,
   type Database,
   type HeroPanel,
   type HomeContent,
@@ -222,6 +228,8 @@ function normalizeSettings(settings: Partial<Settings> | undefined): Settings {
     home: normalizeHome(settings?.home),
     trust: normalizeTrust(settings?.trust),
     socialLinks: Array.isArray(settings?.socialLinks) ? settings.socialLinks : [],
+    contact: normalizeContact(settings?.contact),
+    content: normalizeContent(settings?.content),
     about: {
       ...DEFAULT_ABOUT,
       ...(about ?? {}),
@@ -234,6 +242,25 @@ function normalizeSettings(settings: Partial<Settings> | undefined): Settings {
 }
 
 /**
+ * Contact details saved before the dashboard could edit them do not exist, and
+ * a stored record may be missing a field added later: anything absent falls
+ * back to what the site has always shown.
+ */
+function normalizeContact(raw: Partial<ContactDetails> | undefined): ContactDetails {
+  const phones = (Array.isArray(raw?.phones) ? raw.phones : [])
+    .filter((p): p is ContactPhone => Boolean(p && typeof p.number === "string" && p.number.trim()))
+    .slice(0, MAX_CONTACT_PHONES)
+    .map((p) => ({ number: p.number.trim(), whatsapp: p.whatsapp !== false }));
+  return {
+    phones: phones.length ? phones : DEFAULT_CONTACT.phones,
+    email: raw?.email?.trim() || DEFAULT_CONTACT.email,
+    location: raw?.location?.trim() || DEFAULT_CONTACT.location,
+    address: raw?.address?.trim() || DEFAULT_CONTACT.address,
+    hours: raw?.hours?.trim() || DEFAULT_CONTACT.hours,
+  };
+}
+
+/**
  * Brings the trust strip up to date. A database from before the strip became
  * editable has no columns for it, and reads back blank rather than missing —
  * so an empty heading or an empty list means "never set", and falls back to
@@ -242,13 +269,25 @@ function normalizeSettings(settings: Partial<Settings> | undefined): Settings {
 function normalizeTrust(raw: TrustContent | undefined): TrustContent {
   const stats = Array.isArray(raw?.stats) ? raw.stats : [];
   const logos = Array.isArray(raw?.logos) ? raw.logos : [];
+  // What the old homepage's strip shipped with. A database that still holds
+  // exactly that was never edited, so it gets the current homepage's wording
+  // and order (the delivered-projects figure first, as the big number).
+  const untouched =
+    squash(raw?.headingDark) === "designthatworks" && squash(raw?.headingMuted) === "resultsthatlast";
+  const oldStats =
+    untouched &&
+    stats.length === 4 &&
+    stats.map((s) => s.value).join() === "100%,8+,60+,+40%";
   return {
-    headingDark: raw?.headingDark || DEFAULT_TRUST.headingDark,
-    headingMuted: raw?.headingMuted ?? DEFAULT_TRUST.headingMuted,
-    stats: stats.length ? stats : DEFAULT_TRUST.stats,
+    headingDark: untouched ? DEFAULT_TRUST.headingDark : raw?.headingDark || DEFAULT_TRUST.headingDark,
+    headingMuted: untouched ? DEFAULT_TRUST.headingMuted : (raw?.headingMuted ?? DEFAULT_TRUST.headingMuted),
+    stats: !stats.length || oldStats ? DEFAULT_TRUST.stats : stats,
     logos: logos.length ? logos : DEFAULT_TRUST.logos,
   };
 }
+
+/** Letters and digits only, lower case: "DESIGN\nTHAT WORKS" → "designthatworks". */
+const squash = (value: string | undefined) => (value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /** The plain-text hero fields stored before the heading became rich text. */
 interface LegacyHome {
@@ -296,13 +335,17 @@ function normalizeHome(raw: unknown): HomeContent {
       ? Math.min(CTA_SIZE_RANGE.max, Math.max(CTA_SIZE_RANGE.min, rest.ctaSize))
       : undefined;
 
+  const heading =
+    sanitizeRichDoc(rest.heading, HEADING_LIMITS) ??
+    (legacyHeading && sanitizeRichDoc(legacyHeading, HEADING_LIMITS)) ??
+    DEFAULT_HOME.heading;
+
   return {
     ...DEFAULT_HOME,
     ...rest,
-    heading:
-      sanitizeRichDoc(rest.heading, HEADING_LIMITS) ??
-      (legacyHeading && sanitizeRichDoc(legacyHeading, HEADING_LIMITS)) ??
-      DEFAULT_HOME.heading,
+    // "Less Noise / More Impact" was the old homepage's stock headline. A
+    // database still holding it was never edited, so it gets the current one.
+    heading: squash(richPlainText(heading)) === "lessnoisemoreimpact" ? DEFAULT_HOME.heading : heading,
     description:
       sanitizeRichDoc(rest.description, BODY_LIMITS) ??
       (legacyDescription && sanitizeRichDoc(legacyDescription, BODY_LIMITS)) ??
@@ -936,6 +979,8 @@ export async function updateSettings(
       home: input.home
         ? { ...db.settings.home, ...input.home }
         : db.settings.home,
+      contact: input.contact ? normalizeContact(input.contact) : db.settings.contact,
+      content: input.content ? normalizeContent(input.content) : db.settings.content,
       updatedAt: new Date().toISOString(),
     };
     await writeDb(db);

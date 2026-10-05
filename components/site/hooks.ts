@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 /**
  * True from the moment the element first enters the viewport — it never
  * turns false again. Drives the one-shot reveals and the prints developing.
+ * It fires on the first sliver that shows, so nothing is still on its way
+ * in by the time it is being read.
  */
-export function useSeen<T extends Element>(rootMargin = "0px 0px -10% 0px") {
+export function useSeen<T extends Element>(rootMargin = "0px 0px -4% 0px") {
   const ref = useRef<T | null>(null);
   const [seen, setSeen] = useState(false);
 
@@ -19,7 +21,7 @@ export function useSeen<T extends Element>(rootMargin = "0px 0px -10% 0px") {
         setSeen(true);
         observer.disconnect();
       },
-      { rootMargin, threshold: 0.08 },
+      { rootMargin, threshold: 0 },
     );
     observer.observe(node);
     return () => observer.disconnect();

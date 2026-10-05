@@ -105,7 +105,9 @@ export function createImpact({ W, small }) {
       }
       // Rings.
       for (const r of rings) {
-        const u = (now - r.t) / 900;
+        // A ring born inside this frame can be stamped after the frame's own
+        // time; without the floor its radius would come out negative.
+        const u = Math.max(0, (now - r.t) / 900);
         if (u >= 1) continue;
         const e = 1 - (1 - u) ** 3;
         ctx.globalAlpha = (1 - u) ** 1.5;

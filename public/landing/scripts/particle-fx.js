@@ -2,8 +2,8 @@
 // varied per section: every text scene starts as static (its homes), tunes
 // in to the live type (its targets) and hands over to the real DOM text,
 // which is always present underneath. Afterwards it keeps a noise floor of
-// dust (louder with the Noise fader) and, on hover or touch, the word under
-// the pointer detunes back into particles that part around it.
+// dust (louder with the Noise fader). Type stays put under the pointer:
+// the detune on hover (interactive: true) is off everywhere by default.
 //
 // TuneText options:
 //   home   field | band | columns | rain | scan | noise   (what the static looks like)
@@ -14,14 +14,14 @@
 
 import { engine, sampleText, wrapWords, createSwarm, bucket, spread, density, grain, easeOut3 } from "./particles.js";
 
-const HAND_MS = 380;
+const HAND_MS = 240;
 const fine = window.matchMedia("(pointer: fine)").matches;
 
 export class TuneText {
   constructor(host, o = {}) {
     this.o = {
-      home: "field", order: "origin", bandAt: "bottom", split: "word", travel: 820, spread: 560,
-      max: 2200, dust: 120, interactive: true, waitMax: 2600, useBand: true, charStep: 220, ...o,
+      home: "field", order: "origin", bandAt: "bottom", split: "word", travel: 360, spread: 180,
+      max: 2200, dust: 120, interactive: false, waitMax: 300, useBand: true, charStep: 110, ...o,
     };
     this.host = host;
     this.source = o.source || host;
@@ -231,7 +231,7 @@ export class TuneText {
     if (st === "wait" || st === "release") {
       const top = b.docTop + b.padT - window.scrollY;
       if (top < window.innerHeight * 0.94 && top + b.srcH > 0) this.visT += dt;
-      if (this.visT > this.o.waitMax && (st === "wait" || now - this.lastRel > 1400)) {
+      if (this.visT > this.o.waitMax && (st === "wait" || now - this.lastRel > 600)) {
         if (st === "wait") this.trigger(null);
         if (this.state === "release") this.release(Infinity);
       }

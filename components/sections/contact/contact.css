@@ -1,9 +1,13 @@
 /* ==========================================================================
    Contact — the line is open. The promises run past on an orange strip; a
    full-width input scope jumps with every keystroke and settles (orange
-   when the form is ready, one clean sine once it's sent); the fields are
-   channels with "signal present" LEDs; the direct lines sit beside them;
-   the questions people ask first are on bone below.
+   when the form is ready, one clean sine once it's sent). The enquiry opens
+   by saying what it is for, then asks in three steps: what you need, a
+   little about it, where to reply. The fields are channels with "signal
+   present" LEDs; the direct lines (phone, WhatsApp, email) sit beside the
+   form, and above it as three buttons on phones and tablets. The questions
+   people ask first are on bone below. Book a Call lands here with the
+   chooser open (CallDialog.tsx, the .call block at the end).
    ========================================================================== */
 
 .ct {
@@ -150,20 +154,90 @@
   box-shadow: 0 0 12px var(--signal-glow);
 }
 
-/* Direct lines ------------------------------------------------------------ */
+/* The head: what the form is for ------------------------------------------ */
 
-.ct-lines-col {
-  grid-column: 1 / span 5;
-  display: grid;
-  align-content: start;
-  gap: 40px;
+.ct-head {
+  grid-column: 1 / -1;
+  margin-bottom: clamp(40px, 5vw, 72px);
+}
+
+.ct-head .stop {
+  color: var(--signal);
 }
 
 .ct-lede {
+  grid-column: 9 / -1;
   max-width: 38ch;
   font-size: var(--fs-body-l);
   line-height: 1.55;
   color: var(--bone-2);
+}
+
+/* Quick reach: three buttons above the form, phones and tablets only ------- */
+
+.ct-quick {
+  display: none;
+}
+
+.ct-quick-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone);
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.ct-quick-btn .btn-arrow {
+  width: 11px;
+  height: 11px;
+  color: var(--signal);
+}
+
+.ct-quick-btn:first-child {
+  border-color: var(--signal);
+  background: var(--signal);
+  color: var(--ink);
+}
+
+.ct-quick-btn:first-child .btn-arrow {
+  color: var(--ink);
+}
+
+.ct-quick-btn:active {
+  background: var(--char);
+}
+
+.ct-quick-btn:first-child:active {
+  background: var(--signal-hover);
+}
+
+/* Direct lines ------------------------------------------------------------ */
+
+.ct-lines-col {
+  grid-column: 9 / -1;
+  grid-row: 3;
+  align-self: start;
+  position: sticky;
+  top: calc(var(--nav-h) + 32px);
+  display: grid;
+  align-content: start;
+  gap: 32px;
+}
+
+.ct-lines-col > .label {
+  margin-bottom: -8px;
 }
 
 .ct-lines {
@@ -177,6 +251,11 @@
   min-height: 64px;
   padding: 8px 0;
   border-bottom: 1px solid var(--line);
+}
+
+.ct-lines-values {
+  display: grid;
+  justify-items: start;
 }
 
 .ct-lines-label {
@@ -194,12 +273,12 @@
   align-items: center;
   min-height: 44px;
   font-family: var(--font-display);
-  font-size: clamp(1.125rem, 1.7vw, 1.5rem);
+  font-size: clamp(1.125rem, 1.5vw, 1.375rem);
   line-height: 1.2;
   letter-spacing: -0.01em;
   font-weight: 400;
   color: var(--bone);
-  transition: font-weight var(--t-mid) var(--ease-out);
+  transition: font-weight var(--t-fast) var(--ease-out);
 }
 
 .ct-lines-plain {
@@ -243,14 +322,52 @@
 /* The form: each field a channel ------------------------------------------ */
 
 .ct-panel {
-  grid-column: 7 / span 6;
+  grid-column: 1 / span 7;
+  grid-row: 3;
   align-self: start;
-  padding-top: 4px;
 }
 
 .ct-form {
   display: grid;
-  gap: 34px;
+  gap: 56px;
+}
+
+/* A step: its own ruled block, with a head that says where you are. */
+.ct-step {
+  display: grid;
+  gap: 30px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.ct-step-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+}
+
+.ct-step-num {
+  color: var(--ash);
+}
+
+.ct-step-led {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: var(--ash-dim);
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    box-shadow var(--t-fast) var(--ease-out);
+}
+
+.ct-step.is-done .ct-step-led {
+  background: var(--signal);
+  box-shadow: 0 0 10px var(--signal-glow);
 }
 
 .ct-pair {
@@ -667,19 +784,65 @@ legend.ct-label {
 /* Responsive -------------------------------------------------------------- */
 
 @media (max-width: 1099px) {
+  .ct-lede {
+    grid-column: 1 / span 9;
+  }
+
+  .ct-quick {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 8px;
+    margin-bottom: 48px;
+  }
+
   .ct-lines-col,
   .ct-panel {
     grid-column: 1 / -1;
+    grid-row: auto;
   }
 
   .ct-lines-col {
-    margin-bottom: 64px;
+    position: static;
+    margin-top: 72px;
   }
 }
 
 @media (max-width: 767px) {
+  .ct-scope {
+    height: 72px;
+    margin-bottom: 40px;
+  }
+
   .ct-scope-state {
     display: none;
+  }
+
+  .ct-lede {
+    grid-column: 1 / -1;
+  }
+
+  .ct-head {
+    margin-bottom: 28px;
+  }
+
+  .ct-quick {
+    margin-bottom: 40px;
+  }
+
+  .ct-quick-btn {
+    justify-content: center;
+    padding: 0 6px;
+    letter-spacing: 0.06em;
+  }
+
+  .ct-quick-btn .btn-arrow {
+    display: none;
+  }
+
+  .ct-form {
+    gap: 44px;
   }
 
   .ct-pair {
@@ -711,5 +874,210 @@ legend.ct-label {
 
   .ct-faq-a p {
     padding-left: calc(36px + var(--gap));
+  }
+}
+
+/* ==========================================================================
+   Book a Call chooser (CallDialog.tsx) — portalled to <body>, so it carries
+   .sx itself. A panel in the middle of the screen on wide screens; a sheet
+   from the bottom edge on phones, where the thumb is. It sits under the
+   signal cursor (z 95) and over the nav (z 50).
+   ========================================================================== */
+
+.call {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: var(--pad);
+  color: var(--bone);
+}
+
+.call-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 11, 10, 0.82);
+}
+
+.call-panel {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 20px;
+  width: min(100%, 720px);
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(28px, 4vw, 48px);
+  border: 1px solid var(--line-strong);
+  border-top: 2px solid var(--signal);
+  background: var(--soot);
+}
+
+.call-panel:focus {
+  outline: none;
+}
+
+.call-title {
+  max-width: 14ch;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  font-weight: var(--w-loud);
+  word-spacing: 0.09em;
+}
+
+.call-title .q {
+  display: block;
+  font-weight: var(--w-quiet);
+  color: var(--ash);
+}
+
+.call-title .stop {
+  color: var(--signal);
+}
+
+.call-text {
+  max-width: 46ch;
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  color: var(--ash);
+}
+
+.call-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px clamp(24px, 4vw, 48px);
+  width: 100%;
+  margin-top: 8px;
+}
+
+.call-option .label {
+  margin-bottom: 4px;
+}
+
+.call-option ul {
+  border-top: 1px solid var(--line);
+}
+
+.call-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 60px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.1vw, 1.625rem);
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--bone);
+  white-space: nowrap;
+  transition:
+    font-weight var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.call-link .btn-arrow {
+  color: var(--signal);
+}
+
+.call-link:hover,
+.call-link:focus-visible {
+  font-weight: var(--w-loud);
+}
+
+.call-link:hover .btn-arrow {
+  transform: translate(3px, -3px);
+}
+
+.call-write {
+  margin-top: 4px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.call-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--ash);
+  cursor: pointer;
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.call-close:hover {
+  color: var(--bone);
+}
+
+.call-close span::before,
+.call-close span::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 1.5px;
+  background: currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.call-close span::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .call-backdrop {
+    animation: call-fade 200ms var(--ease-out) both;
+  }
+
+  .call-panel {
+    animation: call-rise 320ms var(--ease-out) both;
+  }
+}
+
+@keyframes call-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes call-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@media (max-width: 767px) {
+  .call {
+    place-items: end stretch;
+    padding: 0;
+  }
+
+  .call-panel {
+    width: 100%;
+    max-height: 92svh;
+    padding: 28px var(--pad) calc(24px + env(safe-area-inset-bottom));
+    border-inline: 0;
+    border-bottom: 0;
+  }
+
+  .call-options {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .call-link {
+    min-height: 56px;
   }
 }

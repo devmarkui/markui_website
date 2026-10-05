@@ -7,6 +7,7 @@
  */
 
 import { richFromLines, type RichDoc } from "./rich-text";
+import { DEFAULT_CONTENT, type SiteContent } from "./site-content";
 
 export const PROJECT_CATEGORIES = [
   "Web",
@@ -268,8 +269,53 @@ export interface Settings {
   trust: TrustContent;
   /** Social profiles listed in the site footer, in display order. */
   socialLinks: SocialLink[];
+  /** Phone numbers, email, address and hours, shown on every page. */
+  contact: ContactDetails;
+  /**
+   * The written content that is not a record of its own: homepage sections,
+   * reviews, page headers, the contact page's promises and questions.
+   */
+  content: SiteContent;
   updatedAt: string;
 }
+
+// ─── Contact details ─────────────────────────────────────────────────────────
+// The studio's direct lines, edited in the dashboard (Contact Details). The
+// nav drawer, the footer, the contact page, the Book a Call chooser and the
+// homepage all read them from here (see `lib/contact-details.ts`).
+
+export interface ContactPhone {
+  /** As it should be printed, in international format: "+94 76 088 7702". */
+  number: string;
+  /** Whether this number is also on WhatsApp. */
+  whatsapp: boolean;
+}
+
+export interface ContactDetails {
+  /** In display order; the first is the main line. */
+  phones: ContactPhone[];
+  email: string;
+  /** Short location for the footer and the homepage: "Colombo, Sri Lanka". */
+  location: string;
+  /** Full studio address, shown on the contact page. */
+  address: string;
+  /** Opening hours, shown on the contact page and in the Book a Call chooser. */
+  hours: string;
+}
+
+/** More than this and the chooser and the footer stop reading as a short list. */
+export const MAX_CONTACT_PHONES = 3;
+
+export const DEFAULT_CONTACT: ContactDetails = {
+  phones: [
+    { number: "+94 76 088 7702", whatsapp: true },
+    { number: "+94 70 629 0504", whatsapp: true },
+  ],
+  email: "info@markui.lk",
+  location: "Colombo, Sri Lanka",
+  address: "Avissawella, Wellampitiya, Colombo, Sri Lanka",
+  hours: "Mon – Fri · 9:00 AM – 5:00 PM",
+};
 
 export interface SocialLink {
   /** Shown as the link text, e.g. "Instagram". */
@@ -307,7 +353,7 @@ export interface HomeContent {
   /** Hero description, also rich text. */
   description: RichDoc;
   ctaText: string;
-  /** Site path (`/proposal`) or full http(s) URL. */
+  /** Site path (`/contact?call=1`) or full http(s) URL. */
   ctaLink: string;
   /** Optional button text styling; missing means the design default. */
   ctaSize?: number;
@@ -330,10 +376,14 @@ export interface HomeContent {
 /** Button text size limits (px). */
 export const CTA_SIZE_RANGE = { min: 9, max: 18 } as const;
 
+/** Longest hero headline line that still fits the hero at every width. */
+export const HERO_LINE_MAX = 26;
+
 export const DEFAULT_HOME: HomeContent = {
+  // Two lines: the first is set quiet, the second loud.
   heading: richFromLines([
-    { text: "Less Noise" },
-    { text: "More Impact", marks: { weight: 800 } },
+    { text: "Design the Future." },
+    { text: "Define the Experience.", marks: { weight: 800 } },
   ]),
   description: richFromLines([
     {
@@ -341,7 +391,7 @@ export const DEFAULT_HOME: HomeContent = {
     },
   ]),
   ctaText: "Book a Call",
-  ctaLink: "/proposal",
+  ctaLink: "/contact?call=1",
   itTitle: "IT Solutions",
   itDescription:
     "Websites, web applications and custom software built around the way your business works.",
@@ -519,34 +569,40 @@ export interface TrustContent {
   logos: TrustLogo[];
 }
 
-/** Keeps the grid and the strip from overflowing. */
+/** Keeps the About page's row of stats from overflowing. */
 export const MAX_TRUST_STATS = 8;
-export const MAX_TRUST_LOGOS = 16;
+/**
+ * The homepage shows the first stat large and the next three beside it; the
+ * About page shows every stat.
+ */
+export const HOME_STATS = 4;
+/** As many names as the homepage's client dial can hold on one line. */
+export const MAX_TRUST_LOGOS = 10;
 
 export const DEFAULT_TRUST: TrustContent = {
-  headingDark: "DESIGN\nTHAT WORKS",
-  headingMuted: "RESULTS\nTHAT LAST",
+  headingDark: "Design that works.",
+  headingMuted: "Results that last.",
   stats: [
     {
-      label: "Client Satisfaction",
-      value: "100%",
-      suffix: "",
-      description: "Trusted by growing digital teams",
-    },
-    {
-      label: "Experience",
-      value: "8+",
-      suffix: "Years",
-      description: "Designing scalable digital products",
-    },
-    {
-      label: "Delivered Projects",
+      label: "Delivered projects",
       value: "60+",
       suffix: "",
       description: "Across SaaS, AI & digital platforms",
     },
     {
-      label: "Growth Impact",
+      label: "Client satisfaction",
+      value: "100%",
+      suffix: "",
+      description: "Trusted by growing digital teams",
+    },
+    {
+      label: "Years experience",
+      value: "8+",
+      suffix: "",
+      description: "Designing scalable digital products",
+    },
+    {
+      label: "Growth impact",
       value: "+40%",
       suffix: "",
       description: "Average ROI growth after new design",
@@ -569,6 +625,8 @@ export const DEFAULT_SETTINGS: Settings = {
   home: DEFAULT_HOME,
   trust: DEFAULT_TRUST,
   socialLinks: [],
+  contact: DEFAULT_CONTACT,
+  content: DEFAULT_CONTENT,
   updatedAt: new Date(0).toISOString(),
 };
 

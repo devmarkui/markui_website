@@ -13,9 +13,6 @@ import {
 
 const INITIAL: FormState = {};
 
-/** Symbols the strip already uses, offered as suggestions. */
-const ICON_SUGGESTIONS = ["◎", "●", "◭", "⬡", "◈", "⊠", "⊡", "◇", "▣", "✦", "▲", "◐"];
-
 interface StatRow extends TrustStat {
   /** Stable React key; never sent to the server. */
   key: number;
@@ -68,8 +65,9 @@ export default function TrustForm({ trust }: { trust: TrustContent }) {
         <div>
           <h1 className="ad-title">Trust &amp; Stats</h1>
           <p className="ad-subtitle">
-            The band under the Home page hero — the headline, the scrolling
-            client names and the stat cards beside them.
+            The homepage&rsquo;s <em>Proof</em> section — its headline, the
+            four figures and the client names on the dial. The About page
+            shows the same figures.
           </p>
         </div>
       </div>
@@ -88,37 +86,43 @@ export default function TrustForm({ trust }: { trust: TrustContent }) {
           <div className="ad-grid">
             <div className="ad-field">
               <label className="ad-label" htmlFor="trust-heading-dark">
-                Black lines
+                First sentence <span>(bright)</span>
               </label>
-              <textarea
+              <input
                 id="trust-heading-dark"
                 name="trustHeadingDark"
-                rows={2}
-                defaultValue={trust.headingDark}
-                placeholder={"DESIGN\nTHAT WORKS"}
+                type="text"
+                defaultValue={trust.headingDark.replace(/\s*\n\s*/g, " ")}
+                placeholder="Design that works."
+                maxLength={48}
                 required
               />
-              <p className="ad-hint">One line per line.</p>
+              <p className="ad-hint">A short sentence, with its full stop.</p>
             </div>
             <div className="ad-field">
               <label className="ad-label" htmlFor="trust-heading-muted">
-                Grey lines <span>(shown underneath)</span>
+                Second sentence <span>(muted, follows the first)</span>
               </label>
-              <textarea
+              <input
                 id="trust-heading-muted"
                 name="trustHeadingMuted"
-                rows={2}
-                defaultValue={trust.headingMuted}
-                placeholder={"RESULTS\nTHAT LAST"}
+                type="text"
+                defaultValue={trust.headingMuted.replace(/\s*\n\s*/g, " ")}
+                placeholder="Results that last."
+                maxLength={48}
               />
-              <p className="ad-hint">Leave blank for a headline in black only.</p>
+              <p className="ad-hint">Leave blank for a one-sentence headline.</p>
             </div>
           </div>
         </div>
 
         {/* ── Stat cards ── */}
         <div className="ad-panel">
-          <h2 className="ad-panel-title">Stat cards</h2>
+          <h2 className="ad-panel-title">Figures</h2>
+          <p className="ad-hint" style={{ marginBottom: 16 }}>
+            The homepage shows the <strong>first</strong> figure very large and the next three beside it, so
+            put your strongest number first. The About page shows all of them in a row.
+          </p>
 
           {stats.length === 0 ? (
             <p className="ad-hint" style={{ marginBottom: 16 }}>
@@ -161,7 +165,7 @@ export default function TrustForm({ trust }: { trust: TrustContent }) {
                     </div>
                     <div className="ad-field">
                       <label className="ad-label" htmlFor={`stat-suffix-${row.key}`}>
-                        Under the figure <span>(optional)</span>
+                        Unit word <span>(optional, e.g. Years)</span>
                       </label>
                       <input
                         id={`stat-suffix-${row.key}`}
@@ -248,7 +252,8 @@ export default function TrustForm({ trust }: { trust: TrustContent }) {
             </button>
           </div>
           <p className="ad-hint" style={{ marginTop: 10 }}>
-            They sit in a two-column grid, so an even number looks tidiest. Up to{" "}
+            Keep each figure short (&ldquo;60+&rdquo;, &ldquo;100%&rdquo;, &ldquo;+40%&rdquo;) and each
+            description to one line. Figures after the fourth appear on the About page only. Up to{" "}
             {MAX_TRUST_STATS}.
           </p>
         </div>
@@ -257,15 +262,9 @@ export default function TrustForm({ trust }: { trust: TrustContent }) {
         <div className="ad-panel">
           <h2 className="ad-panel-title">Client names</h2>
           <p className="ad-hint" style={{ marginBottom: 16 }}>
-            The symbol is one character shown before the name — pick one of the
-            suggestions or paste any you like.
+            The names on the homepage&rsquo;s tuning dial, in this order. Short names read best: the more
+            there are, the smaller they are set.
           </p>
-
-          <datalist id="trust-icons">
-            {ICON_SUGGESTIONS.map((icon) => (
-              <option key={icon} value={icon} />
-            ))}
-          </datalist>
 
           {logos.length === 0 ? (
             <p className="ad-hint" style={{ marginBottom: 16 }}>
@@ -277,22 +276,9 @@ export default function TrustForm({ trust }: { trust: TrustContent }) {
             {logos.map((row, index) => (
               <div className="ad-item ad-item--plain" key={row.key}>
                 <div className="ad-item-body">
-                  <div className="ad-grid ad-grid--icon">
-                    <div className="ad-field">
-                      <label className="ad-label" htmlFor={`logo-icon-${row.key}`}>
-                        Symbol <span>(optional)</span>
-                      </label>
-                      <input
-                        id={`logo-icon-${row.key}`}
-                        name="logoIcon"
-                        type="text"
-                        list="trust-icons"
-                        maxLength={4}
-                        value={row.icon}
-                        onChange={(e) => updateLogo(row.key, "icon", e.target.value)}
-                        placeholder="◎"
-                      />
-                    </div>
+                  <div className="ad-grid">
+                    {/* The dial sets names only; a stored symbol is kept. */}
+                    <input type="hidden" name="logoIcon" value={row.icon} />
                     <div className="ad-field">
                       <label className="ad-label" htmlFor={`logo-name-${row.key}`}>
                         Name
@@ -304,6 +290,7 @@ export default function TrustForm({ trust }: { trust: TrustContent }) {
                         value={row.name}
                         onChange={(e) => updateLogo(row.key, "name", e.target.value)}
                         placeholder="Orbital"
+                        maxLength={16}
                         required
                       />
                     </div>
@@ -359,14 +346,13 @@ export default function TrustForm({ trust }: { trust: TrustContent }) {
             </button>
           </div>
           <p className="ad-hint" style={{ marginTop: 10 }}>
-            The strip scrolls on a loop, so the order is just where each name
-            starts. Up to {MAX_TRUST_LOGOS}.
+            The needle sweeps from name to name in this order. Up to {MAX_TRUST_LOGOS}.
           </p>
         </div>
 
         <div style={{ marginTop: 24 }}>
           <button type="submit" className="ad-btn ad-btn--primary" disabled={pending}>
-            {pending ? "Saving…" : "Save trust strip"}
+            {pending ? "Saving…" : "Save trust and stats"}
           </button>
         </div>
       </form>
