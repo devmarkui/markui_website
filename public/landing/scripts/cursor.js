@@ -13,6 +13,7 @@ import { add, remove } from "./ticker.js";
 
 const MAGNETS = ".btn-signal, .btn-line, .work-tuner-btn, .nav-cta, .footer-top-link, .contact-submit";
 const HOVERS = "a, button, [role='slider'], label, .work-card";
+const INK_GROUNDS = ".voices";
 
 export function initCursor() {
   const ok = window.matchMedia("(hover: hover) and (pointer: fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -37,6 +38,10 @@ export function initCursor() {
   let mx = 0;
   let my = 0;
   let seen = false;
+
+  function setInk(el) {
+    root.classList.toggle("is-ink", Boolean(el && el.closest(INK_GROUNDS)));
+  }
 
   function setMode(next, text = "") {
     if (next === mode && label.textContent === text) return;
@@ -102,6 +107,7 @@ export function initCursor() {
       else if (card) setMode("view", "View");
       else if (hot) setMode("hover");
       else setMode("");
+      setInk(t);
       const m = t && t.closest(MAGNETS);
       if (m !== (magnet && magnet.el)) {
         if (magnet) release(magnet.el);
@@ -125,6 +131,8 @@ export function initCursor() {
     "scroll",
     () => {
       if (magnet) magnet.rect = magnet.el.getBoundingClientRect();
+      // Scrolling moves the page under a still pointer: no pointermove fires.
+      if (seen) setInk(document.elementFromPoint(x, y));
     },
     { passive: true },
   );

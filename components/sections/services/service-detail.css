@@ -30,22 +30,18 @@
 }
 
 .sd-overview-text p {
-  max-width: 34ch;
-  font-family: var(--font-display);
-  font-size: clamp(1.625rem, 3vw, 3rem);
-  line-height: 1.1;
-  letter-spacing: -0.025em;
+  max-width: 54ch;
+  font-family: var(--font-body);
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  line-height: 1.55;
   font-weight: 400;
   color: var(--ink);
-  word-spacing: 0.06em;
 }
 
 .sd-overview-text p + p {
   max-width: 60ch;
-  font-family: var(--font-body);
   font-size: var(--fs-body-l);
   line-height: 1.65;
-  letter-spacing: 0;
   color: var(--ink-soft);
 }
 

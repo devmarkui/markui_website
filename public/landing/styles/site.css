@@ -4092,6 +4092,7 @@ button {
   font-family: var(--font-display);
   letter-spacing: -0.03em;
   text-wrap: balance;
+  color: #fff;
 }
 
 .voices-by {
@@ -5819,7 +5820,10 @@ html:not(.has-cursor) .cursor {
   height: 8px;
   border-radius: 50%;
   background: var(--signal);
-  transition: transform 260ms var(--ease-out), opacity 200ms var(--ease-out);
+  transition:
+    transform 260ms var(--ease-out),
+    opacity 200ms var(--ease-out),
+    background-color 300ms var(--ease-out);
 }
 
 .cursor-ring::before {
@@ -5860,6 +5864,19 @@ html:not(.has-cursor) .cursor {
 
 .cursor[data-mode="hover"] .cursor-dot::before {
   transform: scale(0.6);
+}
+
+/* Over the orange reviews an orange cursor would vanish, so it turns ink. */
+.cursor.is-ink .cursor-dot::before {
+  background: var(--ink);
+}
+
+.cursor.is-ink .cursor-ring::before {
+  border-color: rgba(21, 17, 14, 0.7);
+}
+
+.cursor.is-ink[data-mode="hover"] .cursor-ring::before {
+  background: rgba(21, 17, 14, 0.12);
 }
 
 .cursor[data-mode="view"] .cursor-ring::before,
