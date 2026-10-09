@@ -41,10 +41,15 @@ backup_nginx() {
   [[ -d "$backup" ]] || { cp -a /etc/nginx "$backup"; log "Backed up /etc/nginx to $backup"; }
 }
 
+SNIPPET="/etc/nginx/snippets/markui-body.conf"
+
 reload_or_restore() {
   local fallback="$1"
   if ! nginx -t; then
     if [[ -n "$fallback" ]]; then install -m 644 "$fallback" "$VHOST"; else rm -f "/etc/nginx/sites-enabled/$DOMAIN.conf"; fi
+    # markui.lk's shared body is replaced in `prepare`; put the old one back too,
+    # so nothing broken is left on disk for the next reload on this shared box.
+    [[ -f "$SNIPPET.before-vault" ]] && install -m 644 "$SNIPPET.before-vault" "$SNIPPET"
     nginx -t >/dev/null 2>&1 || true
     die "nginx -t failed; the previous state has been restored and nothing was reloaded."
   fi
@@ -57,7 +62,8 @@ case "$step" in
     log "Installing the snippets"
     install -m 644 "$APP_DIR/deploy/nginx/creative-body.conf" /etc/nginx/snippets/creative-body.conf
     # markui.lk's body gained the Vault upload route and /media/vault/.
-    install -m 644 "$APP_DIR/deploy/nginx/markui-body.conf" /etc/nginx/snippets/markui-body.conf
+    [[ -f "$SNIPPET.before-vault" ]] || cp -a "$SNIPPET" "$SNIPPET.before-vault"
+    install -m 644 "$APP_DIR/deploy/nginx/markui-body.conf" "$SNIPPET"
 
     mkdir -p /srv/markui/data/uploads/vault
     chown markui:markui /srv/markui/data/uploads/vault
