@@ -22,12 +22,21 @@ import {
 const INITIAL: FormState = {};
 const FILTERS: ProjectFilter[] = ["All", ...PROJECT_CATEGORIES];
 
+/** A Creative Vault project, for the "Creative Vault page" dropdown. */
+export interface VaultOption {
+  id: string;
+  title: string;
+  status: "draft" | "unlisted" | "published";
+}
+
 export default function ProjectManager({
   projects,
   services,
+  vaultProjects,
 }: {
   projects: Project[];
   services: Service[];
+  vaultProjects: VaultOption[];
 }) {
   const [filter, setFilter] = useState<ProjectFilter>("All");
   const [editing, setEditing] = useState<Project | "new" | null>(null);
@@ -241,6 +250,7 @@ export default function ProjectManager({
           key={editing === "new" ? "new" : editing.id}
           project={editing === "new" ? null : editing}
           services={services}
+          vaultProjects={vaultProjects}
           onClose={() => setEditing(null)}
           onSaved={(message) => {
             setEditing(null);
@@ -274,11 +284,13 @@ export default function ProjectManager({
 function ProjectEditor({
   project,
   services,
+  vaultProjects,
   onClose,
   onSaved,
 }: {
   project: Project | null;
   services: Service[];
+  vaultProjects: VaultOption[];
   onClose: () => void;
   onSaved: (message: string) => void;
 }) {
@@ -522,18 +534,37 @@ function ProjectEditor({
               </div>
 
               <div className="ad-field">
+                <label className="ad-label" htmlFor="pr-vault">
+                  Creative Vault page <span>(optional)</span>
+                </label>
+                <select id="pr-vault" name="vaultProjectId" defaultValue={project?.vaultProjectId ?? ""}>
+                  <option value="">None</option>
+                  {vaultProjects.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.title}
+                      {v.status === "draft" ? " (draft, not linked until published)" : v.status === "unlisted" ? " (unlisted)" : ""}
+                    </option>
+                  ))}
+                </select>
+                <p className="ad-hint">
+                  Adds &ldquo;Explore the full project&rdquo; to this project&rsquo;s page. Build the page under
+                  Creative Vault → Vault Projects.
+                </p>
+              </div>
+
+              <div className="ad-field">
                 <label className="ad-label" htmlFor="pr-portfolio">
-                  Portfolio URL <span>(optional)</span>
+                  Other portfolio link <span>(optional)</span>
                 </label>
                 <input
                   id="pr-portfolio"
                   name="portfolioUrl"
                   type="url"
                   defaultValue={project?.portfolioUrl ?? ""}
-                  placeholder="https://your-portfolio-site.com/project"
+                  placeholder="https://www.behance.net/…"
                 />
                 <p className="ad-hint">
-                  This project&rsquo;s page on the separate portfolio site.
+                  Shown as &ldquo;View in portfolio&rdquo; when there&rsquo;s no Vault page.
                 </p>
               </div>
 

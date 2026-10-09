@@ -232,6 +232,32 @@ sudo bash deploy/deploy.sh
 A rollback does not undo database changes. Content edited in the admin is
 independent of the deployed code.
 
+## The Creative Vault (creative.markui.lk)
+
+The Vault is part of this app: `app/vault` holds its pages, and
+`next.config.ts` rewrites every request for `creative.markui.lk` into
+`/vault`. Its dashboard is Admin → Creative Vault on markui.lk. Uploads land
+in `/srv/markui/data/uploads/vault` (inside the backed-up data directory),
+and nginx serves them at `/media/vault/` on both hosts.
+
+Moving it here from the old Vercel deployment, once:
+
+1. Back up and apply `database/migrations/005-creative-vault.sql` (see
+   "Changing the database schema" below), then ship the code with
+   `deploy.sh`.
+2. Optionally add `GOOGLE_DRIVE_API_KEY` (and `MICROLINK_API_KEY`) to
+   `.env.local` — see `deploy/env.production.example` — and restart.
+3. `sudo bash /srv/markui/app/deploy/creative-vault.sh prepare` installs the
+   nginx pieces and checks the app answers for the new host. Test it before
+   DNS moves: `curl -H "Host: creative.markui.lk" http://139.99.90.67/`.
+4. Build the projects in the dashboard and check them with Preview.
+5. Lower the `creative` record's TTL, point its A record at
+   139.99.90.67 (remove any AAAA pointing at Vercel), then straight away run
+   `sudo bash /srv/markui/app/deploy/creative-vault.sh go-live` for the
+   certificate. Between the DNS change and that script, HTTPS visitors see a
+   certificate warning, so keep the gap short.
+6. Ask whoever owns the Vercel project to pause or delete it.
+
 ## Changing the database schema
 
 `database/schema.sql` is the initial schema, not a migration: bare

@@ -56,7 +56,21 @@ publish anything.
 
 /projects              The main portfolio showcase, filtered by
                        All | Web | Marketing | Branding | Multimedia
+
+creative.markui.lk     The Creative Vault (app/vault, rewritten in by host):
+├── /                  every published project, filterable by service
+├── /<slug>            one project in full: films, posters, Drive galleries,
+│                      social posts, the live website in device frames …
+└── /preview/<id>      a draft, through a signed link from the dashboard
 ```
+
+The Vault is edited under Admin → Creative Vault. A project there is a header
+plus sections (story, videos, posters, photo gallery, social posts, website,
+prototype, before/after, results, quote, files); new projects start from a set
+of sections suited to their service. A main-site project links to its Vault
+page from its own editor ("Creative Vault page"), which adds "Explore the full
+project" to its page. Locally, run the dev server and open
+`http://creative.localhost:3000` (set `VAULT_ORIGIN` to match).
 
 Products and Services are deliberately separate: separate pages, separate
 database collections, separate admin screens. They never share a grid.

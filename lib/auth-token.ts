@@ -171,6 +171,19 @@ function sign(data: string): string {
   return createHmac("sha256", getSecret()).update(data).digest("base64url");
 }
 
+/**
+ * Signs and checks other short-lived links with the session secret — the
+ * Creative Vault's draft previews, which open on a host the admin cookie
+ * isn't sent to. `purpose` keeps these signatures from ever matching a session.
+ */
+export function signLink(purpose: string, data: string): string {
+  return sign(`${purpose}:${data}`);
+}
+
+export function verifyLink(purpose: string, data: string, signature: string): boolean {
+  return safeEqual(signature, sign(`${purpose}:${data}`));
+}
+
 export function createToken(username: string): string {
   const now = Math.floor(Date.now() / 1000);
   const payload: SessionPayload = {

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import ProjectDetail from "@/components/sections/projects/ProjectDetail";
 import { getProjectBySlug, getProjects, getServices } from "@/lib/db";
 import { projectCover, projectGallery } from "@/lib/projects";
+import { vaultPageFor } from "@/lib/vault/main-site";
 
 interface PageProps {
   params: Promise<{
@@ -33,7 +34,11 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const project = await findProject(slug);
   if (!project) notFound();
 
-  const [projects, services] = await Promise.all([getProjects(), getServices()]);
+  const [projects, services, vaultPage] = await Promise.all([
+    getProjects(),
+    getServices(),
+    vaultPageFor(project.vaultProjectId),
+  ]);
 
   // "Next project" follows the Projects page order and skips anything the
   // page itself would not show.
@@ -60,6 +65,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       cover={cover}
       gallery={gallery}
       services={linkedServices.map((s) => ({ name: s.name, slug: s.slug }))}
+      vaultPage={vaultPage}
       next={
         next && next.id !== project.id
           ? {

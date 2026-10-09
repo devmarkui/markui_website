@@ -8,6 +8,7 @@ import {
   getServices,
   getSettings,
 } from "@/lib/db";
+import { applyVaultLinks, servicePortfolioUrl } from "@/lib/vault/main-site";
 
 /** Pre-renders a page per service; new ones are rendered on first request. */
 export async function generateStaticParams() {
@@ -44,11 +45,16 @@ export default async function ServiceDetailPage(
     getServices(),
   ]);
 
+  const [work, portfolioUrl] = await Promise.all([
+    applyVaultLinks(topWork),
+    servicePortfolioUrl(settings.portfolioUrl, service),
+  ]);
+
   return (
     <ServiceDetail
       service={service}
-      topWork={topWork}
-      portfolioUrl={settings.portfolioUrl}
+      topWork={work}
+      portfolioUrl={portfolioUrl}
       otherServices={allServices
         .filter((s) => s.id !== service.id)
         .map(({ id, slug: s, name }) => ({ id, slug: s, name }))}

@@ -44,3 +44,7 @@ next-env.d.ts
 
 # local data store (json db + uploaded media)
 /.data/
+
+# The old standalone Creative Vault app, kept locally for reference only.
+/MarkUI-Creative-Vault/
+/MarkUI_Website_Changes.pdf

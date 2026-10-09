@@ -36,12 +36,15 @@ export default function ProjectDetail({
   cover,
   gallery,
   services,
+  vaultPage,
   next,
 }: {
   project: Project;
   cover: ProjectCover | null;
   gallery: GalleryItem[];
   services: { name: string; slug: string }[];
+  /** The project's page in the Creative Vault, when it has a live one. */
+  vaultPage?: string;
   next: NextProject | null;
 }) {
   const [open, setOpen] = useState<number | null>(null);
@@ -61,7 +64,10 @@ export default function ProjectDetail({
     year ? { label: "Year", value: year } : null,
   ].filter((f): f is { label: string; value: string } => Boolean(f));
 
-  const hasSide = deliverables.length > 0 || services.length > 0 || Boolean(project.link || project.portfolioUrl);
+  // The Vault page, when there is one, is the way to everything we made for the
+  // project; otherwise any other portfolio link set for it.
+  const portfolio = vaultPage ?? project.portfolioUrl;
+  const hasSide = deliverables.length > 0 || services.length > 0 || Boolean(project.link || portfolio);
 
   return (
     <SitePage>
@@ -74,7 +80,15 @@ export default function ProjectDetail({
         size="m"
         lede={project.description ? <p>{project.description}</p> : undefined}
         facts={facts}
-      />
+      >
+        {vaultPage ? (
+          <div className="btn-row pd-mast-cta">
+            <a className="btn-signal" href={vaultPage} target="_blank" rel="noopener noreferrer">
+              Explore the full project <Arrow />
+            </a>
+          </div>
+        ) : null}
+      </Masthead>
 
       {cover ? (
         <section className="pd-cover ground ground-carbon" data-ground="carbon" aria-label="Cover">
@@ -127,15 +141,25 @@ export default function ProjectDetail({
                   </div>
                 ) : null}
 
-                {project.link || project.portfolioUrl ? (
+                {project.link || portfolio ? (
                   <div className="pd-actions">
+                    {vaultPage ? (
+                      <a className="btn-signal" href={vaultPage} target="_blank" rel="noopener noreferrer">
+                        Explore the full project <Arrow />
+                      </a>
+                    ) : null}
                     {project.link ? (
-                      <a className="btn-signal" href={project.link} target="_blank" rel="noopener noreferrer">
+                      <a
+                        className={vaultPage ? "btn-line" : "btn-signal"}
+                        href={project.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         Visit website <Arrow />
                       </a>
                     ) : null}
-                    {project.portfolioUrl ? (
-                      <a className="btn-line" href={project.portfolioUrl} target="_blank" rel="noopener noreferrer">
+                    {portfolio && !vaultPage ? (
+                      <a className="btn-line" href={portfolio} target="_blank" rel="noopener noreferrer">
                         View in portfolio <Arrow />
                       </a>
                     ) : null}

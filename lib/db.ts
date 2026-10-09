@@ -854,6 +854,8 @@ function resolveTopWork(db: Database, serviceId: string): ResolvedTopWork[] {
         link: work.link || project?.link,
         category: work.category || project?.category,
         fromProject: Boolean(project),
+        // The project's Vault page beats its live-site link (lib/vault/main-site.ts).
+        vaultProjectId: work.link ? undefined : project?.vaultProjectId,
       };
       return [resolved];
     });

@@ -444,3 +444,8 @@
     margin-bottom: 84px;
   }
 }
+
+/* The way into the project's Creative Vault page, under the masthead's lede. */
+.pd-mast-cta {
+  grid-column: 1 / -1;
+}

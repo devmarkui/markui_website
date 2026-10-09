@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "public/landing/**",
     // Design-loop workspace, not part of the app.
     "gan-harness/**",
+    // The old standalone Creative Vault app, kept locally for reference only.
+    "MarkUI-Creative-Vault/**",
   ]),
 ]);
 

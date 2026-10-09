@@ -26,6 +26,14 @@ const GROUPS: { label: string; links: { href: string; label: string }[] }[] = [
     ],
   },
   {
+    label: "Creative Vault",
+    links: [
+      { href: "/admin/vault", label: "Vault Projects" },
+      { href: "/admin/vault/media", label: "Vault Media" },
+      { href: "/admin/vault/settings", label: "Vault Page" },
+    ],
+  },
+  {
     label: "Enquiries",
     links: [{ href: "/admin/enquiries", label: "Form Submissions" }],
   },
@@ -34,6 +42,12 @@ const GROUPS: { label: string; links: { href: string; label: string }[] }[] = [
     links: [{ href: "/admin/account", label: "Account" }],
   },
 ];
+
+/** A Vault project's editor (/admin/vault/<id>, /admin/vault/new) belongs to "Vault Projects". */
+function isCurrent(pathname: string, href: string) {
+  if (pathname === href) return true;
+  return href === "/admin/vault" && /^\/admin\/vault\/(?!media$|settings$)[^/]+$/.test(pathname);
+}
 
 export default function AdminNav() {
   const pathname = usePathname();
@@ -51,7 +65,7 @@ export default function AdminNav() {
               key={href}
               href={href}
               className="ad-side-link"
-              aria-current={pathname === href ? "page" : undefined}
+              aria-current={isCurrent(pathname, href) ? "page" : undefined}
             >
               {label}
             </Link>

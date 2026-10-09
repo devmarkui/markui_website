@@ -51,6 +51,7 @@ import {
   type TopWorkInput,
 } from "@/lib/db";
 import { deleteEnquiry } from "@/lib/enquiries";
+import { getVaultProject } from "@/lib/vault/store";
 import { BODY_LIMITS, HEADING_LIMITS, richFromLines, sanitizeRichDoc } from "@/lib/rich-text";
 import {
   HOME_REASONS,
@@ -300,6 +301,10 @@ export async function saveProject(
   if (portfolioUrl && !isHttpUrl(portfolioUrl)) {
     return { error: "The portfolio URL must start with https:// or http://." };
   }
+  const vaultProjectId = text(formData, "vaultProjectId");
+  if (vaultProjectId && !(await getVaultProject(vaultProjectId))) {
+    return { error: "That Creative Vault project no longer exists. Pick another or None." };
+  }
 
   const existing = id ? await getProject(id) : null;
   if (id && !existing) return { error: "That project no longer exists." };
@@ -378,6 +383,7 @@ export async function saveProject(
       coverVideo: coverVideo || undefined,
       link: text(formData, "link") || undefined,
       portfolioUrl: portfolioUrl || undefined,
+      vaultProjectId: vaultProjectId || undefined,
       deliverables: list(formData, "deliverables"),
       serviceIds,
       featured: checkbox(formData, "featured"),

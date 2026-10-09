@@ -7,9 +7,6 @@ import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 import localFont from "next/font/local";
 
-import { SiteFooter, SiteHeader } from "@/components/layout/SiteChrome";
-import { getServices, getSettings } from "@/lib/db";
-
 /** The fallback for pages that set no title or description of their own. */
 export const metadata: Metadata = {
   title: "Mark UI",
@@ -28,15 +25,16 @@ const clash = localFont({
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
 
-export default async function RootLayout({
+/**
+ * The document shell every page shares: fonts and global styles only. The
+ * site's nav and footer live in app/(site)/layout.tsx, the dashboard has its
+ * own chrome under app/admin, and the Creative Vault (app/vault) has none.
+ */
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Social links and contact details are managed in the dashboard (Footer &
-  // Social, Contact Details); the footer lists every active service.
-  const [{ socialLinks, contact, content }, services] = await Promise.all([getSettings(), getServices()]);
-
   return (
     <html
       lang="en"
@@ -48,16 +46,7 @@ export default async function RootLayout({
         {/* Scroll reveals only hide content when a script is there to show it. */}
         <script dangerouslySetInnerHTML={{ __html: 'document.documentElement.classList.add("js")' }} />
       </head>
-      <body>
-        <SiteHeader socialLinks={socialLinks} contact={contact} />
-        {children}
-        <SiteFooter
-          socialLinks={socialLinks}
-          contact={contact}
-          services={services.map(({ name, slug }) => ({ name, slug }))}
-          note={content.footerNote}
-        />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

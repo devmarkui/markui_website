@@ -58,8 +58,10 @@ export interface Project {
   coverVideo?: string;
   /** Optional outbound link to the live project ("Visit website"). */
   link?: string;
-  /** The project's page on the separate portfolio site. */
+  /** Any other portfolio page for the project (used when it has no Vault page). */
   portfolioUrl?: string;
+  /** Its page in the Creative Vault (`vault_projects.id`). */
+  vaultProjectId?: string;
   /** "What we did" — e.g. Strategy, Design, Development. */
   deliverables?: string[];
   /** Services this work belongs to (ids). Lets the same project serve as Top Work. */
@@ -176,6 +178,8 @@ export interface ResolvedTopWork {
   category?: string;
   /** True when the content comes from a project rather than being bespoke. */
   fromProject: boolean;
+  /** The linked project's Creative Vault page, used when the item sets no link of its own. */
+  vaultProjectId?: string;
 }
 
 // ─── Products ────────────────────────────────────────────────────────────────

@@ -8,6 +8,10 @@ import { useEffect } from "react";
 //   links and buttons   the ring swells round them
 //   [data-cursor]       the ring becomes a disc with that word ("View")
 //   text fields         it steps aside for the native caret
+//   frames              it hides over embedded players and sites, which
+//                       show their own pointer ([data-cursor-native])
+//   orange grounds      it turns ink over .ground-signal, where an orange
+//                       cursor would vanish (also as the page scrolls)
 // Buttons are magnetic: they lean towards the pointer and spring back.
 // Desktop mouse only, never under reduced motion; the native cursor is
 // hidden only while this one is actually running.
@@ -79,6 +83,8 @@ export default function SignalCursor() {
       }, 620);
     };
 
+    const setInk = (t: Element | null) => root.classList.toggle("is-ink", Boolean(t?.closest(".ground-signal, [data-cursor-ink]")));
+
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return;
       x = e.clientX;
@@ -90,8 +96,10 @@ export default function SignalCursor() {
         html.classList.add("has-cursor");
       }
       const t = e.target instanceof Element ? e.target : null;
+      setInk(t);
       const view = t?.closest<HTMLElement>("[data-cursor]");
-      if (t?.closest("input, textarea, select")) setMode("text");
+      if (t?.closest("iframe, [data-cursor-native]")) setMode("text");
+      else if (t?.closest("input, textarea, select")) setMode("text");
       else if (view) setMode("view", view.dataset.cursor);
       else if (t?.closest(HOVERS)) setMode("hover");
       else setMode("");
@@ -116,6 +124,8 @@ export default function SignalCursor() {
     const onEnter = () => root.classList.remove("is-out");
     const onScroll = () => {
       if (magnet) magnet.rect = magnet.el.getBoundingClientRect();
+      // The page can scroll an orange ground under a pointer that hasn't moved.
+      if (seen) setInk(document.elementFromPoint(x, y));
     };
 
     document.addEventListener("pointermove", onMove, { passive: true });

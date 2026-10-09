@@ -1393,6 +1393,36 @@ html:not(.has-cursor) .cursor {
   transform: scale(0.8);
 }
 
+/* Over an orange ground ([data-cursor-ink]) an orange cursor would vanish,
+   so it turns ink, as the homepage's does over the reviews. */
+.cursor.is-ink .cursor-dot::before {
+  background: #15110e;
+}
+
+.cursor.is-ink .cursor-ring::before {
+  border-color: rgba(21, 17, 14, 0.7);
+}
+
+.cursor.is-ink[data-mode="hover"] .cursor-ring::before {
+  background: rgba(21, 17, 14, 0.12);
+}
+
+.cursor.is-ink[data-mode="view"] .cursor-ring::before {
+  background: #15110e;
+  border-color: #15110e;
+}
+
+.cursor.is-ink[data-mode="view"] .cursor-label {
+  color: #f1ece6;
+}
+
+/* Embedded players and sites show their own pointer. */
+html.has-cursor [data-cursor-native],
+html.has-cursor [data-cursor-native] *,
+html.has-cursor iframe {
+  cursor: auto !important;
+}
+
 html.has-cursor,
 html.has-cursor * {
   cursor: none !important;
