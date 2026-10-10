@@ -309,7 +309,7 @@ function workImage(project: Project): string {
   return (
     `<img src="${esc(optimised(project.image, 1920))}" ` +
     `srcset="${esc(optimised(project.image, 828))} 828w, ${esc(optimised(project.image, 1920))} 1920w" ` +
-    `sizes="(max-width: 767px) 100vw, 60vw" loading="lazy" decoding="async" alt="${esc(alt)}" />`
+    `sizes="(max-width: 767px) 50vw, 33vw" loading="lazy" decoding="async" alt="${esc(alt)}" />`
   );
 }
 

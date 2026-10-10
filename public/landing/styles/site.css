@@ -3327,13 +3327,12 @@ button {
 
 /* ---- work.css ---- */
 /* ==========================================================================
-   Work — the gallery wall. Dark prints hung on warm paper.
-   The hang is defined by SLOT (nth-child), not by project, so tuning to a
-   channel can re-hang the wall: matching prints move to the front slots,
-   the rest are turned down behind them (scripts/work.js).
-   Every project image has its title baked into its left third, so any crop
-   narrower than 3:2 is anchored to the left edge (--pos: 0%) and the baked
-   title is never sliced. Phones get the untouched 3:2 print.
+   Work — the gallery wall. Prints hung on warm paper in an even grid: three
+   to a row (two on phones), every print the same 3:2 frame, cropped from
+   the centre. Tuning to a channel re-hangs the wall: matching prints move
+   to the front, the rest are turned down behind them (scripts/work.js).
+   Prints hang in black and white; the one under the pointer (or keyboard
+   focus) develops into its full colour.
    ========================================================================== */
 
 .work {
@@ -3400,22 +3399,11 @@ button {
 
 .work-grid {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: var(--gap);
-  row-gap: clamp(56px, 6vw, 96px);
+  row-gap: clamp(48px, 5vw, 80px);
   align-items: start;
 }
-
-.work-grid > :nth-child(1) { grid-column: 1 / span 7; }
-.work-grid > :nth-child(2) { grid-column: 9 / span 4; --ar: 4 / 5; --pos: 0% 50%; }
-.work-grid > :nth-child(3) { grid-column: 1 / span 4; --ar: 4 / 5; --pos: 0% 50%; }
-.work-grid > :nth-child(4) { grid-column: 6 / span 7; margin-top: clamp(24px, 3vw, 48px); }
-.work-grid > :nth-child(5) { grid-column: 1 / -1; --ar: 16 / 9; --pos: 50% 34%; }
-.work-grid > :nth-child(6) { grid-column: 1 / span 5; --ar: 1 / 1; --pos: 0% 50%; }
-.work-grid > :nth-child(7) { grid-column: 7 / span 6; --ar: 5 / 4; --pos: 0% 50%; margin-top: clamp(16px, 2vw, 32px); }
-.work-grid > :nth-child(8) { grid-column: 2 / span 6; }
-.work-grid > :nth-child(9) { grid-column: 9 / span 4; --ar: 1 / 1; --pos: 0% 50%; }
-.work-grid > :nth-child(10) { grid-column: 1 / span 8; --ar: 16 / 9; --pos: 50% 40%; }
 
 .work-card {
   position: relative;
@@ -3425,20 +3413,24 @@ button {
 .work-frame {
   position: relative;
   display: block;
-  aspect-ratio: var(--ar, 3 / 2);
+  aspect-ratio: 3 / 2;
   overflow: hidden;
   background: var(--carbon);
   transition: opacity 700ms var(--ease-out);
 }
 
+/* One filter for every state of a print, so each change between states
+   eases: --grey drains the colour (1 = black and white), --lit and --sat
+   dim it for the lights-on reveal and when it is turned down. */
 .work-frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: var(--pos, 50% 50%);
+  object-position: 50% 50%;
+  filter: brightness(var(--lit, 1)) saturate(var(--sat, 1)) grayscale(var(--grey, 0));
   transition:
     transform 1100ms var(--ease-out),
-    filter 900ms var(--ease-out);
+    filter 600ms var(--ease-out);
 }
 
 .work-view {
@@ -3488,7 +3480,7 @@ button {
 
 .work-name {
   font-family: var(--font-display);
-  font-size: clamp(1.625rem, 2.5vw, 2.375rem);
+  font-size: clamp(1.375rem, 1.9vw, 2rem);
   line-height: 1;
   letter-spacing: -0.02em;
   font-weight: var(--w-loud);
@@ -3538,27 +3530,22 @@ button {
   color: var(--ink-soft);
 }
 
-/* The wide slot gets a horizontal museum label. */
-.work-grid > :nth-child(5) .work-caption {
-  grid-template-columns: 40px minmax(0, 3fr) minmax(0, 4fr);
-}
-
-.work-grid > :nth-child(5) .work-index {
-  grid-row: 1 / span 2;
-}
-
-.work-grid > :nth-child(5) .work-desc {
-  grid-column: 3;
-  grid-row: 1 / span 2;
-  margin-top: 0;
-  justify-self: end;
-}
-
-/* Hover: a slow push-in and the "View project" tab. The other prints stay
-   exactly as they are, so the wall never flickers under the pointer. */
+/* Hover: the print develops into colour, with a slow push-in and the "View
+   project" tab. The other prints stay exactly as they are, so the wall never
+   flickers under the pointer. Touch screens have no hover to bring the
+   colour back, so there the prints hang in colour. */
 @media (hover: hover) {
+  .work-card {
+    --grey: 1;
+  }
+
+  .work-card:hover,
+  .work-card:has(.work-link:focus-visible) {
+    --grey: 0;
+  }
+
   .work-card:hover .work-frame img {
-    transform: scale(1.045);
+    transform: scale(1.025);
   }
 
   .work-card:hover .work-view,
@@ -3584,6 +3571,8 @@ button {
 
 @media (prefers-reduced-motion: no-preference) {
   .js:not(.fx) .work-frame {
+    --lit: 0.08;
+    --sat: 0.2;
     clip-path: inset(7% 7% 7% 7%);
     transition:
       clip-path 700ms var(--ease-out),
@@ -3592,26 +3581,26 @@ button {
 
   .js:not(.fx) .work-frame img {
     transform: scale(1.14);
-    filter: brightness(0.08) saturate(0.2);
   }
 
   .js:not(.fx) .work-frame.is-in {
+    --lit: 1;
+    --sat: 1;
     clip-path: inset(0 0 0 0);
   }
 
   .js:not(.fx) .work-frame.is-in img {
     transform: scale(1.001);
-    filter: none;
     transition:
       transform 800ms var(--ease-out),
       filter 600ms var(--ease-out);
   }
 
   .js:not(.fx) .work-card:hover .work-frame.is-in img {
-    transform: scale(1.045);
+    transform: scale(1.025);
     transition:
       transform 1100ms var(--ease-out),
-      filter 900ms var(--ease-out);
+      filter 600ms var(--ease-out);
   }
 
   /* Re-hang: the lights dip, the wall is re-hung, then each print comes
@@ -3636,13 +3625,12 @@ button {
 
 /* Turned down ------------------------------------------------------------- */
 
-.work-item.is-muted .work-frame {
+/* Set on the frame, so hovering a turned-down print leaves it grey. */
+.work-grid > .work-item.is-muted .work-frame {
+  --grey: 1;
+  --lit: 0.7;
+  --sat: 1;
   opacity: 0.4;
-}
-
-.js .work-item.is-muted .work-frame img,
-.work-item.is-muted .work-frame img {
-  filter: grayscale(1) brightness(0.7);
 }
 
 .work-item.is-muted .work-name {
@@ -3650,12 +3638,13 @@ button {
   color: var(--ink-soft);
 }
 
-/* Foot: the closing wall text sits beside the last print ------------------ */
+/* Foot: the closing wall text takes a row of its own under the prints ----- */
 
 .work-foot {
-  grid-column: 10 / span 3;
-  align-self: end;
+  grid-column: 1 / -1;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   justify-items: start;
   gap: 24px;
   padding-top: 24px;
@@ -3675,15 +3664,7 @@ button {
   outline-color: var(--ink);
 }
 
-/* A wall with fewer than ten prints has no tenth slot for the foot to sit
-   beside, so the closing text takes a row of its own. */
-.work-grid:not(:has(> .work-item:nth-child(10))) > .work-foot {
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-}
-
-/* Tablet: pairs of equal prints, so rows never leave a hole ---------------- */
+/* Tablet: still three to a row; the heading stacks ------------------------ */
 
 @media (max-width: 1099px) {
   .work-title {
@@ -3699,45 +3680,24 @@ button {
   }
 
   .work-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    row-gap: 40px;
   }
 
-  .work-grid > .work-item {
-    margin-top: 0;
+  .work-caption {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 6px;
+    padding-top: 14px;
   }
 
-  .work-grid > :nth-child(1),
-  .work-grid > :nth-child(4),
-  .work-grid > :nth-child(8) { grid-column: 1 / -1; --ar: 3 / 2; --pos: 50% 50%; }
-  .work-grid > :nth-child(5) { grid-column: 1 / -1; }
-  .work-grid > :nth-child(2),
-  .work-grid > :nth-child(6),
-  .work-grid > :nth-child(9) { grid-column: 1 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
-  .work-grid > :nth-child(3),
-  .work-grid > :nth-child(7),
-  .work-grid > :nth-child(10) { grid-column: 4 / span 3; --ar: 1 / 1; --pos: 0% 50%; }
-
-  .work-grid > :nth-child(5) .work-caption {
-    grid-template-columns: 40px minmax(0, 1fr);
-  }
-
-  .work-grid > :nth-child(5) .work-desc {
-    grid-column: 2;
+  .work-index {
     grid-row: auto;
-    justify-self: start;
-    margin-top: 4px;
-  }
-
-  .work-foot {
-    grid-column: 1 / -1;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    padding-top: 0;
   }
 }
 
-/* Mobile: a lead print edge to edge, then pairs. Two prints to a row, so
-   the wall is about half as long; each caption is a brief (number, name and
-   one line of facts), and the full story is one tap away ------------------- */
+/* Mobile: two to a row, so the wall is about half as long; each caption is
+   a brief (number, name and one line of facts), and the full story is one
+   tap away ---------------------------------------------------------------- */
 
 @media (max-width: 767px) {
   .work-lede,
@@ -3752,32 +3712,9 @@ button {
     row-gap: 28px;
   }
 
-  .work-grid > .work-item {
-    grid-column: auto;
-    --ar: 4 / 3;
-    --pos: 0% 50%;
-  }
-
-  .work-grid > .work-item:nth-child(5n + 1) {
-    grid-column: 1 / -1;
-    margin-inline: calc(var(--pad) * -1);
-    --ar: 3 / 2;
-    --pos: 50% 50%;
-  }
-
-  .work-grid > .work-item:nth-child(5n + 1) .work-caption {
-    padding-inline: var(--pad);
-  }
-
-  .work-grid > .work-item:nth-child(n) .work-caption {
-    grid-template-columns: minmax(0, 1fr);
+  .work-caption {
     row-gap: 4px;
     padding-top: 10px;
-  }
-
-  .work-grid > .work-item:nth-child(n) .work-index {
-    grid-row: auto;
-    padding-top: 0;
   }
 
   .work-name {
@@ -3797,28 +3734,12 @@ button {
     display: none;
   }
 
-  .work-grid > .work-item:nth-child(n) .work-desc {
+  .work-desc {
     display: none;
   }
 
-  /* The lead keeps a fuller label. */
-  .work-grid > .work-item:nth-child(5n + 1) .work-name {
-    font-size: 1.625rem;
-  }
-
-  .work-grid > .work-item:nth-child(5n + 1) .work-desc {
-    grid-column: 1;
-    grid-row: auto;
-    display: block;
-    margin-top: 2px;
-    justify-self: start;
-  }
-
-  .work-grid > .work-foot {
-    grid-column: 1 / -1;
+  .work-foot {
     grid-template-columns: 1fr;
-    width: auto;
-    margin: 0;
   }
 
   .work-foot-cta {
@@ -5737,12 +5658,14 @@ button {
 
 /* Prints: the static canvas covers the photo until it tunes in; the photo
    settles from a push-in as it arrives. It is always a little larger than
-   its frame so it can drift inside it (parallax, scripts/scroll-fx.js). */
+   its frame so it can drift inside it (parallax, scripts/scroll-fx.js);
+   only a little, as many covers are logos that run close to their edges. */
 .fx .work-frame img {
-  scale: 1.13;
+  scale: 1.05;
   transition:
     transform 1100ms var(--ease-out),
-    scale 800ms var(--ease-out);
+    scale 800ms var(--ease-out),
+    filter 600ms var(--ease-out);
 }
 
 .fx .work-frame.fx-static img {

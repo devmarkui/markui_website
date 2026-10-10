@@ -71,7 +71,8 @@ export class Denoise {
     this.finish();
   }
 
-  // The photo's colours, cropped exactly as the frame shows it (cover + position).
+  // The photo's colours, cropped exactly as the frame shows it (cover + position),
+  // drained as far as the print is (--grey, styles/work.css).
   sample() {
     const img = this.img;
     const n = this.cols * this.rows;
@@ -87,13 +88,18 @@ export class Denoise {
     const dh = img.naturalHeight * k;
     const offX = (b.w - dw) * (Number.isFinite(px) ? px : 0.5);
     const offY = (b.h - dh) * (Number.isFinite(py) ? py : 0.5);
+    const grey = clamp01(parseFloat(cs.getPropertyValue("--grey")) || 0);
     try {
       this.sctx.drawImage(img, -offX / k, -offY / k, b.w / k, b.h / k, 0, 0, this.cols, this.rows);
       const src = this.sctx.getImageData(0, 0, this.cols, this.rows).data;
       for (let i = 0; i < n; i += 1) {
-        this.photo[i * 3] = src[i * 4];
-        this.photo[i * 3 + 1] = src[i * 4 + 1];
-        this.photo[i * 3 + 2] = src[i * 4 + 2];
+        const r = src[i * 4];
+        const g = src[i * 4 + 1];
+        const bl = src[i * 4 + 2];
+        const y = (0.2126 * r + 0.7152 * g + 0.0722 * bl) * grey;
+        this.photo[i * 3] = r * (1 - grey) + y;
+        this.photo[i * 3 + 1] = g * (1 - grey) + y;
+        this.photo[i * 3 + 2] = bl * (1 - grey) + y;
       }
     } catch (error) {
       for (let i = 0; i < n * 3; i += 1) this.photo[i] = 40;

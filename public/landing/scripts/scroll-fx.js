@@ -63,11 +63,12 @@ export function initScrollFx() {
       moving = isMoving;
       html.classList.toggle("is-scrolling", moving);
     }
-    // Depth: photos drift against the scroll inside their frames.
+    // Depth: photos drift against the scroll inside their frames, within the
+    // 5% they are scaled past them (styles/fx.css).
     for (const f of frames) {
       if (!f.img || f.top - sy > vh * 1.1 || f.top + f.h - sy < -vh * 0.1) continue;
-      const off = (f.top + f.h / 2 - (sy + vh / 2)) * -0.07;
-      f.img.style.translate = `0 ${clamp(off, -f.h * 0.06, f.h * 0.06).toFixed(1)}px`;
+      const off = (f.top + f.h / 2 - (sy + vh / 2)) * -0.04;
+      f.img.style.translate = `0 ${clamp(off, -f.h * 0.024, f.h * 0.024).toFixed(1)}px`;
     }
     // Grounds open from an inset panel to full bleed.
     for (const g of grounds) {
