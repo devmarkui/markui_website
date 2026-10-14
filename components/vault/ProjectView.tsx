@@ -110,7 +110,14 @@ function formatDate(date: string) {
   return Number.isNaN(d.getTime()) ? date : d.toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
 }
 
-function renderBlock(block: VaultBlock, number: number, ground: ShownGround, albums: Record<string, VaultAlbum>) {
+/** `downloadFrom` is the project's slug when its galleries may offer downloads (not in previews). */
+function renderBlock(
+  block: VaultBlock,
+  number: number,
+  ground: ShownGround,
+  albums: Record<string, VaultAlbum>,
+  downloadFrom: string | null,
+) {
   switch (block.type) {
     case "story":
       return <StoryView key={block.id} block={block} number={number} ground={ground} />;
@@ -135,7 +142,13 @@ function renderBlock(block: VaultBlock, number: number, ground: ShownGround, alb
           block={block}
           number={number}
           ground={ground}
-          bleed={<Gallery block={block} pictures={galleryPictures(block, albums)} />}
+          bleed={
+            <Gallery
+              block={block}
+              pictures={galleryPictures(block, albums)}
+              download={downloadFrom && block.downloads !== false ? { project: downloadFrom, gallery: block.id } : null}
+            />
+          }
         />
       );
     case "website":
@@ -259,7 +272,7 @@ export default function ProjectView({
         </section>
       ) : null}
 
-      {blocks.map((block, i) => renderBlock(block, i + 1, grounds[i], albums))}
+      {blocks.map((block, i) => renderBlock(block, i + 1, grounds[i], albums, banner ? null : project.slug))}
 
       {next ? (
         <section className="vt-next ground ground-soot" aria-label="Next project">

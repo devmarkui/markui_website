@@ -191,6 +191,7 @@ export function sanitizeBlock(input: unknown): VaultBlock | null {
         captions: bool(input.captions),
         chapters: bool(input.chapters, true),
         limit: int(input.limit, 0, 1000, 0),
+        downloads: bool(input.downloads, true),
       };
 
     case "social":

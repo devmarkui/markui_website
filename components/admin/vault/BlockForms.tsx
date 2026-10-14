@@ -29,6 +29,7 @@ import {
 
 import { Area, Check, Choice, Items, Segments, Text } from "./fields";
 import { MediaSlot, MediaThumb, useMediaPicker } from "./MediaPicker";
+import { byFileName } from "./upload";
 
 type FormProps<T extends VaultBlock["type"]> = {
   block: BlockOf<T>;
@@ -397,6 +398,21 @@ function GalleryForm({
             >
               + Add photos
             </button>
+            {block.items.length > 1 ? (
+              <button
+                type="button"
+                className="ad-btn ad-btn--sm"
+                title="Put the photos in file-name order: 1, 2 … 10"
+                onClick={() =>
+                  onChange({
+                    ...block,
+                    items: [...block.items].sort((a, b) => byFileName(a.media.name ?? a.media.url, b.media.name ?? b.media.url)),
+                  })
+                }
+              >
+                Sort by file name
+              </button>
+            ) : null}
           </div>
         </div>
       )}
@@ -419,6 +435,11 @@ function GalleryForm({
         {block.source === "drive" ? (
           <Check label="Split into chapters by subfolder" checked={block.chapters} onChange={(chapters) => onChange({ ...block, chapters })} />
         ) : null}
+        <Check
+          label="Let visitors download the photos"
+          checked={block.downloads !== false}
+          onChange={(downloads) => onChange({ ...block, downloads })}
+        />
       </div>
       <Text
         label="Show at most"

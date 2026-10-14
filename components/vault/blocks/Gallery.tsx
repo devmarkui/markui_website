@@ -6,6 +6,8 @@ import { cx } from "@/components/site/hooks";
 import type { Picture } from "@/lib/vault/media-urls";
 import type { GalleryBlock } from "@/lib/vault/types";
 
+import { startDownload, type DownloadTarget } from "../download";
+import DownloadSheet, { DownloadIcon } from "../DownloadSheet";
 import { useReducedMotion } from "../hooks";
 import Lightbox from "../Lightbox";
 import Rail from "../Rail";
@@ -191,9 +193,12 @@ function Slideshow({
 export default function Gallery({
   block,
   pictures,
+  download,
 }: {
   block: Pick<GalleryBlock, "layout" | "autoplay" | "captions" | "chapters" | "label" | "title">;
   pictures: Picture[];
+  /** Where downloads come from; null when the gallery doesn't offer them. */
+  download?: DownloadTarget | null;
 }) {
   const chapters = useMemo(() => {
     if (!block.chapters) return [];
@@ -204,6 +209,9 @@ export default function Gallery({
   const [chapter, setChapter] = useState<string | null>(null);
   const [open, setOpen] = useState<number | null>(null);
   const [shown, setShown] = useState(PAGE);
+  const [picking, setPicking] = useState(false);
+  const photos = useMemo(() => (download ? pictures.filter((p) => p.kind === "image") : []), [download, pictures]);
+  const closePicker = useCallback(() => setPicking(false), []);
 
   const set = chapter === null ? pictures : pictures.filter((p) => (p.chapter ?? "") === chapter);
   const label = block.title || block.label || "Gallery";
@@ -212,29 +220,41 @@ export default function Gallery({
 
   if (!pictures.length) return null;
 
+  const tabs = chapters.length > 1;
+  const offer = download && photos.length > 0;
+
   return (
     <div className={cx("vt-gallery", `vt-gallery--${block.layout}`)}>
-      {chapters.length > 1 ? (
+      {tabs || offer ? (
         <div className="wrap">
-          <div className="vt-chapters" role="tablist" aria-label="Chapters">
-            <button type="button" role="tab" aria-selected={chapter === null} className="vt-chapter" onClick={() => setChapter(null)}>
-              All <span className="mono">{pictures.length}</span>
-            </button>
-            {chapters.map((name) => (
-              <button
-                key={name}
-                type="button"
-                role="tab"
-                aria-selected={chapter === name}
-                className="vt-chapter"
-                onClick={() => {
-                  setChapter(name);
-                  setShown(PAGE);
-                }}
-              >
-                {name} <span className="mono">{pictures.filter((p) => p.chapter === name).length}</span>
+          <div className={cx("vt-gallery-head", tabs && "vt-gallery-head--tabs")}>
+            {tabs ? (
+              <div className="vt-chapters" role="tablist" aria-label="Chapters">
+                <button type="button" role="tab" aria-selected={chapter === null} className="vt-chapter" onClick={() => setChapter(null)}>
+                  All <span className="mono">{pictures.length}</span>
+                </button>
+                {chapters.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    role="tab"
+                    aria-selected={chapter === name}
+                    className="vt-chapter"
+                    onClick={() => {
+                      setChapter(name);
+                      setShown(PAGE);
+                    }}
+                  >
+                    {name} <span className="mono">{pictures.filter((p) => p.chapter === name).length}</span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            {offer ? (
+              <button type="button" className="vt-gallery-dl mono" onClick={() => setPicking(true)} aria-haspopup="dialog">
+                <DownloadIcon /> Download <span>{photos.length}</span>
               </button>
-            ))}
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -286,7 +306,17 @@ export default function Gallery({
         </div>
       )}
 
-      <Lightbox pictures={set} index={open} onIndex={setOpen} onClose={() => setOpen(null)} label={label} />
+      <Lightbox
+        pictures={set}
+        index={open}
+        onIndex={setOpen}
+        onClose={() => setOpen(null)}
+        label={label}
+        onDownload={offer ? (p) => startDownload(download, [p.key]) : undefined}
+      />
+      {offer ? (
+        <DownloadSheet open={picking} onClose={closePicker} pictures={photos} chapters={chapters} target={download} title={label} />
+      ) : null}
     </div>
   );
 }

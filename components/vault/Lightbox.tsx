@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 
 import type { Picture } from "@/lib/vault/media-urls";
 
+import { DownloadIcon } from "./DownloadSheet";
+
 /**
  * Full-screen viewer shared by galleries, posters and before/after pairs.
  * Arrow keys and swipes move through the set, Escape closes, and the
@@ -16,12 +18,15 @@ export default function Lightbox({
   onIndex,
   onClose,
   label,
+  onDownload,
 }: {
   pictures: Picture[];
   index: number | null;
   onIndex: (index: number) => void;
   onClose: () => void;
   label?: string;
+  /** Offers a download of the photo on screen. */
+  onDownload?: (picture: Picture) => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const start = useRef<{ x: number; y: number } | null>(null);
@@ -93,6 +98,11 @@ export default function Lightbox({
           {String(index + 1).padStart(3, "0")} <span>/ {String(count).padStart(3, "0")}</span>
         </span>
         {picture.caption ? <span className="vt-lightbox-caption">{picture.caption}</span> : null}
+        {onDownload && picture.kind === "image" ? (
+          <button type="button" className="vt-lightbox-dl mono" onClick={() => onDownload(picture)}>
+            <DownloadIcon /> Download
+          </button>
+        ) : null}
         <button ref={closeRef} type="button" className="vt-lightbox-close" onClick={onClose} aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>

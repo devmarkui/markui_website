@@ -2,6 +2,13 @@
 
 import type { VaultMedia } from "@/lib/vault/types";
 
+const naturalOrder = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+
+/** File names in the order a person numbers them: "2.jpg" before "10.jpg". */
+export function byFileName(a: string, b: string) {
+  return naturalOrder.compare(a, b);
+}
+
 /**
  * Sends one file to /api/vault/upload as the raw request body, reporting
  * progress. Videos then get a poster frame, grabbed from the local file in

@@ -1112,6 +1112,62 @@
   transform: scaleX(1);
 }
 
+/* The row above a gallery: its chapters, and the Download button. */
+.vt-gallery-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px 16px;
+  margin-bottom: 20px;
+}
+
+.vt-gallery-head--tabs {
+  align-items: flex-end;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.vt-gallery-head .vt-chapters {
+  flex: 1 1 auto;
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+.vt-gallery-head--tabs .vt-gallery-dl {
+  margin-bottom: 10px;
+}
+
+.vt-gallery-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--rule);
+  color: var(--fg);
+  transition: background-color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out);
+}
+
+.vt-gallery-dl span {
+  color: var(--fg-3);
+  transition: color var(--t-fast) var(--ease-out);
+}
+
+.vt-gallery-dl:hover {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--ink);
+}
+
+.vt-gallery-dl:hover span {
+  color: var(--ink);
+}
+
+.vt-dl-icon {
+  flex: none;
+}
+
 .vt-play-badge {
   position: absolute;
   left: 50%;
@@ -1437,6 +1493,235 @@
 }
 
 /* --------------------------------------------------------------------------
+   Download picker — choose a gallery's photos to download
+   -------------------------------------------------------------------------- */
+
+.vt-dl {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  background: rgba(8, 7, 6, 0.97);
+  color: var(--bone);
+  animation: vt-fade 260ms var(--ease-out) both;
+}
+
+.vt-dl-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px var(--pad) 12px;
+}
+
+.vt-dl-kicker {
+  color: var(--signal);
+}
+
+.vt-dl-title {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.vt-dl-hint {
+  margin-top: 8px;
+  max-width: 62ch;
+  color: var(--bone-2);
+  font-size: var(--fs-small);
+}
+
+.vt-dl-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px var(--pad) 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.vt-dl-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--bone);
+  font-size: var(--fs-small);
+  transition: background-color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out);
+}
+
+.vt-dl-chip .mono {
+  color: var(--ash);
+  font-size: 0.625rem;
+}
+
+.vt-dl-chip:hover:not(:disabled) {
+  border-color: var(--bone);
+}
+
+.vt-dl-chip[aria-pressed="true"] {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--ink);
+}
+
+.vt-dl-chip[aria-pressed="true"] .mono {
+  color: var(--ink);
+}
+
+.vt-dl-chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.vt-dl-rule {
+  align-self: stretch;
+  width: 1px;
+  margin: 4px 6px;
+  background: var(--line-strong);
+}
+
+.vt-dl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  align-content: start;
+  gap: 8px;
+  padding: 16px var(--pad) 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.vt-dl-item {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  overflow: hidden;
+  background: var(--char);
+}
+
+.vt-dl-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 320ms var(--ease-out), opacity var(--t-fast) var(--ease-out);
+}
+
+.vt-dl-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 0 var(--signal);
+  transition: box-shadow 200ms var(--ease-out);
+  pointer-events: none;
+}
+
+.vt-dl-item[aria-checked="true"] img {
+  transform: scale(0.88);
+}
+
+.vt-dl-item[aria-checked="true"]::after {
+  box-shadow: inset 0 0 0 3px var(--signal);
+}
+
+.vt-dl-item:hover:not([aria-checked="true"]) img {
+  opacity: 0.8;
+}
+
+.vt-dl-check {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--bone);
+  border-radius: 50%;
+  background: rgba(13, 11, 10, 0.4);
+  transition: background-color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
+}
+
+.vt-dl-check::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 11px;
+  border: solid var(--ink);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 200ms var(--ease-out);
+}
+
+.vt-dl-item[aria-checked="true"] .vt-dl-check {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.vt-dl-item[aria-checked="true"] .vt-dl-check::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.vt-dl-num {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 0.625rem;
+  color: var(--bone);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+.vt-dl-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  padding: 14px var(--pad);
+  border-top: 1px solid var(--line);
+}
+
+.vt-dl-status {
+  flex: 1 1 260px;
+  color: var(--bone-2);
+  font-size: var(--fs-small);
+}
+
+.vt-dl-status .mono {
+  color: var(--signal);
+  font-size: 0.8125rem;
+}
+
+.vt-dl-foot .btn-signal:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 639px) {
+  .vt-dl-grid {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 4px;
+  }
+
+  .vt-dl-hint {
+    display: none;
+  }
+
+  .vt-dl-foot .btn-signal {
+    flex: 1 1 auto;
+  }
+
+  .vt-lightbox-dl {
+    padding: 0 12px;
+  }
+}
+
+/* --------------------------------------------------------------------------
    Lightbox
    -------------------------------------------------------------------------- */
 
@@ -1487,6 +1772,23 @@
   line-height: 1;
 }
 
+.vt-lightbox-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  margin-left: auto;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  color: var(--bone);
+  transition: background-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out);
+}
+
+.vt-lightbox-dl + .vt-lightbox-close {
+  margin-left: 0;
+}
+
+.vt-lightbox-dl:hover,
 .vt-lightbox-close:hover {
   background: var(--signal);
   border-color: var(--signal);

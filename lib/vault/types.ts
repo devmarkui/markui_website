@@ -182,6 +182,8 @@ export interface GalleryBlock extends BlockBase {
   chapters: boolean;
   /** 0 shows everything. */
   limit: number;
+  /** Visitors can download the photos (one, a selection, or all as a zip). */
+  downloads: boolean;
 }
 
 export interface SocialItem {

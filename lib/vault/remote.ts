@@ -28,7 +28,26 @@ async function get(url: string, init: RequestInit & { timeout?: number } = {}) {
   }
 }
 
+const NATURAL = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+
 export class RemoteError extends Error {}
+
+/**
+ * A photo from Google for a gallery download: the first of `urls` that
+ * answers with a file rather than a sign-in or warning page, or null. Only
+ * Google's own hosts are fetched; the URLs are built from album ids.
+ */
+export async function fetchAlbumImage(urls: string[]): Promise<Response | null> {
+  for (const url of urls) {
+    const { protocol, hostname } = new URL(url);
+    if (protocol !== "https:" || !/(^|\.)(googleusercontent\.com|drive\.google\.com)$/.test(hostname)) continue;
+    const res = await get(url, { redirect: "follow", timeout: 30000 }).catch(() => null);
+    const type = res?.headers.get("content-type") ?? "";
+    if (res?.ok && res.body && !type.startsWith("text/")) return res;
+    res?.body?.cancel().catch(() => undefined);
+  }
+  return null;
+}
 
 /** Loopback, private, link-local and other addresses that aren't the public internet. */
 function isPrivateAddress(address: string): boolean {
@@ -223,6 +242,9 @@ async function listDriveEmbedded(folderId: string, depth = 0, folder?: string): 
     else if (IMAGE_NAME.test(name)) items.push({ id, kind: "image", name, ...(folder ? { folder } : {}) });
     else if (VIDEO_NAME.test(name)) items.push({ id, kind: "video", name, ...(folder ? { folder } : {}) });
   }
+  // The folder view lists in its own order; galleries follow the file names, 1, 2 … 10.
+  items.sort((a, b) => NATURAL.compare(a.name ?? "", b.name ?? ""));
+  subfolders.sort((a, b) => NATURAL.compare(a.name, b.name));
   if (depth === 0) {
     for (const sub of subfolders) {
       if (items.length >= MAX_ITEMS) break;

@@ -6,7 +6,7 @@ import { listVaultMediaAction } from "@/app/admin/vault-actions";
 import { ACCEPT_ALL, ACCEPT_IMAGES, ACCEPT_VIDEOS, extensionOf, fileTypeOf, formatBytes } from "@/lib/vault/media-types";
 import { mediaRefFrom, type MediaKind, type MediaRef, type VaultMedia } from "@/lib/vault/types";
 
-import { uploadFile } from "./upload";
+import { byFileName, uploadFile } from "./upload";
 
 /**
  * The one place media is chosen in the Vault editor: pick from the library,
@@ -158,10 +158,14 @@ function PickerModal({
   };
 
   const startUploads = async (files: File[]) => {
-    const usable = files.filter((f) => {
-      const type = fileTypeOf(f.name);
-      return type && allows(request.accept, type.kind);
-    });
+    // Browsers hand files over in no set order (Windows puts the last one
+    // clicked first), so they go up in name order: 1, 2 … 10, not 1, 10, 2.
+    const usable = files
+      .filter((f) => {
+        const type = fileTypeOf(f.name);
+        return type && allows(request.accept, type.kind);
+      })
+      .sort((a, b) => byFileName(a.name, b.name));
     const skipped = files.length - usable.length;
     const items: QueueItem[] = usable.map((f, i) => ({
       key: `${Date.now()}-${i}-${f.name}`,
@@ -220,7 +224,8 @@ function PickerModal({
     onClose();
   };
 
-  const selectedMedia = (library ?? []).filter((m) => selected.includes(m.id));
+  // In the order they were picked or uploaded, not the library's newest-first order.
+  const selectedMedia = selected.flatMap((id) => (library ?? []).find((m) => m.id === id) ?? []);
 
   return (
     <div className="ad-overlay" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>

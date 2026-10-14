@@ -116,6 +116,7 @@ export function createBlock<T extends BlockType>(type: T, overrides: Partial<Blo
         captions: false,
         chapters: true,
         limit: 0,
+        downloads: true,
       };
       break;
     case "social":
