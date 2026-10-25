@@ -3,8 +3,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { UPLOADS_DIR } from "./db";
+import { commitToRemote, isMediaPath, remoteEnabled, removeFromRemote, RemoteStorageError } from "./media-remote";
 import {
-  CONTENT_TYPES,
   IMAGE_TYPES,
   MAX_UPLOAD_BYTES,
   MAX_UPLOAD_MB,
@@ -13,10 +13,12 @@ import {
 import type { MediaItem } from "./types";
 
 /**
- * Media uploaded from the admin dashboard is stored in `.data/uploads` and
- * served back through `/api/uploads/<file>`. Writing outside `public/` keeps the
- * files readable after a rebuild and keeps the dev server from recompiling
- * whenever the admin saves something.
+ * Media uploaded from the admin dashboard is written to `.data/uploads`, copied
+ * to the media server (lib/media-remote.ts) and served back through
+ * `/api/uploads/<file>`, from the local copy when there is one and from
+ * media.markui.lk otherwise. Writing outside `public/` keeps the files
+ * readable after a rebuild and keeps the dev server from recompiling whenever
+ * the admin saves something.
  */
 
 export const UPLOAD_URL_PREFIX = "/api/uploads/";
@@ -59,10 +61,21 @@ export async function saveUpload(
   const filename = `${randomUUID()}${ext}`;
 
   await fs.mkdir(UPLOADS_DIR, { recursive: true });
-  await fs.writeFile(
-    path.join(/* turbopackIgnore: true */ UPLOADS_DIR, filename),
-    Buffer.from(await file.arrayBuffer()),
-  );
+  const dest = path.join(/* turbopackIgnore: true */ UPLOADS_DIR, filename);
+  // Written under a temporary name so the media sync never copies half a file.
+  await fs.writeFile(`${dest}.part`, Buffer.from(await file.arrayBuffer()));
+  await fs.rename(`${dest}.part`, dest);
+
+  try {
+    await commitToRemote([filename]);
+  } catch (error) {
+    if (error instanceof RemoteStorageError) {
+      throw new UploadError(
+        `"${file.name}" couldn't be saved to the media server just now. Nothing was lost — try again in a minute.`,
+      );
+    }
+    throw error;
+  }
 
   return {
     url: `${UPLOAD_URL_PREFIX}${filename}`,
@@ -72,9 +85,10 @@ export async function saveUpload(
 }
 
 /**
- * Removes a file this app previously stored. Paths under `public/` (the seeded
- * demo thumbnails) and anything else are left alone, and a missing file is not
- * an error — deleting a project should never fail over its leftover media.
+ * Removes a file this app previously stored, here and on the media server
+ * (where it goes to a trash folder). Paths under `public/` (the seeded demo
+ * thumbnails) and anything else are left alone, and a missing file is not an
+ * error — deleting a project should never fail over its leftover media.
  */
 export async function deleteUpload(url: string | undefined | null) {
   if (!url || !url.startsWith(UPLOAD_URL_PREFIX)) return;
@@ -87,21 +101,11 @@ export async function deleteUpload(url: string | undefined | null) {
   } catch {
     // Already gone — nothing to clean up.
   }
+  if (remoteEnabled() && isMediaPath(filename)) await removeFromRemote([filename]);
 }
 
-/**
- * Resolves a requested upload filename to an absolute path, or `null` if it
- * escapes the uploads directory or has an extension we do not serve.
- */
-export function resolveUploadPath(segments: string[]): string | null {
+/** The storage path of an upload URL's file, or null if it isn't one. */
+export function uploadMediaPath(segments: string[]): string | null {
   if (segments.length !== 1) return null;
-
-  const filename = segments[0];
-  if (!/^[A-Za-z0-9._-]+$/.test(filename) || filename.includes("..")) {
-    return null;
-  }
-  if (!(path.extname(filename).toLowerCase() in CONTENT_TYPES)) return null;
-
-  const resolved = path.join(/* turbopackIgnore: true */ UPLOADS_DIR, filename);
-  return resolved.startsWith(UPLOADS_DIR + path.sep) ? resolved : null;
+  return isMediaPath(segments[0]) ? segments[0] : null;
 }

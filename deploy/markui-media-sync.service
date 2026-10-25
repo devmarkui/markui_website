@@ -1,0 +1,29 @@
+# Mirrors /srv/markui/data/uploads to ServerByt (media.markui.lk) over SSH.
+# Never deletes anything on ServerByt. See deploy/media-sync.sh.
+#
+# Install to /etc/systemd/system/ together with markui-media-sync.timer.
+# Optional settings in /etc/default/markui-media-sync (not in git):
+#   MEDIA_SYNC_PRUNE=1   also remove local copies ServerByt holds
+#                        byte-for-byte (production sets this, together with
+#                        MEDIA_LOCAL_COPIES=remove in .env.local). See the
+#                        header of deploy/media-sync.sh for the safety checks.
+[Unit]
+Description=Mark UI media mirror to ServerByt
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=markui
+Group=markui
+EnvironmentFile=-/etc/default/markui-media-sync
+ExecStart=/usr/bin/env bash /srv/markui/app/deploy/media-sync.sh
+Nice=10
+IOSchedulingClass=idle
+# Read-only system; writes only to its own state and (for --prune) uploads.
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/srv/markui/media-sync /srv/markui/data/uploads
+PrivateTmp=true
+NoNewPrivileges=true
+TimeoutStartSec=2h

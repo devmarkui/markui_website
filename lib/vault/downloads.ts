@@ -7,7 +7,8 @@ import type { GalleryBlock, VaultAlbum } from "./types";
 /**
  * What a gallery hands out when visitors download its photos: the photo
  * itself, in the order the page shows it. Uploads are sent as the original
- * file off disk; Drive and Google Photos images are fetched from Google.
+ * file, off disk or from the media server; Drive and Google Photos images are
+ * fetched from Google.
  * Videos stay on the page. Keys match the gallery's `Picture.key`s.
  */
 
@@ -17,7 +18,8 @@ export interface DownloadItem {
   name: string;
   /** A chapter's folder inside the zip. */
   folder?: string;
-  source: { kind: "file"; path: string } | { kind: "remote"; urls: string[] };
+  /** `file`: a stored upload, by its path under the uploads folder (`vault/<name>`). */
+  source: { kind: "file"; rel: string } | { kind: "remote"; urls: string[] };
 }
 
 /** Whether a gallery offers downloads; sections saved before the switch existed do. */
@@ -44,12 +46,12 @@ export function downloadItems(block: GalleryBlock, albums: Record<string, VaultA
     const items = block.limit ? block.items.slice(0, block.limit) : block.items;
     return items.flatMap((item, i) => {
       const media = item.media;
-      const file = media.kind === "image" ? vaultFilePath(path.posix.basename(media.url)) : null;
-      if (!file) return [];
-      const ext = path.extname(file);
+      const stored = path.posix.basename(media.url);
+      if (media.kind !== "image" || !vaultFilePath(stored)) return [];
+      const ext = path.extname(stored);
       let name = safeFileName(media.name || item.caption, number(i));
       if (path.extname(name).toLowerCase() !== ext.toLowerCase()) name += ext;
-      return [{ key: item.id, name, source: { kind: "file" as const, path: file } }];
+      return [{ key: item.id, name, source: { kind: "file" as const, rel: `vault/${stored}` } }];
     });
   }
 
