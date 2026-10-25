@@ -7,13 +7,24 @@ import { pipeline } from "node:stream/promises";
 import type { ReadableStream as WebReadableStream } from "node:stream/web";
 
 import { UPLOADS_DIR } from "../db";
+import {
+  commitToRemote,
+  keepLocalCopies,
+  remoteEnabled,
+  remoteUsage,
+  removeVaultIdFromRemote,
+  RemoteStorageError,
+} from "../media-remote";
 import { DEFAULT_MAX_UPLOAD_MB, extensionOf, fileTypeOf, VAULT_FILE_TYPES, VAULT_MEDIA_PREFIX } from "./media-types";
 import type { VaultMedia } from "./types";
 
 /**
- * Files uploaded for the Vault: stored in `.data/uploads/vault` (on the VPS a
- * symlink to /srv/markui/data, which nginx serves at /media/vault/), with a
- * web copy and a thumbnail made for every photo.
+ * Files uploaded for the Vault: written to `.data/uploads/vault` (on the VPS a
+ * symlink to /srv/markui/data), with a web copy and a thumbnail made for every
+ * photo, then copied to the media server and checked there
+ * (lib/media-remote.ts). nginx serves /media/vault/ off local disk when the
+ * file is still here; otherwise it hands the request to the app, which
+ * streams the file from media.markui.lk.
  */
 
 export const VAULT_DIR = path.join(/* turbopackIgnore: true */ UPLOADS_DIR, "vault");
@@ -37,6 +48,21 @@ export function vaultFilePath(name: string): string | null {
 export function contentTypeOf(name: string): string {
   const ext = extensionOf(name);
   return VAULT_FILE_TYPES[ext]?.mime ?? "application/octet-stream";
+}
+
+/** `vault/<name>`, the path under the uploads folder on both servers. */
+const rel = (name: string) => `vault/${name}`;
+
+/** Writes through a `.part` file, so the media sync never sees half a file. */
+async function atomically(dest: string, write: (tmp: string) => Promise<unknown>) {
+  const tmp = `${dest}.part`;
+  try {
+    await write(tmp);
+    await fs.rename(tmp, dest);
+  } catch (error) {
+    await fs.rm(tmp, { force: true });
+    throw error;
+  }
 }
 
 /** Streams a request body to disk, stopping at `limit` bytes. */
@@ -123,20 +149,24 @@ async function processImage(file: string, id: string, ext: string, convert: bool
     const info: ImageInfo = { width, height };
     if (convert || (!animated && (longEdge > DISPLAY_EDGE || stat.size > 1.5 * 1024 * 1024))) {
       const name = `${id}-display.webp`;
-      await s(input, { limitInputPixels: 400_000_000 })
-        .rotate()
-        .resize({ ...display, withoutEnlargement: true })
-        .webp({ quality: 82 })
-        .toFile(path.join(/* turbopackIgnore: true */ VAULT_DIR, name));
+      await atomically(path.join(/* turbopackIgnore: true */ VAULT_DIR, name), (tmp) =>
+        s(input, { limitInputPixels: 400_000_000 })
+          .rotate()
+          .resize({ ...display, withoutEnlargement: true })
+          .webp({ quality: 82 })
+          .toFile(tmp),
+      );
       info.displayUrl = VAULT_MEDIA_PREFIX + name;
     }
     if (longEdge > THUMB_EDGE || convert || animated) {
       const name = `${id}-thumb.webp`;
-      await s(input, { animated: false, limitInputPixels: 400_000_000 })
-        .rotate()
-        .resize({ ...thumb, withoutEnlargement: true })
-        .webp({ quality: 78 })
-        .toFile(path.join(/* turbopackIgnore: true */ VAULT_DIR, name));
+      await atomically(path.join(/* turbopackIgnore: true */ VAULT_DIR, name), (tmp) =>
+        s(input, { animated: false, limitInputPixels: 400_000_000 })
+          .rotate()
+          .resize({ ...thumb, withoutEnlargement: true })
+          .webp({ quality: 78 })
+          .toFile(tmp),
+      );
       info.thumbUrl = VAULT_MEDIA_PREFIX + name;
     }
     return info;
@@ -188,6 +218,13 @@ export async function storeUpload(
     }
   }
 
+  // The library row is only returned once the original and every copy made
+  // from it are on the media server and match byte for byte.
+  const files = [name, info.displayUrl, info.thumbUrl]
+    .filter((u): u is string => Boolean(u))
+    .map((u) => rel(path.posix.basename(u)));
+  await toRemote(files, originalName);
+
   return {
     id,
     url: VAULT_MEDIA_PREFIX + name,
@@ -211,18 +248,33 @@ export async function storePoster(body: ReadableStream<Uint8Array>, mediaId: str
     const name = `${mediaId}-poster.webp`;
     await queued(async () => {
       const s = await sharp();
-      await s(tmp)
-        .resize({ width: 1920, height: 1920, fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toFile(path.join(/* turbopackIgnore: true */ VAULT_DIR, name));
+      await atomically(path.join(/* turbopackIgnore: true */ VAULT_DIR, name), (out) =>
+        s(tmp)
+          .resize({ width: 1920, height: 1920, fit: "inside", withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toFile(out),
+      );
     });
+    await toRemote([rel(name)], "The poster frame");
     return VAULT_MEDIA_PREFIX + name;
   } finally {
     await fs.rm(tmp, { force: true });
   }
 }
 
-/** Deletes a stored file and the copies made from it. */
+/** Copies stored files to the media server; an upload fails if that fails. */
+async function toRemote(files: string[], label: string) {
+  try {
+    await commitToRemote(files);
+  } catch (error) {
+    if (error instanceof RemoteStorageError) {
+      throw new UploadError(`${label.startsWith("The ") ? label : `"${label}"`} couldn't be saved to the media server just now. Nothing was lost — try again in a minute.`);
+    }
+    throw error;
+  }
+}
+
+/** Deletes a stored file and the copies made from it, here and on the media server. */
 export async function removeStoredFiles(url: string) {
   if (!url.startsWith(VAULT_MEDIA_PREFIX)) return;
   const id = /^([a-f0-9-]{36})/.exec(url.slice(VAULT_MEDIA_PREFIX.length))?.[1];
@@ -233,10 +285,24 @@ export async function removeStoredFiles(url: string) {
       .filter((n) => n.startsWith(id))
       .map((n) => fs.rm(path.join(/* turbopackIgnore: true */ VAULT_DIR, n), { force: true })),
   );
+  if (remoteEnabled()) await removeVaultIdFromRemote(id);
 }
 
-/** How much the Vault's uploads take up, and how much room the disk has left. */
-export async function diskUsage(): Promise<{ used: number; free: number | null }> {
+export interface DiskUsage {
+  /** The Vault's media: on the media server when that's in use, else here. */
+  used: number;
+  /** Vault media still on this server's disk. */
+  local: number;
+  /** Vault media on the media server, or null when unknown or not in use. */
+  remote: number | null;
+  /** Whether uploads are dropped from this server once the media server has them. */
+  remoteOnly: boolean;
+  /** Room left on this server's disk. */
+  free: number | null;
+}
+
+/** How much the Vault's uploads take up, where, and how much room this server has left. */
+export async function diskUsage(): Promise<DiskUsage> {
   let used = 0;
   const names = await fs.readdir(VAULT_DIR).catch(() => [] as string[]);
   for (const n of names) {
@@ -251,5 +317,6 @@ export async function diskUsage(): Promise<{ used: number; free: number | null }
   } catch {
     free = null;
   }
-  return { used, free };
+  const remote = remoteEnabled() ? ((await remoteUsage())?.vault ?? null) : null;
+  return { used: remote ?? used, local: used, remote, remoteOnly: remoteEnabled() && !keepLocalCopies(), free };
 }

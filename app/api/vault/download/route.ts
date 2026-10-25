@@ -1,10 +1,8 @@
-import { createReadStream } from "node:fs";
-import fs from "node:fs/promises";
 import path from "node:path";
-import { Readable } from "node:stream";
 
 import { downloadZip } from "client-zip";
 
+import { openMedia } from "@/lib/media-remote";
 import { downloadItems, galleryDownloads, safeFileName, type DownloadItem } from "@/lib/vault/downloads";
 import { contentTypeOf } from "@/lib/vault/files";
 import { fetchAlbumImage } from "@/lib/vault/remote";
@@ -56,14 +54,15 @@ function named(item: DownloadItem, type?: string | null) {
 
 async function open(item: DownloadItem) {
   if (item.source.kind === "file") {
-    const stat = await fs.stat(item.source.path).catch(() => null);
-    if (!stat?.isFile()) return null;
+    // Off this server's disk, or from the media server once it's only there.
+    const file = await openMedia(item.source.rel);
+    if (!file) return null;
     return {
       name: item.name,
-      body: Readable.toWeb(createReadStream(item.source.path)) as ReadableStream<Uint8Array>,
-      size: stat.size,
-      type: contentTypeOf(item.source.path) as string | undefined,
-      lastModified: stat.mtime,
+      body: file.body,
+      size: file.size,
+      type: contentTypeOf(item.source.rel) as string | undefined,
+      lastModified: file.lastModified,
     };
   }
   const res = await fetchAlbumImage(item.source.urls);

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
 import { deleteVaultMediaAction } from "@/app/admin/vault-actions";
+import type { DiskUsage } from "@/lib/vault/files";
 import { ACCEPT_ALL, formatBytes } from "@/lib/vault/media-types";
 import { mediaRefFrom, type MediaKind, type VaultMedia } from "@/lib/vault/types";
 
@@ -23,7 +24,7 @@ export default function VaultMediaLibrary({
   usage,
 }: {
   media: VaultMedia[];
-  usage: { used: number; free: number | null };
+  usage: DiskUsage;
 }) {
   const router = useRouter();
   const [media, setMedia] = useState(initial);
@@ -79,8 +80,14 @@ export default function VaultMediaLibrary({
         </div>
         <div className="ad-stat">
           <div className="ad-stat-value">{formatBytes(usage.used)}</div>
-          <div className="ad-stat-label">Used by the Vault</div>
+          <div className="ad-stat-label">{usage.remote === null ? "Used by the Vault" : "On the media server"}</div>
         </div>
+        {usage.remote !== null ? (
+          <div className="ad-stat">
+            <div className="ad-stat-value">{formatBytes(usage.local)}</div>
+            <div className="ad-stat-label">{usage.remoteOnly ? "Still on this server" : "Copy on this server"}</div>
+          </div>
+        ) : null}
         <div className="ad-stat">
           <div className="ad-stat-value">{usage.free === null ? "—" : formatBytes(usage.free)}</div>
           <div className="ad-stat-label">Free on the server</div>

@@ -2,8 +2,9 @@
 #
 # Mark UI website — nightly backup.
 #
-# Two things are irreplaceable: the MySQL content and the uploaded media in
-# /srv/markui/data/uploads. The checkout is not — it is in git.
+# Two things are irreplaceable: the MySQL content and the uploaded media. The
+# media's copy lives on ServerByt (see media-sync.sh); this archives only what
+# hasn't reached it yet. The checkout is not irreplaceable — it is in git.
 #
 # The database lives in the markui-mysql container (MariaDB on :3306 belongs to
 # another site), so the dump goes through `docker exec`.
@@ -44,7 +45,18 @@ zcat "$BACKUP_DIR/db-$stamp.sql.gz" | tail -5 | grep -q "Dump completed" \
   || { echo "mysqldump did not finish — keeping the previous backups" >&2
        rm -f "$BACKUP_DIR/db-$stamp.sql.gz"; exit 1; }
 
-tar -czf "$BACKUP_DIR/uploads-$stamp.tar.gz" -C "$DATA_DIR" uploads
+# Media already verified on ServerByt (media.markui.lk) by the media sync is
+# off-site already, and this disk can't hold another 2.5 GB copy of it: only
+# files ServerByt doesn't have yet are archived here. The list is the sync's
+# own SHA-256-verified record (deploy/media-sync.sh).
+VERIFIED="$APP_HOME/media-sync/verified.sha256"
+EXCLUDE="$(mktemp)"
+trap 'rm -f "$EXCLUDE"' EXIT
+if [[ -s "$VERIFIED" ]]; then
+  awk '{ sub(/^\.\//, "", $2); print "uploads/" $2 }' "$VERIFIED" > "$EXCLUDE"
+fi
+tar -czf "$BACKUP_DIR/uploads-$stamp.tar.gz" --exclude-from="$EXCLUDE" -C "$DATA_DIR" uploads
+echo "Media archived locally: $(tar -tzf "$BACKUP_DIR/uploads-$stamp.tar.gz" | grep -vc '/$') file(s); $(wc -l < "$EXCLUDE") more are verified on ServerByt"
 
 # The env file holds the session secret and the admin hash; without it a
 # restored database still cannot be signed into.
